@@ -164,7 +164,7 @@
       },
       {
         "name": "accessConfig",
-        "label": "Access Groups (Optional)",
+        "label": "Admin Access (Optional)",
         "elements": [
           {
             "name": "accessInfo",
@@ -172,27 +172,14 @@
             "visible": true,
             "options": {
               "icon": "Info",
-              "text": "Optionally configure Azure AD groups for administrators and approvers. You can also configure these later through the Setup Wizard."
+              "text": "Optionally configure an Azure AD group for portal administrators. You can also configure this later through the Setup Wizard. Approver groups are configured per-app in the portal."
             }
           },
           {
             "name": "adminGroupId",
             "type": "Microsoft.Common.TextBox",
             "label": "Admin Group ID",
-            "toolTip": "Azure AD group Object ID for portal administrators (optional)",
-            "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (optional)",
-            "constraints": {
-              "required": false,
-              "regex": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-              "validationMessage": "Please enter a valid GUID or leave empty"
-            },
-            "visible": true
-          },
-          {
-            "name": "approverGroupId",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Approver Group ID",
-            "toolTip": "Azure AD group Object ID for request approvers (optional)",
+            "toolTip": "Azure AD group Object ID for portal administrators (optional). Find this in Entra ID > Groups > select group > Object ID.",
             "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (optional)",
             "constraints": {
               "required": false,
@@ -231,7 +218,6 @@
       "sqlAdminLogin": "[steps('sqlConfig').sqlAdminLogin]",
       "sqlAdminPassword": "[steps('sqlConfig').sqlAdminPassword]",
       "adminGroupId": "[steps('accessConfig').adminGroupId]",
-      "approverGroupId": "[steps('accessConfig').approverGroupId]",
       "packageVersion": "[steps('advancedConfig').packageVersion]"
     }
   }

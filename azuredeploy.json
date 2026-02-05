@@ -76,13 +76,6 @@
         "description": "(Optional) Azure AD group Object ID for administrators. Leave empty to configure later via Setup Wizard."
       }
     },
-    "approverGroupId": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "(Optional) Azure AD group Object ID for approvers. Leave empty to configure later via Setup Wizard."
-      }
-    }
   },
   "variables": {
     "appServicePlanName": "[concat('asp-apprequest-', parameters('environmentName'))]",
@@ -227,10 +220,6 @@
             {
               "name": "AppSettings__AdminGroupId",
               "value": "[parameters('adminGroupId')]"
-            },
-            {
-              "name": "AppSettings__ApproverGroupId",
-              "value": "[parameters('approverGroupId')]"
             },
             {
               "name": "FrontendSettings__ClientId",
