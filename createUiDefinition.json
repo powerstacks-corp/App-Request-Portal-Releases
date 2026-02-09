@@ -195,7 +195,6 @@
     "outputs": {
       "environmentName": "prod",
       "location": "[location()]",
-      "tenantId": "[tenant().tenantId]",
       "apiClientId": "[steps('authentication').apiSection.apiClientId]",
       "apiClientSecret": "[steps('authentication').apiSection.apiClientSecret]",
       "frontendClientId": "[steps('authentication').frontendSection.frontendClientId]",

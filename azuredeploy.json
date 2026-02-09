@@ -25,8 +25,9 @@
     },
     "tenantId": {
       "type": "string",
+      "defaultValue": "[tenant().tenantId]",
       "metadata": {
-        "description": "The Azure AD tenant ID for authentication"
+        "description": "The Azure AD tenant ID for authentication (auto-detected from deployment context)"
       }
     },
     "apiClientId": {
