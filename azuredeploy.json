@@ -131,8 +131,7 @@
   },
   "variables": {
     "appServicePlanName": "[concat('asp-apprequest-', parameters('environmentName'))]",
-    "apiAppName": "[concat('api-apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
-    "webAppName": "[concat('web-apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
+    "appName": "[concat('apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
     "sqlServerName": "[concat('sql-apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
     "sqlDatabaseName": "AppRequestPortal",
     "appInsightsName": "[concat('ai-apprequest-', parameters('environmentName'))]",
@@ -237,7 +236,7 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-09-01",
-      "name": "[variables('apiAppName')]",
+      "name": "[variables('appName')]",
       "location": "[parameters('location')]",
       "kind": "app,linux",
       "dependsOn": [
@@ -290,6 +289,10 @@
               "value": "[parameters('apiClientSecret')]"
             },
             {
+              "name": "FrontendSettings__ClientId",
+              "value": "[parameters('frontendClientId')]"
+            },
+            {
               "name": "ConnectionStrings__DefaultConnection",
               "value": "[concat('Server=tcp:', reference(resourceId('Microsoft.Sql/servers', variables('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('sqlDatabaseName'), ';Persist Security Info=False;User ID=', parameters('sqlAdminLogin'), ';Password=', parameters('sqlAdminPassword'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
             },
@@ -311,7 +314,7 @@
             },
             {
               "name": "EmailSettings__PortalUrl",
-              "value": "[concat('https://', variables('webAppName'), '.azurewebsites.net')]"
+              "value": "[concat('https://', variables('appName'), '.azurewebsites.net')]"
             },
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
@@ -320,64 +323,12 @@
           ]
         }
       }
-    },
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2022-09-01",
-      "name": "[variables('webAppName')]",
-      "location": "[parameters('location')]",
-      "kind": "app,linux",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
-        "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
-        "[resourceId('Microsoft.Web/sites', variables('apiAppName'))]"
-      ],
-      "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
-        "httpsOnly": true,
-        "clientAffinityEnabled": false,
-        "siteConfig": {
-          "linuxFxVersion": "NODE|18-lts",
-          "minTlsVersion": "1.2",
-          "ftpsState": "Disabled",
-          "alwaysOn": true,
-          "healthCheckPath": "[if(parameters('enableHealthCheck'), '/', json('null'))]",
-          "autoHealEnabled": "[parameters('enableAutoHeal')]",
-          "autoHealRules": "[if(parameters('enableAutoHeal'), createObject('triggers', createObject('statusCodes', createArray(createObject('status', 500, 'subStatus', 0, 'win32Status', 0, 'count', 10, 'timeInterval', '00:05:00'))), 'actions', createObject('actionType', 'Recycle', 'minProcessExecutionTime', '00:01:00')), json('null'))]",
-          "appSettings": [
-            {
-              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).ConnectionString]"
-            },
-            {
-              "name": "REACT_APP_CLIENT_ID",
-              "value": "[parameters('frontendClientId')]"
-            },
-            {
-              "name": "REACT_APP_TENANT_ID",
-              "value": "[parameters('tenantId')]"
-            },
-            {
-              "name": "REACT_APP_API_CLIENT_ID",
-              "value": "[parameters('apiClientId')]"
-            },
-            {
-              "name": "REACT_APP_API_URL",
-              "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('apiAppName'))).defaultHostName, '/api')]"
-            }
-          ]
-        }
-      }
     }
   ],
   "outputs": {
-    "apiUrl": {
+    "appUrl": {
       "type": "string",
-      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('apiAppName'))).defaultHostName)]"
-    },
-    "webUrl": {
-      "type": "string",
-      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('webAppName'))).defaultHostName)]"
+      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('appName'))).defaultHostName)]"
     },
     "sqlServerFqdn": {
       "type": "string",
@@ -387,13 +338,9 @@
       "type": "string",
       "value": "[variables('sqlDatabaseName')]"
     },
-    "apiAppName": {
+    "appName": {
       "type": "string",
-      "value": "[variables('apiAppName')]"
-    },
-    "webAppName": {
-      "type": "string",
-      "value": "[variables('webAppName')]"
+      "value": "[variables('appName')]"
     }
   }
 }
