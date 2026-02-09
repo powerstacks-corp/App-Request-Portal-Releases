@@ -5,13 +5,12 @@
     "_generator": {
       "name": "app-request-portal",
       "version": "1.0.0"
-    },
-    "description": "Deploys the App Request Portal - a self-service app request solution for Microsoft Intune."
+    }
   },
   "parameters": {
     "environmentName": {
       "type": "string",
-      "defaultValue": "prod",
+      "defaultValue": "dev",
       "allowedValues": ["dev", "staging", "prod"],
       "metadata": {
         "description": "The name of the environment (e.g., dev, staging, prod)"
@@ -22,6 +21,12 @@
       "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "The location for all resources"
+      }
+    },
+    "tenantId": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure AD tenant ID for authentication"
       }
     },
     "apiClientId": {
@@ -56,30 +61,100 @@
         "description": "SQL Server administrator password (min 12 characters, must include uppercase, lowercase, number, and special character)"
       }
     },
-    "packageVersion": {
+    "repoUrl": {
       "type": "string",
-      "defaultValue": "latest",
+      "defaultValue": "",
       "metadata": {
-        "description": "Version of App Request Portal to deploy (e.g., '1.0.0' or 'latest')"
+        "description": "(Optional) GitHub repository URL for automatic code deployment. Leave empty to deploy infrastructure only."
+      }
+    },
+    "repoBranch": {
+      "type": "string",
+      "defaultValue": "main",
+      "metadata": {
+        "description": "The branch to deploy from (if repo URL is provided)"
       }
     },
     "adminGroupId": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "(Optional) Azure AD group Object ID for administrators. Leave empty to configure later via Setup Wizard."
+        "description": "(Optional) Azure AD group Object ID for administrators. Leave empty to allow all authenticated users."
+      }
+    },
+    "approverGroupId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Azure AD group Object ID for approvers. Leave empty to allow all authenticated users."
+      }
+    },
+    "emailSendAsUserId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Azure AD User Object ID to send emails as. Leave empty to disable email notifications."
+      }
+    },
+    "emailFromAddress": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Email address shown in From field. Should match the SendAsUserId mailbox."
+      }
+    },
+    "appServicePlanSku": {
+      "type": "string",
+      "defaultValue": "B2",
+      "allowedValues": ["B1", "B2", "B3", "S1", "S2", "S3", "P1v3", "P2v3", "P3v3"],
+      "metadata": {
+        "description": "App Service Plan SKU. B1-B3=Basic (default), S1-S3=Standard, P1v3-P3v3=Premium. Standard+ recommended for production."
+      }
+    },
+    "appServicePlanInstanceCount": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "maxValue": 10,
+      "metadata": {
+        "description": "Number of App Service Plan instances. 2+ recommended for production high availability."
+      }
+    },
+    "enableAutoHeal": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable Auto-Heal rules for automatic recovery from issues (FREE - recommended)"
+      }
+    },
+    "enableHealthCheck": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable Health Check monitoring (FREE - recommended, requires 2+ instances for full benefit)"
       }
     }
   },
   "variables": {
     "appServicePlanName": "[concat('asp-apprequest-', parameters('environmentName'))]",
-    "webAppName": "[concat('app-apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
+    "apiAppName": "[concat('api-apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
+    "webAppName": "[concat('web-apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
     "sqlServerName": "[concat('sql-apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
     "sqlDatabaseName": "AppRequestPortal",
     "appInsightsName": "[concat('ai-apprequest-', parameters('environmentName'))]",
     "logAnalyticsName": "[concat('la-apprequest-', parameters('environmentName'))]",
-    "deploymentScriptName": "[concat('deploy-app-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
-    "packageUrl": "[if(equals(parameters('packageVersion'), 'latest'), 'https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases/latest/download/AppRequestPortal.zip', concat('https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases/download/v', parameters('packageVersion'), '/AppRequestPortal.zip'))]"
+    "deployFromRepo": "[not(empty(parameters('repoUrl')))]",
+    "skuTierMap": {
+      "B1": "Basic",
+      "B2": "Basic",
+      "B3": "Basic",
+      "S1": "Standard",
+      "S2": "Standard",
+      "S3": "Standard",
+      "P1v3": "PremiumV3",
+      "P2v3": "PremiumV3",
+      "P3v3": "PremiumV3"
+    }
   },
   "resources": [
     {
@@ -115,9 +190,9 @@
       "location": "[parameters('location')]",
       "kind": "linux",
       "sku": {
-        "name": "B2",
-        "tier": "Basic",
-        "capacity": 1
+        "name": "[parameters('appServicePlanSku')]",
+        "tier": "[variables('skuTierMap')[parameters('appServicePlanSku')]]",
+        "capacity": "[parameters('appServicePlanInstanceCount')]"
       },
       "properties": {
         "reserved": true
@@ -168,7 +243,7 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-09-01",
-      "name": "[variables('webAppName')]",
+      "name": "[variables('apiAppName')]",
       "location": "[parameters('location')]",
       "kind": "app,linux",
       "dependsOn": [
@@ -182,12 +257,24 @@
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "httpsOnly": true,
+        "clientAffinityEnabled": false,
         "siteConfig": {
           "linuxFxVersion": "DOTNETCORE|8.0",
           "minTlsVersion": "1.2",
           "ftpsState": "Disabled",
           "alwaysOn": true,
+          "healthCheckPath": "[if(parameters('enableHealthCheck'), '/health', json('null'))]",
+          "autoHealEnabled": "[parameters('enableAutoHeal')]",
+          "autoHealRules": "[if(parameters('enableAutoHeal'), createObject('triggers', createObject('statusCodes', createArray(createObject('status', 500, 'subStatus', 0, 'win32Status', 0, 'count', 10, 'timeInterval', '00:05:00')), 'slowRequests', createObject('timeTaken', '00:01:00', 'count', 5, 'timeInterval', '00:05:00')), 'actions', createObject('actionType', 'Recycle', 'minProcessExecutionTime', '00:01:00')), json('null'))]",
           "appSettings": [
+            {
+              "name": "Application__Version",
+              "value": "1.0.5"
+            },
+            {
+              "name": "Application__ReleasesUrl",
+              "value": "https://api.github.com/repos/PowerStacks-BI/App-Request-Portal-Releases/releases/latest"
+            },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
               "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).ConnectionString]"
@@ -198,7 +285,7 @@
             },
             {
               "name": "AzureAd__TenantId",
-              "value": "[subscription().tenantId]"
+              "value": "[parameters('tenantId')]"
             },
             {
               "name": "AzureAd__ClientId",
@@ -217,55 +304,94 @@
               "value": "[parameters('adminGroupId')]"
             },
             {
-              "name": "FrontendSettings__ClientId",
-              "value": "[parameters('frontendClientId')]"
+              "name": "AppSettings__ApproverGroupId",
+              "value": "[parameters('approverGroupId')]"
             },
             {
-              "name": "FrontendSettings__TenantId",
-              "value": "[subscription().tenantId]"
+              "name": "EmailSettings__SendAsUserId",
+              "value": "[parameters('emailSendAsUserId')]"
             },
             {
-              "name": "FrontendSettings__ApiClientId",
-              "value": "[parameters('apiClientId')]"
+              "name": "EmailSettings__FromAddress",
+              "value": "[parameters('emailFromAddress')]"
+            },
+            {
+              "name": "EmailSettings__PortalUrl",
+              "value": "[concat('https://', variables('webAppName'), '.azurewebsites.net')]"
             }
           ]
         }
       }
     },
     {
-      "type": "Microsoft.Resources/deploymentScripts",
-      "apiVersion": "2023-08-01",
-      "name": "[variables('deploymentScriptName')]",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('webAppName')]",
       "location": "[parameters('location')]",
-      "kind": "AzureCLI",
+      "kind": "app,linux",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('apiAppName'))]"
       ],
       "properties": {
-        "azCliVersion": "2.50.0",
-        "timeout": "PT30M",
-        "retentionInterval": "PT1H",
-        "cleanupPreference": "OnSuccess",
-        "environmentVariables": [
-          {
-            "name": "WEBAPP_NAME",
-            "value": "[variables('webAppName')]"
-          },
-          {
-            "name": "RESOURCE_GROUP",
-            "value": "[resourceGroup().name]"
-          },
-          {
-            "name": "PACKAGE_URL",
-            "value": "[variables('packageUrl')]"
-          }
-        ],
-        "scriptContent": "#!/bin/bash\nset -e\n\necho \"Downloading application package from: $PACKAGE_URL\"\ncurl -L -o /tmp/app.zip \"$PACKAGE_URL\"\n\necho \"Package downloaded, size: $(stat -c%s /tmp/app.zip) bytes\"\n\necho \"Deploying to Azure App Service: $WEBAPP_NAME\"\naz webapp deployment source config-zip \\\n  --resource-group \"$RESOURCE_GROUP\" \\\n  --name \"$WEBAPP_NAME\" \\\n  --src /tmp/app.zip\n\necho \"Deployment complete!\"\n\n# Output results\necho \"{\\\"status\\\": \\\"success\\\", \\\"webapp\\\": \\\"$WEBAPP_NAME\\\"}\" > $AZ_SCRIPTS_OUTPUT_PATH"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "httpsOnly": true,
+        "clientAffinityEnabled": false,
+        "siteConfig": {
+          "linuxFxVersion": "NODE|18-lts",
+          "minTlsVersion": "1.2",
+          "ftpsState": "Disabled",
+          "alwaysOn": true,
+          "healthCheckPath": "[if(parameters('enableHealthCheck'), '/', json('null'))]",
+          "autoHealEnabled": "[parameters('enableAutoHeal')]",
+          "autoHealRules": "[if(parameters('enableAutoHeal'), createObject('triggers', createObject('statusCodes', createArray(createObject('status', 500, 'subStatus', 0, 'win32Status', 0, 'count', 10, 'timeInterval', '00:05:00'))), 'actions', createObject('actionType', 'Recycle', 'minProcessExecutionTime', '00:01:00')), json('null'))]",
+          "appSettings": [
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).ConnectionString]"
+            },
+            {
+              "name": "REACT_APP_CLIENT_ID",
+              "value": "[parameters('frontendClientId')]"
+            },
+            {
+              "name": "REACT_APP_TENANT_ID",
+              "value": "[parameters('tenantId')]"
+            },
+            {
+              "name": "REACT_APP_API_CLIENT_ID",
+              "value": "[parameters('apiClientId')]"
+            },
+            {
+              "name": "REACT_APP_API_URL",
+              "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('apiAppName'))).defaultHostName, '/api')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "condition": "[variables('deployFromRepo')]",
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "apiVersion": "2022-09-01",
+      "name": "[concat(variables('apiAppName'), '/web')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('apiAppName'))]"
+      ],
+      "properties": {
+        "repoUrl": "[parameters('repoUrl')]",
+        "branch": "[parameters('repoBranch')]",
+        "isManualIntegration": true
       }
     }
   ],
   "outputs": {
-    "portalUrl": {
+    "apiUrl": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('apiAppName'))).defaultHostName)]"
+    },
+    "webUrl": {
       "type": "string",
       "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('webAppName'))).defaultHostName)]"
     },
@@ -277,17 +403,13 @@
       "type": "string",
       "value": "[variables('sqlDatabaseName')]"
     },
-    "appName": {
+    "apiAppName": {
+      "type": "string",
+      "value": "[variables('apiAppName')]"
+    },
+    "webAppName": {
       "type": "string",
       "value": "[variables('webAppName')]"
-    },
-    "deploymentResult": {
-      "type": "object",
-      "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', variables('deploymentScriptName'))).outputs]"
-    },
-    "nextSteps": {
-      "type": "string",
-      "value": "Deployment complete! Visit the portal URL and complete the Setup Wizard to configure your license, access groups, and sync apps from Intune."
     }
   }
 }

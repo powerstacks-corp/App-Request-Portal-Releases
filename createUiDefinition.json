@@ -6,115 +6,95 @@
     "config": {
       "isWizard": true,
       "basics": {
-        "description": "Deploy the **App Request Portal** - a self-service app request solution for Microsoft Intune.\n\n**Prerequisites:** You must create two Entra ID app registrations before deployment. See the [setup guide](https://github.com/PowerStacks-BI/App-Request-Portal-Releases) for instructions.",
+        "description": "Deploy the **App Request Portal** - a self-service portal for users to request Intune-managed applications.\n\n**Prerequisites:**\n- Two Azure AD App Registrations (API and Frontend)\n- Azure AD tenant with Intune\n\nSee the [documentation](https://github.com/PowerStacks-BI/AppRequestPortal) for setup instructions.",
         "location": {
           "label": "Region",
-          "resourceTypes": ["Microsoft.Web/sites", "Microsoft.Sql/servers"]
+          "allowedValues": [],
+          "visible": true
+        },
+        "resourceGroup": {
+          "allowExisting": false
         }
       }
     },
-    "basics": [
-      {
-        "name": "environmentName",
-        "type": "Microsoft.Common.DropDown",
-        "label": "Environment",
-        "defaultValue": "prod",
-        "constraints": {
-          "allowedValues": [
-            { "label": "Production", "value": "prod" },
-            { "label": "Staging", "value": "staging" },
-            { "label": "Development", "value": "dev" }
-          ],
-          "required": true
-        },
-        "visible": true
-      }
-    ],
+    "basics": [],
     "steps": [
       {
-        "name": "entraConfig",
-        "label": "Entra ID Configuration",
+        "name": "authentication",
+        "label": "Authentication",
         "elements": [
           {
-            "name": "entraInfo",
+            "name": "authInfo",
             "type": "Microsoft.Common.InfoBox",
             "visible": true,
             "options": {
               "icon": "Info",
-              "text": "Enter the values from your Entra ID app registrations. You need two apps: an API application (backend) and a Frontend application (SPA). The tenant ID is automatically detected from your current session."
+              "text": "Enter the Azure AD App Registration details. You need two app registrations: one for the API (with client secret) and one for the Frontend SPA."
             }
           },
           {
-            "name": "apiSection",
-            "type": "Microsoft.Common.Section",
-            "label": "API Application (Backend)",
-            "elements": [
-              {
-                "name": "apiClientId",
-                "type": "Microsoft.Common.TextBox",
-                "label": "API Client ID",
-                "toolTip": "The Application (client) ID from your API app registration",
-                "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-                "constraints": {
-                  "required": true,
-                  "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                  "validationMessage": "Please enter a valid GUID"
-                },
-                "visible": true
-              },
-              {
-                "name": "apiClientSecret",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "API Client Secret",
-                  "confirmPassword": "Confirm API Client Secret"
-                },
-                "toolTip": "The client secret from your API app registration",
-                "constraints": {
-                  "required": true
-                },
-                "options": {
-                  "hideConfirmation": true
-                },
-                "visible": true
-              }
-            ],
-            "visible": true
+            "name": "tenantId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Azure AD Tenant ID",
+            "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "toolTip": "Your Azure AD tenant ID (found in Azure AD > Overview)",
+            "constraints": {
+              "required": true,
+              "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+              "validationMessage": "Must be a valid GUID"
+            }
           },
           {
-            "name": "frontendSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Frontend Application (SPA)",
-            "elements": [
-              {
-                "name": "frontendClientId",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Frontend Client ID",
-                "toolTip": "The Application (client) ID from your frontend SPA app registration",
-                "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-                "constraints": {
-                  "required": true,
-                  "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                  "validationMessage": "Please enter a valid GUID"
-                },
-                "visible": true
-              }
-            ],
-            "visible": true
+            "name": "apiClientId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "API Client ID",
+            "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "toolTip": "Application (client) ID of the API app registration",
+            "constraints": {
+              "required": true,
+              "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+              "validationMessage": "Must be a valid GUID"
+            }
+          },
+          {
+            "name": "apiClientSecret",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "API Client Secret"
+            },
+            "toolTip": "Client secret from the API app registration",
+            "constraints": {
+              "required": true
+            },
+            "options": {
+              "hideConfirmation": true
+            }
+          },
+          {
+            "name": "frontendClientId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Frontend Client ID",
+            "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "toolTip": "Application (client) ID of the Frontend SPA app registration",
+            "constraints": {
+              "required": true,
+              "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+              "validationMessage": "Must be a valid GUID"
+            }
           }
         ]
       },
       {
-        "name": "sqlConfig",
-        "label": "SQL Database",
+        "name": "database",
+        "label": "Database",
         "elements": [
           {
-            "name": "sqlInfo",
+            "name": "dbInfo",
             "type": "Microsoft.Common.InfoBox",
             "visible": true,
             "options": {
               "icon": "Info",
-              "text": "Configure the SQL Server administrator credentials. These are used to create and manage the application database."
+              "text": "Configure the SQL Server credentials. These will be used to create a new Azure SQL Database."
             }
           },
           {
@@ -125,10 +105,9 @@
             "toolTip": "Administrator username for the SQL Server",
             "constraints": {
               "required": true,
-              "regex": "^[a-zA-Z][a-zA-Z0-9_]{2,127}$",
-              "validationMessage": "Username must start with a letter and be 3-128 characters"
-            },
-            "visible": true
+              "regex": "^[a-zA-Z][a-zA-Z0-9]{2,127}$",
+              "validationMessage": "Must start with a letter and be 3-128 characters (letters and numbers only)"
+            }
           },
           {
             "name": "sqlAdminPassword",
@@ -137,75 +116,175 @@
               "password": "SQL Admin Password",
               "confirmPassword": "Confirm Password"
             },
-            "toolTip": "Password must be at least 12 characters and include uppercase, lowercase, number, and special character",
+            "toolTip": "Password must be at least 12 characters with uppercase, lowercase, number, and special character",
             "constraints": {
               "required": true,
-              "regex": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d]).{12,128}$",
-              "validationMessage": "Password must be 12-128 characters with uppercase, lowercase, number, and special character"
-            },
-            "options": {
-              "hideConfirmation": false
-            },
-            "visible": true
+              "regex": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{12,}$",
+              "validationMessage": "Password must be at least 12 characters with uppercase, lowercase, number, and special character"
+            }
           }
         ]
       },
       {
-        "name": "accessConfig",
-        "label": "Admin Access (Optional)",
+        "name": "authorization",
+        "label": "Authorization (Optional)",
         "elements": [
           {
-            "name": "accessInfo",
+            "name": "authzInfo",
             "type": "Microsoft.Common.InfoBox",
             "visible": true,
             "options": {
               "icon": "Info",
-              "text": "Configure an Azure AD group for portal administrators. If left empty, any authenticated user can access admin features until a group is configured via Settings. Approver groups are configured per-app."
+              "text": "Optionally restrict access using Azure AD security groups. Leave empty to allow all authenticated users."
             }
           },
           {
             "name": "adminGroupId",
             "type": "Microsoft.Common.TextBox",
-            "label": "Admin Group ID",
-            "toolTip": "Azure AD group Object ID for portal administrators (optional). Find this in Entra ID > Groups > select group > Object ID.",
-            "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (optional)",
+            "label": "Admin Group ID (Optional)",
+            "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "toolTip": "Azure AD Group Object ID for administrators. Leave empty to allow all authenticated users admin access.",
             "constraints": {
               "required": false,
               "regex": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-              "validationMessage": "Please enter a valid GUID or leave empty"
-            },
-            "visible": true
+              "validationMessage": "Must be a valid GUID or empty"
+            }
+          },
+          {
+            "name": "approverGroupId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Approver Group ID (Optional)",
+            "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "toolTip": "Azure AD Group Object ID for approvers. Leave empty to allow all authenticated users to approve.",
+            "constraints": {
+              "required": false,
+              "regex": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+              "validationMessage": "Must be a valid GUID or empty"
+            }
           }
         ]
       },
       {
-        "name": "advancedConfig",
-        "label": "Advanced",
+        "name": "email",
+        "label": "Email (Optional)",
         "elements": [
           {
-            "name": "packageVersion",
+            "name": "emailInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": true,
+            "options": {
+              "icon": "Info",
+              "text": "Optionally configure email notifications. Requires Mail.Send permission on the API app registration."
+            }
+          },
+          {
+            "name": "emailSendAsUserId",
             "type": "Microsoft.Common.TextBox",
-            "label": "Package Version",
-            "defaultValue": "latest",
-            "toolTip": "Version of App Request Portal to deploy (e.g., '1.0.0' or 'latest')",
+            "label": "Send As User ID (Optional)",
+            "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "toolTip": "Azure AD User Object ID to send emails as. Leave empty to disable email notifications.",
+            "constraints": {
+              "required": false,
+              "regex": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+              "validationMessage": "Must be a valid GUID or empty"
+            }
+          },
+          {
+            "name": "emailFromAddress",
+            "type": "Microsoft.Common.TextBox",
+            "label": "From Email Address (Optional)",
+            "placeholder": "noreply@yourdomain.com",
+            "toolTip": "Email address shown in the From field. Should match the SendAsUserId's mailbox.",
+            "constraints": {
+              "required": false,
+              "regex": "^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+              "validationMessage": "Must be a valid email address or empty"
+            }
+          }
+        ]
+      },
+      {
+        "name": "advanced",
+        "label": "Advanced (Optional)",
+        "elements": [
+          {
+            "name": "advancedInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": true,
+            "options": {
+              "icon": "Info",
+              "text": "Configure App Service Plan size and resiliency options. Default settings are recommended for most deployments."
+            }
+          },
+          {
+            "name": "appServicePlanSku",
+            "type": "Microsoft.Common.DropDown",
+            "label": "App Service Plan Size",
+            "defaultValue": "B2 - Basic (Recommended for small deployments)",
+            "toolTip": "Select the App Service Plan size. Standard or Premium recommended for production.",
+            "constraints": {
+              "required": true,
+              "allowedValues": [
+                { "label": "B1 - Basic Small", "value": "B1" },
+                { "label": "B2 - Basic (Recommended for small deployments)", "value": "B2" },
+                { "label": "B3 - Basic Large", "value": "B3" },
+                { "label": "S1 - Standard Small", "value": "S1" },
+                { "label": "S2 - Standard (Recommended for production)", "value": "S2" },
+                { "label": "S3 - Standard Large", "value": "S3" },
+                { "label": "P1v3 - Premium Small", "value": "P1v3" },
+                { "label": "P2v3 - Premium (High availability)", "value": "P2v3" },
+                { "label": "P3v3 - Premium Large", "value": "P3v3" }
+              ]
+            }
+          },
+          {
+            "name": "appServicePlanInstanceCount",
+            "type": "Microsoft.Common.Slider",
+            "label": "Instance Count",
+            "subLabel": "instances",
+            "defaultValue": 1,
+            "toolTip": "Number of App Service instances. 2+ recommended for high availability in production.",
             "constraints": {
               "required": true
             },
-            "visible": true
+            "min": 1,
+            "max": 10,
+            "showStepMarkers": true
+          },
+          {
+            "name": "enableAutoHeal",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Auto-Heal (Recommended)",
+            "defaultValue": true,
+            "toolTip": "Automatically restart the app when issues are detected. Free feature, recommended for all deployments."
+          },
+          {
+            "name": "enableHealthCheck",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Health Check (Recommended)",
+            "defaultValue": true,
+            "toolTip": "Monitor app health and automatically route traffic away from unhealthy instances. Free feature, recommended for all deployments."
           }
         ]
       }
     ],
     "outputs": {
-      "environmentName": "[basics('environmentName')]",
+      "environmentName": "prod",
       "location": "[location()]",
-      "apiClientId": "[steps('entraConfig').apiSection.apiClientId]",
-      "apiClientSecret": "[steps('entraConfig').apiSection.apiClientSecret]",
-      "frontendClientId": "[steps('entraConfig').frontendSection.frontendClientId]",
-      "sqlAdminLogin": "[steps('sqlConfig').sqlAdminLogin]",
-      "sqlAdminPassword": "[steps('sqlConfig').sqlAdminPassword]",
-      "adminGroupId": "[steps('accessConfig').adminGroupId]",
-      "packageVersion": "[steps('advancedConfig').packageVersion]"
+      "tenantId": "[steps('authentication').tenantId]",
+      "apiClientId": "[steps('authentication').apiClientId]",
+      "apiClientSecret": "[steps('authentication').apiClientSecret]",
+      "frontendClientId": "[steps('authentication').frontendClientId]",
+      "sqlAdminLogin": "[steps('database').sqlAdminLogin]",
+      "sqlAdminPassword": "[steps('database').sqlAdminPassword]",
+      "adminGroupId": "[steps('authorization').adminGroupId]",
+      "approverGroupId": "[steps('authorization').approverGroupId]",
+      "emailSendAsUserId": "[steps('email').emailSendAsUserId]",
+      "emailFromAddress": "[steps('email').emailFromAddress]",
+      "appServicePlanSku": "[steps('advanced').appServicePlanSku]",
+      "appServicePlanInstanceCount": "[steps('advanced').appServicePlanInstanceCount]",
+      "enableAutoHeal": "[steps('advanced').enableAutoHeal]",
+      "enableHealthCheck": "[steps('advanced').enableHealthCheck]"
     }
   }
 }
