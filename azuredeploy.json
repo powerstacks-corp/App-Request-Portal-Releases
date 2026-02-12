@@ -62,11 +62,19 @@
         "description": "SQL Server administrator password (min 12 characters, must include uppercase, lowercase, number, and special character)"
       }
     },
-    "packageUrl": {
+    "releaseChannel": {
       "type": "string",
-      "defaultValue": "https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases/latest/download/AppRequestPortal.zip",
+      "defaultValue": "stable",
+      "allowedValues": ["stable", "beta", "custom"],
       "metadata": {
-        "description": "URL to the application package ZIP file for deployment"
+        "description": "Release channel: 'stable' for production-ready releases, 'beta' for preview features, 'custom' to specify a version"
+      }
+    },
+    "customVersion": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Only used when releaseChannel is 'custom') Specific version to deploy (e.g., '1.1.0', '1.2.0-beta.1'). Leave empty for latest stable."
       }
     },
     "adminGroupId": {
@@ -136,7 +144,12 @@
     "sqlDatabaseName": "AppRequestPortal",
     "appInsightsName": "[concat('ai-apprequest-', parameters('environmentName'))]",
     "logAnalyticsName": "[concat('la-apprequest-', parameters('environmentName'))]",
-    "deployPackage": "[not(empty(parameters('packageUrl')))]",
+    "releasesBaseUrl": "https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases",
+    "stablePackageUrl": "[concat(variables('releasesBaseUrl'), '/latest/download/AppRequestPortal.zip')]",
+    "betaPackageUrl": "[concat(variables('releasesBaseUrl'), '/download/beta/AppRequestPortal.zip')]",
+    "customPackageUrl": "[if(empty(parameters('customVersion')), variables('stablePackageUrl'), concat(variables('releasesBaseUrl'), '/download/v', parameters('customVersion'), '/AppRequestPortal.zip'))]",
+    "packageUrl": "[if(equals(parameters('releaseChannel'), 'stable'), variables('stablePackageUrl'), if(equals(parameters('releaseChannel'), 'beta'), variables('betaPackageUrl'), variables('customPackageUrl')))]",
+    "deployPackage": true,
     "websiteContributorRoleId": "de139f84-1756-47ae-9be6-808fbbe84772",
     "skuTierMap": {
       "B1": "Basic",
@@ -262,10 +275,6 @@
           "autoHealRules": "[if(parameters('enableAutoHeal'), createObject('triggers', createObject('statusCodes', createArray(createObject('status', 500, 'subStatus', 0, 'win32Status', 0, 'count', 10, 'timeInterval', '00:05:00')), 'slowRequests', createObject('timeTaken', '00:01:00', 'count', 5, 'timeInterval', '00:05:00')), 'actions', createObject('actionType', 'Recycle', 'minProcessExecutionTime', '00:01:00')), json('null'))]",
           "appSettings": [
             {
-              "name": "Application__Version",
-              "value": "1.0.6"
-            },
-            {
               "name": "Application__ReleasesUrl",
               "value": "https://api.github.com/repos/PowerStacks-BI/App-Request-Portal-Releases/releases/latest"
             },
@@ -319,7 +328,7 @@
             },
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "[if(variables('deployPackage'), parameters('packageUrl'), '')]"
+              "value": "[variables('packageUrl')]"
             }
           ]
         }
@@ -356,6 +365,14 @@
     "appName": {
       "type": "string",
       "value": "[variables('appName')]"
+    },
+    "releaseChannel": {
+      "type": "string",
+      "value": "[parameters('releaseChannel')]"
+    },
+    "deployedPackageUrl": {
+      "type": "string",
+      "value": "[variables('packageUrl')]"
     }
   }
 }
