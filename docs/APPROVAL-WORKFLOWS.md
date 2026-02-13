@@ -297,3 +297,28 @@ cd src/AppRequestPortal.API
 dotnet ef migrations add AddApprovalWorkflows --project ../AppRequestPortal.Infrastructure --startup-project .
 dotnet ef database update --project ../AppRequestPortal.Infrastructure --startup-project .
 ```
+
+## Notifications
+
+The approval workflow integrates with multiple notification channels to keep approvers and requestors informed.
+
+### Email Notifications
+
+Email notifications are sent automatically when:
+- A new request is submitted (to approvers)
+- A request is approved (to requestor)
+- A request is rejected (to requestor)
+- A request moves to the next approval stage (to next-stage approvers)
+
+See [SETUP.md](SETUP.md) Step 9 for email configuration.
+
+### Microsoft Teams Notifications
+
+Teams channel notifications provide real-time visibility into approval activity. When enabled:
+- **New Request Submitted**: Notification with requestor name, app details, and link to review
+- **Request Approved**: Notification with approval details
+- **Request Rejected**: Notification with rejection reason
+
+Teams notifications are sent to a channel via Incoming Webhook, so all channel members see the activity. Approvers click through to the portal to take action.
+
+See [ADMIN-GUIDE.md](ADMIN-GUIDE.md#microsoft-teams-notifications) for Teams setup instructions.

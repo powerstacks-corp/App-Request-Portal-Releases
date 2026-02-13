@@ -50,9 +50,13 @@ You need to create two app registrations in Azure AD:
      - `User.Read.All` - Read user profiles
      - `Directory.Read.All` - Read directory data
      - `Mail.Send` - Send email notifications (optional, see Step 9)
+     - `Chat.Create` - Create Teams chats for direct approver notifications (optional, see Step 11)
+     - `Chat.ReadWrite.All` - Send Teams chat messages (optional, see Step 11)
    - Click "Grant admin consent"
 
    > **Note:** `DeviceManagementApps.ReadWrite.All` is required to automatically create Intune app assignments when apps are made visible in the portal.
+
+   > **Note:** The Teams chat permissions (`Chat.Create` and `Chat.ReadWrite.All`) are optional. Without them, the portal will function normally but Teams direct chat notifications will not be available. You can still use webhook-based Teams channel notifications (Step 10) which don't require these permissions.
 
 9. Create a client secret:
    - Click "Certificates & secrets" > "New client secret"
@@ -375,6 +379,85 @@ Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json):
 - **403 Forbidden**: Ensure `Mail.Send` permission has admin consent granted
 - **User not found**: Verify the `SendAsUserId` is a valid Object ID
 - **Email not sent**: Check the API logs for detailed error messages
+
+## Step 10: Configure Microsoft Teams Notifications (Optional)
+
+Send notifications to a Microsoft Teams channel when app requests are submitted, approved, or rejected.
+
+### Create an Incoming Webhook
+
+1. In **Microsoft Teams**, navigate to the channel where you want notifications
+2. Click the three dots (...) next to the channel name > **Manage channel**
+3. Go to **Connectors** tab > search for **Incoming Webhook** > **Configure**
+4. Enter a name (e.g., "App Request Portal") and optionally upload an icon
+5. Click **Create** and **copy the webhook URL**
+
+### Configure in Portal
+
+1. Navigate to **Admin** > **Settings** tab
+2. Under **Microsoft Teams Notifications**:
+   - Toggle **Enable Teams notifications** on
+   - Paste the **Webhook URL**
+   - Click **Test** to verify the connection
+   - Select which events should trigger notifications
+3. Click **Save Settings**
+
+### What Gets Notified
+
+| Event | Card Content |
+|-------|-------------|
+| **New Request** | Requestor name, app name, publisher, justification, link to review |
+| **Approved** | Requestor, app, who approved, link to portal |
+| **Rejected** | Requestor, app, who rejected, rejection reason |
+
+See [ADMIN-GUIDE.md](ADMIN-GUIDE.md#microsoft-teams-notifications) for detailed setup instructions with screenshots.
+
+## Step 11: Configure Microsoft Teams Direct Chat (Optional)
+
+Send direct Teams chat messages to approvers when their approval is required. Unlike channel notifications, direct chat messages are sent individually to each approver, ensuring they receive personal notifications in their Teams chat.
+
+### Prerequisites
+
+1. **Chat.Create permission** must be added to your API app registration (see Step 1, item 8)
+2. **Chat.ReadWrite.All permission** must be added to your API app registration (see Step 1, item 8)
+
+### Add Teams Chat Permissions
+
+If you didn't add them during initial setup:
+
+1. Navigate to Azure Portal > Azure Active Directory > App registrations
+2. Select your **backend API** app registration
+3. Click "API permissions" > "Add a permission"
+4. Select "Microsoft Graph" > "Application permissions"
+5. Search for and add:
+   - `Chat.Create` - Create chats with users
+   - `Chat.ReadWrite.All` - Read and write all chat messages
+6. Click "Add permissions"
+7. Click **"Grant admin consent for [your tenant]"** (requires Global Admin or Privileged Role Administrator)
+
+### Configure in Portal
+
+1. Navigate to **Admin** > **Settings** tab
+2. Under **Microsoft Teams Direct Chat**:
+   - Toggle **Enable Teams direct chat** on
+   - Select which events should trigger chat messages:
+     - **Approval Required** - Notify approvers when their approval is needed
+     - **Request Approved** - Notify requestor when their request is approved
+     - **Request Rejected** - Notify requestor when their request is rejected
+3. Click **Save Settings**
+
+### How It Works
+
+- When approval is required, each approver receives a personal Teams chat message
+- For **pooled approvals** (group-based), the portal expands the group membership and sends individual messages to each group member
+- For **sequential approvals**, only the current stage approvers are notified
+- Messages include Adaptive Cards with request details and a link to the portal
+
+### Troubleshooting Teams Chat Issues
+
+- **403 Forbidden**: Ensure `Chat.Create` and `Chat.ReadWrite.All` permissions have admin consent granted
+- **User not found**: Verify the user has a valid Teams license and can receive chats
+- **Messages not appearing**: Check that the app has been granted tenant-wide admin consent
 
 ## Next Steps
 

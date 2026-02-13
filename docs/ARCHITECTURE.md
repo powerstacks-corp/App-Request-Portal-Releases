@@ -157,6 +157,12 @@ CREATE TABLE PortalSettings (
     EmailFromAddress NVARCHAR(255),
     EmailPortalUrl NVARCHAR(500),
     EmailNotificationsEnabled BIT NOT NULL DEFAULT 0,
+    -- Teams notification settings
+    TeamsNotificationsEnabled BIT NOT NULL DEFAULT 0,
+    TeamsWebhookUrl NVARCHAR(MAX),
+    TeamsNotifyOnNewRequest BIT NOT NULL DEFAULT 1,
+    TeamsNotifyOnApproval BIT NOT NULL DEFAULT 1,
+    TeamsNotifyOnRejection BIT NOT NULL DEFAULT 1,
     -- Group authorization
     AdminGroupId NVARCHAR(100),
     AdminGroupName NVARCHAR(255),
@@ -228,19 +234,33 @@ GET /users/{user-id}/managedDevices
 
 2. User submits request
    Frontend → API → Database (save request)
-                  → Notification service (notify approvers)
+                  → Email service (notify approvers)
+                  → Teams service (notify channel)
 
 3. Approver reviews request
    Frontend → API → Database (update status)
-                  → Notification service (notify requester)
+                  → Email service (notify requester)
+                  → Teams service (notify channel)
 
 4. System processes approved request
    API → Graph API (create/get AD group)
        → Graph API (add user/device to group)
        → Intune (app deployment triggered automatically)
        → Database (update request status)
-       → Notification service (notify requester)
+       → Email service (notify requester)
+       → Teams service (notify channel)
 ```
+
+### Notification Services
+
+The portal uses two notification channels:
+
+| Service | Purpose | Technology |
+|---------|---------|------------|
+| **EmailNotificationService** | Direct user notifications | Microsoft Graph Mail.Send API |
+| **TeamsNotificationService** | Channel-wide notifications | Teams Incoming Webhooks with Adaptive Cards |
+
+Both services are optional and can be enabled/disabled independently in Admin Settings.
 
 ### App Sync Flow
 
@@ -515,3 +535,5 @@ CREATE TABLE LicenseInfo (
 6. ~~**App Categories**: Organize apps by category/department~~ ✓ Implemented
 7. **Scheduled Deployments**: Schedule app installations for specific times
 8. **Multi-language Support**: Internationalization (i18n)
+9. ~~**Teams Notifications**: Notify Teams channels on request events~~ ✓ Implemented
+10. **Teams Approvals**: Approve/reject directly from Teams Adaptive Cards
