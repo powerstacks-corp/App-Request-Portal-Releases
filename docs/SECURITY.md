@@ -25,8 +25,10 @@ The ARM template deploys the following resources:
 |--------------|--------------|---------|
 | App Service Plan | `asp-apprequest-{env}` | Hosts the web application |
 | App Service | `apprequest-{env}-{unique}` | ASP.NET Core API + React SPA |
+| Azure Key Vault | `kv-appreq-{unique}` | Secure secret storage |
 | SQL Server | `sql-apprequest-{env}-{unique}` | Database server |
 | SQL Database | `AppRequestPortal` | Application data storage |
+| Storage Account | `stappreq{unique}` | Queue + blob storage for packaging |
 | Application Insights | `ai-apprequest-{env}` | Application monitoring |
 | Log Analytics Workspace | `la-apprequest-{env}` | Centralized logging |
 
@@ -63,17 +65,22 @@ The App Service is configured with a **System-Assigned Managed Identity**. This 
 
 ### Role Assignments
 
-The following Azure RBAC role is assigned to the Managed Identity:
+The following permissions are granted to the Managed Identity:
 
-| Role | Role Definition ID | Scope | Purpose |
-|------|-------------------|-------|---------|
-| Website Contributor | `de139f84-1756-47ae-9be6-808fbbe84772` | The App Service itself | Enables in-app updates via Azure Resource Manager |
+| Permission Type | Scope | Purpose |
+|----------------|-------|---------|
+| Website Contributor Role | App Service | Enables in-app updates via Azure Resource Manager |
+| Key Vault Access Policy (Get, List Secrets) | Key Vault | Read application secrets from Key Vault |
 
 **Why Website Contributor?**
 
 The in-app update feature allows administrators to update the application from within the portal. To do this, the application must be able to modify its own `WEBSITE_RUN_FROM_PACKAGE` app setting. The Website Contributor role grants this permission.
 
-**Scope Limitation**: The role is scoped only to the App Service itself (not the resource group or subscription), following the principle of least privilege.
+**Why Key Vault Access?**
+
+All sensitive secrets (Azure AD client secret, SQL connection string, storage connection string) are stored in Azure Key Vault. The Managed Identity needs read access to retrieve these secrets at runtime.
+
+**Scope Limitation**: All permissions are scoped to the minimum required resources (not the resource group or subscription), following the principle of least privilege.
 
 ```json
 {
@@ -166,13 +173,14 @@ Two Azure AD App Registrations are required:
 - Read and update the App Service's own configuration settings
 - Read the App Service's properties
 - Restart the App Service
+- Read secrets from the provisioned Key Vault (Get, List permissions only)
 
 ### What the Managed Identity CANNOT Do
 
 - Access other resources in the subscription
 - Modify other App Services
-- Access Key Vault (unless explicitly granted)
-- Access SQL Database (uses SQL authentication, not Managed Identity)
+- Write, delete, or manage secrets in Key Vault
+- Access SQL Database directly (uses SQL authentication via connection string from Key Vault)
 - Deploy or delete resources
 
 ---
@@ -230,17 +238,28 @@ Two Azure AD App Registrations are required:
 
 | Data | Storage Method | Notes |
 |------|---------------|-------|
-| Azure AD Client Secret | App Service Configuration | Encrypted at rest in Azure |
-| SQL Password | App Service Configuration | Encrypted at rest in Azure |
+| Azure AD Client Secret | Azure Key Vault | Referenced via Key Vault reference in App Settings |
+| SQL Connection String | Azure Key Vault | Referenced via Key Vault reference in App Settings |
+| Storage Connection String | Azure Key Vault | Referenced via Key Vault reference in App Settings |
 | User tokens | Session storage (browser) | Not persisted server-side |
 | Audit logs | SQL Database | Retained indefinitely |
 
 ### Secrets Management
 
-Current implementation stores secrets in App Service Configuration. For enhanced security, consider:
+All sensitive secrets are stored in Azure Key Vault and accessed via Key Vault references:
 
-1. **Azure Key Vault Integration**: Reference secrets from Key Vault
-2. **Key Vault References**: Use `@Microsoft.KeyVault(SecretUri=...)` syntax
+```
+AzureAd__ClientSecret = @Microsoft.KeyVault(SecretUri=https://{vault}.vault.azure.net/secrets/AzureAdClientSecret/)
+ConnectionStrings__DefaultConnection = @Microsoft.KeyVault(SecretUri=https://{vault}.vault.azure.net/secrets/SqlConnectionString/)
+AzureStorage__ConnectionString = @Microsoft.KeyVault(SecretUri=https://{vault}.vault.azure.net/secrets/StorageConnectionString/)
+```
+
+**Key Vault Security Features:**
+- Secrets encrypted at rest with Azure-managed keys
+- Soft delete enabled (7-day retention for accidental deletion recovery)
+- Access restricted to the App Service's Managed Identity only
+- No direct secret access for users or administrators (must use Azure Portal/CLI with appropriate permissions)
+- All secret access is logged in Key Vault diagnostic logs
 
 ---
 
@@ -384,10 +403,10 @@ CREATE TABLE AuditLogs (
 
 - [ ] Enable Azure AD Conditional Access policies
 - [ ] Configure Azure AD Identity Protection
-- [ ] Implement Private Endpoints for SQL
+- [ ] Implement Private Endpoints for SQL and Key Vault
 - [ ] Add Azure Front Door with WAF
 - [ ] Enable Azure Defender for App Service
-- [ ] Configure Azure Key Vault for secrets
+- [x] Azure Key Vault for secrets (enabled by default)
 
 ---
 
