@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Request Portal - Releases</title>
+    <style>
+        :root {
+            --primary: #0078d4;
+            --bg: #ffffff;
+            --text: #333333;
+            --border: #e1e1e1;
+            --success: #107c10;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #4dabf7;
+                --bg: #1a1a1a;
+                --text: #e1e1e1;
+                --border: #444;
+                --success: #6ccb5f;
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--bg);
+            color: var(--text);
+        }
+        h1 { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; }
+        h2 { margin-top: 2rem; }
+        a { color: var(--primary); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .hero {
+            background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .hero h1 { color: white; border: none; margin: 0; }
+        .hero p { margin: 1rem 0 0 0; opacity: 0.9; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: box-shadow 0.2s;
+        }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card h3 { margin: 0 0 0.5rem 0; }
+        .card p { margin: 0; font-size: 0.9rem; opacity: 0.8; }
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+        .btn:hover { text-decoration: none; opacity: 0.9; }
+        .version-badge {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .features { list-style: none; padding: 0; }
+        .features li { padding: 0.5rem 0; padding-left: 1.5rem; position: relative; }
+        .features li::before { content: "✓"; position: absolute; left: 0; color: var(--success); font-weight: bold; }
+        footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>App Request Portal</h1>
+        <p>Self-service application catalog for Microsoft Intune</p>
+    </div>
+
+    <h2>About</h2>
+    <p>App Request Portal enables employees to request app installations for their Intune-managed devices. Approved requests automatically add users to Azure AD groups assigned to the requested applications.</p>
+
+    <ul class="features">
+        <li>Browse apps from Intune (Windows, iOS, Android, macOS)</li>
+        <li>Request apps with business justification</li>
+        <li>Multi-stage approval workflows</li>
+        <li>Automatic Azure AD group assignment</li>
+        <li>Winget catalog integration with cloud packaging</li>
+        <li>Microsoft Teams notifications</li>
+        <li>Real-time Intune install status tracking</li>
+        <li>Portal branding and customization</li>
+    </ul>
+
+    <h2>Get Started</h2>
+    <div class="card-grid">
+        <a href="https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases" class="card">
+            <h3>Download Latest Release</h3>
+            <p>Get the latest version with ARM template for one-click Azure deployment.</p>
+        </a>
+        <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPowerStacks-BI%2FApp-Request-Portal-Releases%2Fmain%2Fazuredeploy.json" class="card">
+            <h3>Deploy to Azure</h3>
+            <p>Deploy directly to your Azure subscription with the ARM template.</p>
+        </a>
+    </div>
+
+    <h2>Documentation</h2>
+    <div class="card-grid">
+        <a href="SETUP.html" class="card">
+            <h3>Setup Guide</h3>
+            <p>Initial setup, Azure AD configuration, and deployment instructions.</p>
+        </a>
+        <a href="ADMIN-GUIDE.html" class="card">
+            <h3>Admin Guide</h3>
+            <p>Dashboard management, portal settings, branding, and Winget integration.</p>
+        </a>
+        <a href="USER-GUIDE.html" class="card">
+            <h3>User Guide</h3>
+            <p>How to browse apps, submit requests, and track installations.</p>
+        </a>
+        <a href="SECURITY.html" class="card">
+            <h3>Security Overview</h3>
+            <p>Security architecture, permissions, and compliance documentation.</p>
+        </a>
+        <a href="DISASTER-RECOVERY.html" class="card">
+            <h3>Disaster Recovery</h3>
+            <p>Backup strategies, recovery procedures, and high availability options.</p>
+        </a>
+        <a href="ARCHITECTURE.html" class="card">
+            <h3>Architecture</h3>
+            <p>Technical architecture, data flows, and system design.</p>
+        </a>
+    </div>
+
+    <h2>Requirements</h2>
+    <ul>
+        <li>Azure Subscription</li>
+        <li>Azure AD tenant with admin access</li>
+        <li>Microsoft Intune subscription</li>
+        <li>Azure AD app registrations (Backend API + Frontend SPA)</li>
+    </ul>
+
+    <h2>Estimated Monthly Cost</h2>
+    <p>The default deployment (B2 App Service, Basic SQL, geo-redundant storage) costs approximately <strong>$65-75/month</strong>.</p>
+
+    <footer>
+        <p>App Request Portal by PowerStacks. <a href="https://github.com/PowerStacks-BI/App-Request-Portal-Releases/issues">Report an issue</a></p>
+    </footer>
+</body>
+</html>
