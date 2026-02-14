@@ -20,7 +20,7 @@ Use auto-approval for low-risk apps like free productivity tools. Use approval w
 For apps that require approval, the system supports two types of workflows:
 
 - **Linear**: Specific users must approve in a defined sequence
-- **Pooled**: Any member of specified Azure AD groups can approve at each stage
+- **Pooled**: Any member of specified Entra ID groups can approve at each stage
 
 Additionally, you can require manager approval before the workflow stages begin.
 
@@ -51,7 +51,7 @@ The request moves through each stage in order. Each specified person must approv
 
 ### Pooled Workflow Stages
 
-For Pooled workflows, each stage specifies an Azure AD security group:
+For Pooled workflows, each stage specifies an Entra ID security group:
 
 ```json
 {
@@ -68,7 +68,7 @@ Any member of the specified group can approve the request at that stage. Once ap
 ### With Manager Approval Required
 
 1. User submits request
-2. Request is sent to user's manager (from Azure AD)
+2. Request is sent to user's manager (from Entra ID)
 3. Manager approves/rejects
 4. If approved, request proceeds to workflow stage 1
 5. Continue through all workflow stages
@@ -153,8 +153,8 @@ Removes the workflow configuration. Apps without a workflow will use the default
 
 ### Prerequisites
 
-1. **For Pooled workflows**: Create Azure AD security groups for each approval stage
-2. **For Linear workflows**: Know the Azure AD Object IDs of the specific approvers
+1. **For Pooled workflows**: Create Entra ID security groups for each approval stage
+2. **For Linear workflows**: Know the Entra ID Object IDs of the specific approvers
 3. Admin access to the App Request Portal
 
 ### Using the UI (Recommended)
@@ -168,7 +168,7 @@ Removes the workflow configuration. Apps without a workflow will use the default
    - Choose the **Workflow Type** (Linear or Pooled)
    - Click **Add Stage** to add approval stages
    - For Linear: Search and select specific users
-   - For Pooled: Search and select Azure AD groups
+   - For Pooled: Search and select Entra ID groups
 6. Click **Save**
 
 See [ADMIN-GUIDE.md](ADMIN-GUIDE.md) for detailed UI instructions.
@@ -177,15 +177,15 @@ See [ADMIN-GUIDE.md](ADMIN-GUIDE.md) for detailed UI instructions.
 
 You can also configure workflows programmatically using the API endpoints described below.
 
-### Finding Azure AD Object IDs
+### Finding Entra ID Object IDs
 
 **For Users (Linear):**
-1. Go to Azure Portal > Azure Active Directory > Users
+1. Go to Azure Portal > Microsoft Entra ID > Users
 2. Select the user
 3. Copy the "Object ID" from the Overview page
 
 **For Groups (Pooled):**
-1. Go to Azure Portal > Azure Active Directory > Groups
+1. Go to Azure Portal > Microsoft Entra ID > Groups
 2. Select the group
 3. Copy the "Object ID" from the Overview page
 

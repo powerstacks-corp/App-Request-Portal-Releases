@@ -18,7 +18,7 @@ https://apps.yourdomain.com
 
 - Azure App Service running your portal (Basic tier or higher for custom domains with SSL)
 - Access to your domain's DNS management
-- Admin access to your Azure AD App Registration
+- Admin access to your Entra ID App Registration
 
 ## Step 1: Add Custom Domain in Azure Portal
 
@@ -93,11 +93,11 @@ DNS changes can take anywhere from a few minutes to 48 hours to propagate global
 5. Upload your PFX/PEM file
 6. Bind to your custom domain
 
-## Step 4: Update Azure AD App Registration
+## Step 4: Update Entra ID App Registration
 
-Your Azure AD App Registration needs updated redirect URIs for authentication to work.
+Your Entra ID App Registration needs updated redirect URIs for authentication to work.
 
-1. Navigate to **Azure Portal** → **Azure Active Directory** → **App registrations**
+1. Navigate to **Azure Portal** → **Microsoft Entra ID** → **App registrations**
 2. Select your App Request Portal registration
 3. Go to **Authentication** → **Platform configurations** → **Web**
 4. Add the following redirect URIs:
@@ -173,7 +173,7 @@ After configuration, verify:
 
 ### "Authentication failed" after domain change
 
-- Verify redirect URIs are updated in Azure AD
+- Verify redirect URIs are updated in Entra ID
 - Clear browser cookies and cache
 - Check both old and new URLs are in redirect URIs during transition
 
@@ -195,11 +195,11 @@ If you have multiple environments (dev, staging, production), configure separate
 Each requires its own:
 - DNS records
 - SSL certificate
-- Azure AD redirect URIs
+- Entra ID redirect URIs
 - Portal URL setting
 
 ## Related Documentation
 
 - [Azure App Service Custom Domains](https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain)
 - [Azure App Service SSL Certificates](https://docs.microsoft.com/en-us/azure/app-service/configure-ssl-certificate)
-- [Azure AD Redirect URIs](https://docs.microsoft.com/en-us/azure/active-directory/develop/reply-url)
+- [Entra ID Redirect URIs](https://docs.microsoft.com/en-us/azure/active-directory/develop/reply-url)

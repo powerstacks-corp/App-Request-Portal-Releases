@@ -4,7 +4,7 @@ This guide walks administrators through setting up and managing the App Request 
 
 ## Getting Started
 
-After initial deployment and Azure AD configuration (see [SETUP.md](SETUP.md)), most portal configuration can be done directly through the Admin Dashboard.
+After initial deployment and Entra ID configuration (see [SETUP.md](SETUP.md)), most portal configuration can be done directly through the Admin Dashboard.
 
 ### Accessing the Admin Dashboard
 
@@ -27,7 +27,7 @@ For first-time setup or to reconfigure the portal, use the **Setup Wizard**:
 3. Follow the guided steps:
    - **Welcome** - Overview of setup steps
    - **License** - Enter and validate your PowerStacks license key
-   - **Access Groups** - Configure Admin and Approver Azure AD groups
+   - **Access Groups** - Configure Admin and Approver Entra ID groups
    - **Email Notifications** - Set up email settings for notifications
    - **Sync Apps** - Import apps from your Intune tenant
 
@@ -53,7 +53,7 @@ Configure how the portal sends email notifications for request submissions and a
 | Setting | Description |
 |---------|-------------|
 | **Enable email notifications** | Toggle to turn email notifications on or off |
-| **Send As User ID** | The Azure AD Object ID of the user or shared mailbox that will send emails. Find this in Azure Portal > Azure AD > Users > [select user] > Object ID |
+| **Send As User ID** | The Entra ID Object ID of the user or shared mailbox that will send emails. Find this in Azure Portal > Entra ID > Users > [select user] > Object ID |
 | **From Address** | The email address displayed in the From field (should match the mailbox) |
 | **Portal URL** | The URL of your portal, used in email links to direct users back to the portal |
 
@@ -129,8 +129,8 @@ Control who has admin and approver access to the portal.
 
 | Setting | Description |
 |---------|-------------|
-| **Admin Group** | Azure AD group Object ID. Members have full admin access to sync apps, manage settings, and view all requests |
-| **Approver Group** | Azure AD group Object ID. Members can approve/reject requests (in addition to workflow-specific approvers) |
+| **Admin Group** | Entra ID group Object ID. Members have full admin access to sync apps, manage settings, and view all requests |
+| **Approver Group** | Entra ID group Object ID. Members can approve/reject requests (in addition to workflow-specific approvers) |
 
 > **Tip:** Leave these empty during development to allow all authenticated users admin access. For production, always configure security groups.
 
@@ -145,7 +145,7 @@ This ensures users can only request apps from trusted, compliant devices.
 #### Prerequisites
 
 Before creating the policy:
-1. You must have **Azure AD Premium P1** or **P2** license (or Microsoft 365 E3/E5, etc.)
+1. You must have **Entra ID Premium P1** or **P2** license (or Microsoft 365 E3/E5, etc.)
 2. You need the **Conditional Access Administrator** or **Global Administrator** role
 3. Have at least one compliance policy configured in Intune
 
@@ -255,7 +255,7 @@ If you need to allow browser access from unmanaged devices (less secure), you ca
 | Setting | Description |
 |---------|-------------|
 | **Require manager approval by default** | When enabled, new approval workflows include manager approval as the first stage |
-| **Auto-create Azure AD groups** | Automatically create a security group when an app doesn't have a target group configured |
+| **Auto-create Entra ID groups** | Automatically create a security group when an app doesn't have a target group configured |
 
 ### Version & Updates
 
@@ -401,7 +401,7 @@ This creates a professional look where the center content draws focus while the 
 
 | Setting | Description |
 |---------|-------------|
-| **Group Name Prefix** | Prefix used when auto-creating Azure AD groups (default: `AppPortal-`). Groups are named `{prefix}{AppName}-Required`. Use this to identify portal-managed groups in your tenant. |
+| **Group Name Prefix** | Prefix used when auto-creating Entra ID groups (default: `AppPortal-`). Groups are named `{prefix}{AppName}-Required`. Use this to identify portal-managed groups in your tenant. |
 
 ### Custom Domain Configuration
 
@@ -428,7 +428,7 @@ Before configuring a custom domain:
 
 Once your custom domain is configured:
 
-1. **Update Azure AD Redirect URIs** - Add your custom domain URLs to your App Registration
+1. **Update Entra ID Redirect URIs** - Add your custom domain URLs to your App Registration
 2. **Update Portal URL** - In Settings > Email Notifications, update the Portal URL to use your custom domain
 3. **Test Authentication** - Sign out and sign back in to verify authentication works
 
@@ -490,7 +490,7 @@ Use this to control which Intune apps are available for self-service requests. A
 
 When you toggle an app's visibility to **Yes** for the first time, the portal automatically:
 
-1. **Creates an Azure AD Security Group** named `{GroupNamePrefix}{AppName}-Required`
+1. **Creates an Entra ID Security Group** named `{GroupNamePrefix}{AppName}-Required`
    - Example: `AppPortal-Microsoft Teams-Required`
    - The prefix is configurable in Settings (default: `AppPortal-`)
 
@@ -525,7 +525,7 @@ Click **Edit** on any app row to open the Edit App Modal, which provides access 
 | Field | Description |
 |-------|-------------|
 | **Assignment Type** | User (add requester to group) or Device (add requester's device to group) |
-| **Target Group** | Azure AD security group for app assignment. Click "Search Groups" to browse, or use "Clear" to remove. |
+| **Target Group** | Entra ID security group for app assignment. Click "Search Groups" to browse, or use "Clear" to remove. |
 | **Assignment Filter** | Optional Intune assignment filter. Select filter type (Include/Exclude) and choose a filter. |
 
 #### Win32 Deployment Options Section
@@ -544,7 +544,7 @@ Click **Save** to apply changes or **Cancel** to discard.
 
 #### Assignment Type
 
-Determines what gets added to the Azure AD group when a request is approved:
+Determines what gets added to the Entra ID group when a request is approved:
 
 - **User**: The requesting user is added to the group (most common)
 - **Device**: The user's device is added to the group (useful for device-targeted deployments)

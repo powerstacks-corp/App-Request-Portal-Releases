@@ -5,7 +5,7 @@ This guide walks you through setting up the App Request Portal from scratch.
 ## Prerequisites
 
 - Azure subscription with appropriate permissions
-- Azure AD tenant with Global Administrator or Application Administrator role
+- Entra ID tenant with Global Administrator or Application Administrator role
 - .NET 8.0 SDK
 - Node.js 18+ and npm
 - Visual Studio 2022 or VS Code
@@ -24,13 +24,13 @@ dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
 dotnet tool install --global dotnet-ef
 ```
 
-## Step 1: Azure AD App Registrations
+## Step 1: Entra ID App Registrations
 
-You need to create two app registrations in Azure AD:
+You need to create two app registrations in Entra ID:
 
 ### Backend API App Registration
 
-1. Navigate to Azure Portal > Azure Active Directory > App registrations
+1. Navigate to Azure Portal > Microsoft Entra ID > App registrations
 2. Click "New registration"
 3. Name: `App Request Portal - API`
 4. Supported account types: "Accounts in this organizational directory only"
@@ -193,16 +193,16 @@ The web app will be available at `http://localhost:3000`
 
 1. Navigate to `http://localhost:3000`
 2. Click "Sign In with Microsoft"
-3. Authenticate with your Azure AD account
+3. Authenticate with your Entra ID account
 4. You should see the home page
 
 ## Step 6: Configure Admin Access
 
-The portal uses Azure AD security groups to control administrative access. You can configure these through the web UI or in configuration files.
+The portal uses Entra ID security groups to control administrative access. You can configure these through the web UI or in configuration files.
 
 ### Create Security Groups
 
-1. Navigate to Azure Portal > Azure Active Directory > Groups
+1. Navigate to Azure Portal > Microsoft Entra ID > Groups
 2. Create a new security group:
    - Group type: **Security**
    - Group name: `AppPortal-Admins` (or your preferred name)
@@ -221,7 +221,7 @@ Once you have admin access to the portal:
    - Enter the **Admin Group** Object ID
    - Enter the **Approver Group** Object ID
 3. Under **App Deployment Settings**:
-   - Set the **Group Name Prefix** (default: `AppPortal-`) - this prefix is used when auto-creating Azure AD security groups for app deployments
+   - Set the **Group Name Prefix** (default: `AppPortal-`) - this prefix is used when auto-creating Entra ID security groups for app deployments
 4. Click **Save Settings**
 
 See [ADMIN-GUIDE.md](ADMIN-GUIDE.md) for detailed instructions on using the Portal Settings UI.
@@ -243,8 +243,8 @@ Alternatively, update [appsettings.json](../src/AppRequestPortal.API/appsettings
 
 | Setting | Description |
 |---------|-------------|
-| `AdminGroupId` | Object ID of the Azure AD group for administrators. Admins can sync apps from Intune and manage all settings. |
-| `ApproverGroupId` | Object ID of the Azure AD group for approvers. Approvers can approve/reject app requests. |
+| `AdminGroupId` | Object ID of the Entra ID group for administrators. Admins can sync apps from Intune and manage all settings. |
+| `ApproverGroupId` | Object ID of the Entra ID group for approvers. Approvers can approve/reject app requests. |
 
 > **Note:** If both settings are left empty, all authenticated users can access admin functions. This is useful for development but should not be used in production.
 
@@ -252,7 +252,7 @@ You can use the same group for both settings, or create separate groups for more
 
 ### App Deployment Settings
 
-The portal automatically creates Azure AD security groups and Intune app assignments when apps are made visible. Configure the group naming:
+The portal automatically creates Entra ID security groups and Intune app assignments when apps are made visible. Configure the group naming:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -270,7 +270,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 
 ### Authentication Issues
 
-- Verify that all Azure AD app registration settings are correct
+- Verify that all Entra ID app registration settings are correct
 - Ensure client IDs and tenant IDs match in configuration files
 - Check that admin consent has been granted for all required permissions
 
@@ -317,7 +317,7 @@ The portal can send email notifications for:
 
 If you didn't add it during initial setup:
 
-1. Navigate to Azure Portal > Azure Active Directory > App registrations
+1. Navigate to Azure Portal > Microsoft Entra ID > App registrations
 2. Select your **backend API** app registration
 3. Click "API permissions" > "Add a permission"
 4. Select "Microsoft Graph" > "Application permissions"
@@ -329,7 +329,7 @@ If you didn't add it during initial setup:
 
 You need the Object ID of the user or shared mailbox that will send emails:
 
-1. Navigate to Azure Portal > Azure Active Directory > Users
+1. Navigate to Azure Portal > Microsoft Entra ID > Users
 2. Search for and select the user (or shared mailbox)
 3. Copy the **Object ID** from the Overview page
 
@@ -425,7 +425,7 @@ Send direct Teams chat messages to approvers when their approval is required. Un
 
 If you didn't add them during initial setup:
 
-1. Navigate to Azure Portal > Azure Active Directory > App registrations
+1. Navigate to Azure Portal > Microsoft Entra ID > App registrations
 2. Select your **backend API** app registration
 3. Click "API permissions" > "Add a permission"
 4. Select "Microsoft Graph" > "Application permissions"

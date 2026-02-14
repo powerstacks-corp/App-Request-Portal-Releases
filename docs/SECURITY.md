@@ -6,7 +6,7 @@ This document provides comprehensive security documentation for the App Request 
 
 1. [Azure Resources Created](#azure-resources-created)
 2. [Identity and Access Management](#identity-and-access-management)
-3. [Azure AD App Registrations](#azure-ad-app-registrations)
+3. [Entra ID App Registrations](#azure-ad-app-registrations)
 4. [Managed Identity Configuration](#managed-identity-configuration)
 5. [Network Security](#network-security)
 6. [Data Protection](#data-protection)
@@ -78,7 +78,7 @@ The in-app update feature allows administrators to update the application from w
 
 **Why Key Vault Access?**
 
-All sensitive secrets (Azure AD client secret, SQL connection string, storage connection string) are stored in Azure Key Vault. The Managed Identity needs read access to retrieve these secrets at runtime.
+All sensitive secrets (Entra ID client secret, SQL connection string, storage connection string) are stored in Azure Key Vault. The Managed Identity needs read access to retrieve these secrets at runtime.
 
 **Scope Limitation**: All permissions are scoped to the minimum required resources (not the resource group or subscription), following the principle of least privilege.
 
@@ -96,9 +96,9 @@ All sensitive secrets (Azure AD client secret, SQL connection string, storage co
 
 ---
 
-## Azure AD App Registrations
+## Entra ID App Registrations
 
-Two Azure AD App Registrations are required:
+Two Entra ID App Registrations are required:
 
 ### 1. Backend API Application (Confidential Client)
 
@@ -115,7 +115,7 @@ Two Azure AD App Registrations are required:
 | Microsoft Graph | `DeviceManagementApps.Read.All` | Application | Read Intune apps |
 | Microsoft Graph | `DeviceManagementApps.ReadWrite.All` | Application | Create/update Intune apps |
 | Microsoft Graph | `DeviceManagementManagedDevices.Read.All` | Application | Count managed devices for licensing |
-| Microsoft Graph | `Group.ReadWrite.All` | Application | Create and manage Azure AD groups |
+| Microsoft Graph | `Group.ReadWrite.All` | Application | Create and manage Entra ID groups |
 | Microsoft Graph | `User.Read.All` | Application | Read user profiles and managers |
 | Microsoft Graph | `Directory.Read.All` | Application | Read directory data |
 | Microsoft Graph | `Mail.Send` | Application | Send email notifications (optional) |
@@ -151,7 +151,7 @@ Two Azure AD App Registrations are required:
 
 ### How the Managed Identity Works
 
-1. **Creation**: When the ARM template deploys, Azure automatically creates a service principal in Azure AD for the App Service.
+1. **Creation**: When the ARM template deploys, Azure automatically creates a service principal in Entra ID for the App Service.
 
 2. **Environment Variables**: Azure injects these environment variables into the application:
    - `MSI_ENDPOINT` or `IDENTITY_ENDPOINT`: Token endpoint URL
@@ -259,7 +259,7 @@ az sql server firewall-rule create --server <server-name> --resource-group <rg-n
 
 | Data | Storage Method | Notes |
 |------|---------------|-------|
-| Azure AD Client Secret | Azure Key Vault | Referenced via Key Vault reference in App Settings |
+| Entra ID Client Secret | Azure Key Vault | Referenced via Key Vault reference in App Settings |
 | SQL Connection String | Azure Key Vault | Referenced via Key Vault reference in App Settings |
 | Storage Connection String | Azure Key Vault | Referenced via Key Vault reference in App Settings |
 | User tokens | Session storage (browser) | Not persisted server-side |
@@ -284,11 +284,11 @@ AzureStorage__ConnectionString = @Microsoft.KeyVault(SecretUri=https://{vault}.v
 
 ### Secret and Key Rotation
 
-**Azure AD Client Secret Rotation:**
+**Entra ID Client Secret Rotation:**
 
-The Azure AD client secret has an expiration date (typically 1-2 years). To rotate:
+The Entra ID client secret has an expiration date (typically 1-2 years). To rotate:
 
-1. **Create new secret** in Azure Portal → Azure AD → App Registrations → Your API App → Certificates & secrets
+1. **Create new secret** in Azure Portal → Entra ID → App Registrations → Your API App → Certificates & secrets
 2. **Update Key Vault secret**:
    ```bash
    az keyvault secret set --vault-name <vault-name> --name AzureAdClientSecret --value "<new-secret>"
@@ -297,7 +297,7 @@ The Azure AD client secret has an expiration date (typically 1-2 years). To rota
    ```bash
    az webapp restart --name <app-name> --resource-group <rg-name>
    ```
-4. **Delete old secret** from Azure AD after confirming the app works
+4. **Delete old secret** from Entra ID after confirming the app works
 
 **SQL Password Rotation:**
 
@@ -326,10 +326,10 @@ If you suspect a secret has been compromised:
 | Custom domain with Azure certificate | Automatic | Auto-renewed by Azure |
 | Custom uploaded certificate | Manual | Upload new certificate before expiration |
 
-**Azure AD App Certificates (Optional):**
+**Entra ID App Certificates (Optional):**
 
 If using certificate authentication instead of client secrets:
-- Monitor expiration dates in Azure AD → App Registrations → Certificates & secrets
+- Monitor expiration dates in Entra ID → App Registrations → Certificates & secrets
 - Upload new certificate before expiration
 - Update Key Vault with new certificate thumbprint
 
@@ -337,7 +337,7 @@ If using certificate authentication instead of client secrets:
 
 Set up Azure Monitor alerts for:
 - Key Vault secret expiration (90 days before)
-- Azure AD client secret expiration
+- Entra ID client secret expiration
 - SSL certificate expiration (if custom)
 
 ```bash
@@ -351,7 +351,7 @@ az keyvault secret list --vault-name <vault-name> --query "[].{name:name, expire
 
 ```
 ┌──────────────┐         ┌──────────────┐         ┌──────────────┐
-│   Browser    │         │   Azure AD   │         │  App Service │
+│   Browser    │         │   Entra ID   │         │  App Service │
 └──────┬───────┘         └──────┬───────┘         └──────┬───────┘
        │                        │                        │
        │  1. Navigate to app    │                        │
@@ -381,11 +381,11 @@ az keyvault secret list --vault-name <vault-name> --query "[].{name:name, expire
 
 ### Token Validation
 
-The API validates JWT tokens from Azure AD:
+The API validates JWT tokens from Entra ID:
 
-1. **Issuer**: Must match Azure AD tenant
+1. **Issuer**: Must match Entra ID tenant
 2. **Audience**: Must match API Client ID
-3. **Signature**: Validated using Azure AD public keys
+3. **Signature**: Validated using Entra ID public keys
 4. **Expiration**: Token must not be expired
 5. **Claims**: User identity extracted from token
 
@@ -398,16 +398,16 @@ The API validates JWT tokens from Azure AD:
 | Role | How Assigned | Capabilities |
 |------|--------------|--------------|
 | User | Any authenticated user | Browse apps, submit requests, view own requests |
-| Approver | Member of Approver Azure AD Group | Approve/reject requests, view pending approvals |
-| Admin | Member of Admin Azure AD Group | Full access, manage apps, settings, users |
+| Approver | Member of Approver Entra ID Group | Approve/reject requests, view pending approvals |
+| Admin | Member of Admin Entra ID Group | Full access, manage apps, settings, users |
 
 ### Group-Based Authorization
 
 Authorization groups are configured in the database (`PortalSettings` table):
 
 ```sql
-AdminGroupId      -- Azure AD Group Object ID for admins
-ApproverGroupId   -- Azure AD Group Object ID for approvers
+AdminGroupId      -- Entra ID Group Object ID for admins
+ApproverGroupId   -- Entra ID Group Object ID for approvers
 UserAccessGroupId -- (Optional) Restrict access to specific group
 ```
 
@@ -461,7 +461,7 @@ CREATE TABLE AuditLogs (
 
 ### Pre-Deployment
 
-- [ ] Azure AD App Registrations created with minimum required permissions
+- [ ] Entra ID App Registrations created with minimum required permissions
 - [ ] Admin consent granted for application permissions
 - [ ] Strong SQL administrator password configured
 - [ ] Admin Group ID configured (restricts admin access)
@@ -472,12 +472,12 @@ CREATE TABLE AuditLogs (
 - [ ] Verify HTTPS-only access working
 - [ ] Test authentication flow
 - [ ] Verify role-based access (admin vs. user)
-- [ ] Review Azure AD sign-in logs
+- [ ] Review Entra ID sign-in logs
 - [ ] Enable Azure Security Center recommendations
 
 ### Ongoing Operations
 
-- [ ] Rotate Azure AD client secret annually
+- [ ] Rotate Entra ID client secret annually
 - [ ] Review audit logs regularly
 - [ ] Monitor failed authentication attempts
 - [ ] Update application when security patches released
@@ -485,8 +485,8 @@ CREATE TABLE AuditLogs (
 
 ### Optional Enhancements
 
-- [ ] Enable Azure AD Conditional Access policies
-- [ ] Configure Azure AD Identity Protection
+- [ ] Enable Entra ID Conditional Access policies
+- [ ] Configure Entra ID Identity Protection
 - [ ] Implement Private Endpoints for SQL and Key Vault
 - [ ] Add Azure Front Door with WAF
 - [ ] Enable Azure Defender for App Service
@@ -509,7 +509,7 @@ CREATE TABLE AuditLogs (
 
 ### GDPR Considerations
 
-- User data limited to: Name, Email, User ID (from Azure AD)
+- User data limited to: Name, Email, User ID (from Entra ID)
 - No sensitive personal data stored
 - Data can be exported/deleted upon request via database access
 
@@ -519,7 +519,7 @@ CREATE TABLE AuditLogs (
 
 ### Security Event Indicators
 
-Monitor for these events in Azure AD and App Insights:
+Monitor for these events in Entra ID and App Insights:
 
 1. **Multiple failed logins** from same IP
 2. **Unusual geographic access** patterns
@@ -530,7 +530,7 @@ Monitor for these events in Azure AD and App Insights:
 ### Response Actions
 
 1. **Disable App Service** if compromise suspected
-2. **Rotate secrets** (Azure AD client secret, SQL password)
+2. **Rotate secrets** (Entra ID client secret, SQL password)
 3. **Review audit logs** for unauthorized access
 4. **Revoke user access** if account compromised
 5. **Contact Azure Support** for assistance

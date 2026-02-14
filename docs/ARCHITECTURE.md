@@ -9,7 +9,7 @@ This document provides a detailed overview of the App Request Portal architectur
 │                         Azure Cloud                              │
 │                                                                   │
 │  ┌──────────────┐         ┌──────────────┐                      │
-│  │   Azure AD   │◄────────┤   Frontend   │                      │
+│  │   Entra ID   │◄────────┤   Frontend   │                      │
 │  │              │         │  (React SPA) │                      │
 │  └──────┬───────┘         └──────┬───────┘                      │
 │         │                        │                               │
@@ -47,7 +47,7 @@ This document provides a detailed overview of the App Request Portal architectur
 
 **Key Features**:
 - Single-page application for optimal performance
-- Azure AD authentication with SSO
+- Entra ID authentication with SSO
 - Responsive design for desktop and mobile
 - Real-time status updates for app requests
 
@@ -194,7 +194,7 @@ CREATE TABLE PortalSettings (
 
 **Purpose**:
 - Retrieve apps from Intune
-- Manage Azure AD groups
+- Manage Entra ID groups
 - Add/remove users and devices from groups
 - Get user information and manager hierarchy
 
@@ -284,9 +284,9 @@ Both services are optional and can be enabled/disabled independently in Admin Se
 
 ```
 1. User visits frontend
-2. MSAL redirects to Azure AD login
+2. MSAL redirects to Entra ID login
 3. User authenticates
-4. Azure AD returns ID token and access token
+4. Entra ID returns ID token and access token
 5. Frontend stores tokens in session storage
 6. Frontend includes access token in API requests
 7. API validates JWT token
@@ -302,9 +302,9 @@ Both services are optional and can be enabled/disabled independently in Admin Se
 ### Security Features
 
 1. **HTTPS Only**: All communication encrypted in transit
-2. **JWT Authentication**: Stateless authentication with Azure AD
+2. **JWT Authentication**: Stateless authentication with Entra ID
 3. **RBAC**: Role-based access control for granular permissions
-4. **Conditional Access**: Integration with Azure AD Conditional Access policies
+4. **Conditional Access**: Integration with Entra ID Conditional Access policies
 5. **Managed Identity**: Service-to-service authentication without secrets
 6. **Key Vault**: Secure storage of secrets and certificates
 7. **Audit Logging**: Complete audit trail of all actions
@@ -439,7 +439,7 @@ See the [Disaster Recovery Guide](DISASTER-RECOVERY.md) for detailed runbooks co
 ### Setup Wizard
 A guided setup wizard helps administrators configure the portal on first use:
 1. **License** - Enter and validate PowerStacks license key
-2. **Access Groups** - Configure admin and approver Azure AD groups
+2. **Access Groups** - Configure admin and approver Entra ID groups
 3. **Email Notifications** - Set up email sender identity and notification preferences
 4. **Sync Apps** - Import apps from Intune catalog
 

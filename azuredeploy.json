@@ -27,25 +27,25 @@
       "type": "string",
       "defaultValue": "[tenant().tenantId]",
       "metadata": {
-        "description": "The Azure AD tenant ID for authentication (auto-detected from deployment context)"
+        "description": "The Entra ID tenant ID for authentication (auto-detected from deployment context)"
       }
     },
     "apiClientId": {
       "type": "string",
       "metadata": {
-        "description": "The Azure AD application (client) ID for the API"
+        "description": "The Entra ID application (client) ID for the API"
       }
     },
     "apiClientSecret": {
       "type": "securestring",
       "metadata": {
-        "description": "The Azure AD client secret for the API application"
+        "description": "The Entra ID client secret for the API application"
       }
     },
     "frontendClientId": {
       "type": "string",
       "metadata": {
-        "description": "The Azure AD application (client) ID for the frontend SPA"
+        "description": "The Entra ID application (client) ID for the frontend SPA"
       }
     },
     "sqlAdminLogin": {
@@ -81,21 +81,21 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "(Optional) Azure AD group Object ID for administrators. Leave empty to allow all authenticated users."
+        "description": "(Optional) Entra ID group Object ID for administrators. Leave empty to allow all authenticated users."
       }
     },
     "approverGroupId": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "(Optional) Azure AD group Object ID for approvers. Leave empty to allow all authenticated users."
+        "description": "(Optional) Entra ID group Object ID for approvers. Leave empty to allow all authenticated users."
       }
     },
     "emailSendAsUserId": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "(Optional) Azure AD User Object ID to send emails as. Leave empty to disable email notifications."
+        "description": "(Optional) Entra ID User Object ID to send emails as. Leave empty to disable email notifications."
       }
     },
     "emailFromAddress": {
