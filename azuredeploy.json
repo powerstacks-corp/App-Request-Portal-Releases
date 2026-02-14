@@ -135,6 +135,22 @@
       "metadata": {
         "description": "Enable Health Check monitoring (FREE - recommended, requires 2+ instances for full benefit)"
       }
+    },
+    "storageRedundancy": {
+      "type": "string",
+      "defaultValue": "Standard_GRS",
+      "allowedValues": ["Standard_LRS", "Standard_GRS", "Standard_RAGRS"],
+      "metadata": {
+        "description": "Storage redundancy: LRS (local only, cheapest), GRS (geo-redundant, recommended), RAGRS (read-access geo-redundant)"
+      }
+    },
+    "sqlBackupRedundancy": {
+      "type": "string",
+      "defaultValue": "Geo",
+      "allowedValues": ["Local", "Geo"],
+      "metadata": {
+        "description": "SQL backup storage redundancy: Local (single region) or Geo (cross-region, recommended for DR)"
+      }
     }
   },
   "variables": {
@@ -234,7 +250,8 @@
       },
       "properties": {
         "collation": "SQL_Latin1_General_CP1_CI_AS",
-        "maxSizeBytes": 2147483648
+        "maxSizeBytes": 2147483648,
+        "requestedBackupStorageRedundancy": "[parameters('sqlBackupRedundancy')]"
       }
     },
     {
@@ -255,7 +272,7 @@
       "name": "[variables('storageAccountName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "Standard_LRS"
+        "name": "[parameters('storageRedundancy')]"
       },
       "kind": "StorageV2",
       "properties": {

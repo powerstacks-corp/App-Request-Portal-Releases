@@ -204,9 +204,30 @@ Two Azure AD App Registrations are required:
 
 ### SQL Server Firewall
 
-- **Azure Services**: Allowed (firewall rule 0.0.0.0-0.0.0.0)
+The SQL Server is configured with the following security controls:
+
+- **Azure Services**: Allowed (firewall rule `AllowAllWindowsAzureIps`)
+  - This allows the App Service to connect to the database
+  - Other Azure services in the subscription cannot access unless explicitly allowed
 - **Public IP Access**: Denied by default
-- **Private Endpoint**: Not configured (can be added)
+  - No client IP addresses are whitelisted
+  - Database is not accessible from the internet
+- **Private Endpoint**: Not configured by default (can be added for enhanced security)
+
+**Important:** The database is NOT accessible from the public internet. Only Azure services (like the App Service) can connect.
+
+To verify SQL firewall rules:
+```bash
+az sql server firewall-rule list --server <server-name> --resource-group <rg-name>
+```
+
+To add a client IP for temporary admin access:
+```bash
+az sql server firewall-rule create --server <server-name> --resource-group <rg-name> \
+  --name "AdminAccess" --start-ip-address <your-ip> --end-ip-address <your-ip>
+```
+
+**Remember to remove temporary rules after use.**
 
 ### Recommendations for Enhanced Security
 
@@ -260,6 +281,69 @@ AzureStorage__ConnectionString = @Microsoft.KeyVault(SecretUri=https://{vault}.v
 - Access restricted to the App Service's Managed Identity only
 - No direct secret access for users or administrators (must use Azure Portal/CLI with appropriate permissions)
 - All secret access is logged in Key Vault diagnostic logs
+
+### Secret and Key Rotation
+
+**Azure AD Client Secret Rotation:**
+
+The Azure AD client secret has an expiration date (typically 1-2 years). To rotate:
+
+1. **Create new secret** in Azure Portal → Azure AD → App Registrations → Your API App → Certificates & secrets
+2. **Update Key Vault secret**:
+   ```bash
+   az keyvault secret set --vault-name <vault-name> --name AzureAdClientSecret --value "<new-secret>"
+   ```
+3. **Restart App Service** to pick up the new secret:
+   ```bash
+   az webapp restart --name <app-name> --resource-group <rg-name>
+   ```
+4. **Delete old secret** from Azure AD after confirming the app works
+
+**SQL Password Rotation:**
+
+1. **Reset password** in Azure Portal → SQL Server → Reset admin password
+2. **Update connection string** in Key Vault:
+   ```bash
+   az keyvault secret set --vault-name <vault-name> --name SqlConnectionString --value "Server=tcp:..."
+   ```
+3. **Restart App Service**
+
+**Emergency Key Rotation:**
+
+If you suspect a secret has been compromised:
+1. Immediately rotate the affected secret using the steps above
+2. Review Key Vault access logs for unauthorized access
+3. Review App Service logs for unusual activity
+4. Consider rotating all secrets if compromise scope is unknown
+
+### Certificate Management
+
+**SSL Certificates:**
+
+| Certificate Type | Management | Renewal |
+|-----------------|------------|---------|
+| Azure-managed (default) | Automatic | Auto-renewed by Azure |
+| Custom domain with Azure certificate | Automatic | Auto-renewed by Azure |
+| Custom uploaded certificate | Manual | Upload new certificate before expiration |
+
+**Azure AD App Certificates (Optional):**
+
+If using certificate authentication instead of client secrets:
+- Monitor expiration dates in Azure AD → App Registrations → Certificates & secrets
+- Upload new certificate before expiration
+- Update Key Vault with new certificate thumbprint
+
+**Monitoring Expiration:**
+
+Set up Azure Monitor alerts for:
+- Key Vault secret expiration (90 days before)
+- Azure AD client secret expiration
+- SSL certificate expiration (if custom)
+
+```bash
+# Check Key Vault secret expiration dates
+az keyvault secret list --vault-name <vault-name> --query "[].{name:name, expires:attributes.expires}"
+```
 
 ---
 

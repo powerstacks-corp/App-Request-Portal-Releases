@@ -682,6 +682,46 @@ Users can request apps in two ways:
 
 Users can view their request history by clicking **My Requests** in the navigation. This shows all requests they've submitted with current status.
 
+### Request New App
+
+Users can request apps that aren't in the catalog by clicking the **+ Request New App** button on the Browse Apps page.
+
+#### How It Works
+
+1. User fills out the form with app name, publisher, description, and optional download URL
+2. The portal sends an email notification to **all members of the Admin Group**
+3. The email includes:
+   - Requestor name and email
+   - App name and publisher
+   - Business justification provided by the user
+   - Download URL (if provided)
+   - Suggestions for how to add the app (Winget catalog or manual upload)
+4. The request is logged in the audit trail
+
+#### Admin Actions
+
+When you receive a new app request email:
+
+1. **Evaluate the request**: Is this app appropriate for your organization?
+2. **Find the app**:
+   - Check the Winget Catalog in Admin Dashboard for easy publishing
+   - Search for the app in Intune if it's already available
+   - Download from the vendor if needed
+3. **Add to portal**:
+   - Use Winget Catalog to publish directly to Intune, or
+   - Manually add the app to Intune and sync
+4. **Configure visibility**: Make the app visible in the portal
+5. **Notify the user**: Reply to the email or notify the user directly
+
+#### Configuration
+
+The Request New App feature uses your existing email notification settings:
+
+- **Admin Group**: Members receive the notification emails
+- **Email Settings**: Uses the same `Mail.Send` configuration as other notifications
+
+No additional configuration is required. If email notifications are disabled, the feature will return an error to the user.
+
 ## Reports & Analytics
 
 The Admin Dashboard includes comprehensive reporting capabilities to help you understand app request patterns and deployment status.
@@ -813,6 +853,67 @@ The **By Person** tab allows you to search for a specific user and view all thei
 2. View their complete request history
 3. See status, install status, and timestamps for each request
 4. Use the **Retry** button on failed requests to re-attempt group membership
+
+### Audit Trail
+
+The **Audit Trail** tab provides a comprehensive log of all portal activity for compliance and security monitoring.
+
+#### Accessing the Audit Trail
+
+1. Go to **Admin** > **Reports** section
+2. Click the **Audit Trail** button in the report navigation
+3. Use filters to narrow down results
+
+#### Available Filters
+
+| Filter | Description |
+|--------|-------------|
+| **Search** | Free-text search across user email, action, entity, and details |
+| **Action Type** | Filter by specific action (e.g., Request.Submitted, App.Suggested) |
+| **Entity Type** | Filter by entity type (e.g., Request, App, Settings) |
+| **Start Date** | Show events from this date onwards |
+| **End Date** | Show events up to this date |
+
+#### Audit Log Information
+
+Each audit entry includes:
+
+| Field | Description |
+|-------|-------------|
+| **Timestamp** | When the action occurred |
+| **User** | Email address of the user who performed the action |
+| **Action** | The type of action performed |
+| **Entity Type** | The type of object affected |
+| **Entity ID** | Identifier of the affected object |
+| **Details** | Additional context (varies by action type) |
+| **IP Address** | The IP address of the user |
+
+#### Common Actions Logged
+
+| Action | Description |
+|--------|-------------|
+| `Request.Submitted` | User submitted an app request |
+| `Request.Approved` | Approver approved a request |
+| `Request.Rejected` | Approver rejected a request |
+| `Request.Completed` | Request was fulfilled (user added to group) |
+| `App.Suggested` | User submitted a new app request via Request New App form |
+| `Settings.Updated` | Admin changed portal settings |
+| `Apps.Synced` | Admin synced apps from Intune |
+
+#### Exporting Audit Logs
+
+1. Apply any desired filters
+2. Click the **Export CSV** button
+3. A CSV file downloads with all matching audit entries
+4. Use this for compliance reporting or external analysis
+
+#### Audit Log Retention
+
+Audit logs are stored indefinitely in the SQL database. There is no automatic purge. For organizations with high volume, consider:
+
+- Periodic export to long-term storage
+- Database scaling if performance is affected
+- Custom retention policies via direct database management
 
 ## Best Practices
 
@@ -1076,6 +1177,54 @@ ALTER INDEX [IX_AppRequests_UserId] ON [AppRequests] REBUILD;
 ```
 
 However, for the App Request Portal's typical data volumes (hundreds to thousands of app requests), this manual intervention is almost never necessary.
+
+## Disaster Recovery & Backups
+
+The App Request Portal includes built-in disaster recovery features to protect your data.
+
+### What's Automatically Protected
+
+| Component | Protection | Recovery |
+|-----------|------------|----------|
+| **SQL Database** | Automated backups (7-day PITR) + geo-redundant storage | Restore to any point in time |
+| **Storage Account** | Geo-redundant (GRS) with 6 copies across 2 regions | Automatic failover available |
+| **Key Vault Secrets** | Soft delete (7-day recovery) | Recover deleted secrets |
+| **Application Code** | GitHub repository + immutable release packages | Redeploy from ARM template |
+
+### Quick Recovery Actions
+
+**Restore deleted data (SQL):**
+```bash
+az sql db restore --resource-group <rg> --server <server> \
+  --name AppRequestPortal --dest-name AppRequestPortal-Restored \
+  --time "2026-02-14T10:00:00Z"
+```
+
+**Recover deleted Key Vault secret:**
+```bash
+az keyvault secret recover --vault-name <vault> --name AzureAdClientSecret
+```
+
+**Rollback to previous app version:**
+```bash
+az webapp config appsettings set --resource-group <rg> --name <app> \
+  --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases/download/v1.5.5/AppRequestPortal.zip"
+```
+
+### High Availability (Optional)
+
+For organizations requiring higher uptime, see the [Disaster Recovery Guide](DISASTER-RECOVERY.md) for:
+- SQL Active Geo-Replication setup
+- Traffic Manager / Azure Front Door configuration
+- Multi-region deployment patterns
+
+### Monthly Backup Verification
+
+We recommend testing your recovery capability monthly:
+1. Restore SQL database to a point 24 hours ago (test environment)
+2. Verify data integrity
+3. Delete test database
+4. Document actual recovery time
 
 ## Troubleshooting
 

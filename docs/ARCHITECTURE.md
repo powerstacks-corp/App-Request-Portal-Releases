@@ -381,17 +381,58 @@ _logger.LogError(
 
 ## Disaster Recovery
 
-### Backup Strategy
+The default deployment includes Tier 2 disaster recovery capabilities with geo-redundant backups across Azure regions.
 
-- **Database**: Automated backups with point-in-time restore
-- **Configuration**: Infrastructure as Code (Bicep) for quick recovery
-- **Secrets**: Azure Key Vault with soft delete enabled
+### Built-in Protection (Default)
 
-### High Availability
+| Component | Protection | RPO | RTO |
+|-----------|------------|-----|-----|
+| **SQL Database** | Automated backups + geo-redundant storage | 5 min | 1-2 hours |
+| **Storage Account** | Geo-redundant (GRS) - 6 copies across 2 regions | 0 | 1-2 hours |
+| **Key Vault** | Soft delete (7-day recovery window) | 0 | 15 min |
+| **Application** | GitHub releases + ARM template | 0 | 30 min |
 
-- **Multi-region deployment**: Deploy to multiple Azure regions
-- **Traffic Manager**: Automatic failover between regions
-- **Database replication**: Geo-replication for SQL Database
+### Backup Details
+
+- **SQL Point-in-Time Restore**: 7 days (Basic tier), up to 35 days (Standard+)
+- **SQL Geo-Backup**: Cross-region backup for regional disaster recovery
+- **Storage GRS**: Synchronous replication to paired Azure region
+- **Key Vault Soft Delete**: 7-day retention for accidental deletion recovery
+
+### High Availability Options (Tier 3)
+
+For organizations requiring higher uptime, these can be configured manually:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Traffic Manager                           │
+│                  (DNS-based failover)                        │
+└──────────────────────┬───────────────────┬──────────────────┘
+                       │                   │
+           ┌───────────▼───────┐ ┌────────▼────────┐
+           │   Primary Region  │ │ Secondary Region │
+           │  ┌─────────────┐  │ │ ┌─────────────┐  │
+           │  │ App Service │  │ │ │ App Service │  │
+           │  └──────┬──────┘  │ │ └──────┬──────┘  │
+           │         │         │ │        │         │
+           │  ┌──────▼──────┐  │ │ ┌──────▼──────┐  │
+           │  │  SQL (R/W)  │←─┼─┼─┤ SQL (Read)  │  │
+           │  └─────────────┘  │ │ └─────────────┘  │
+           └───────────────────┘ └─────────────────┘
+                 Active              Standby
+```
+
+- **SQL Active Geo-Replication**: ~$5/month (Basic replica)
+- **Traffic Manager**: ~$0.75/million queries
+- **Secondary App Service**: ~$55/month (B2)
+
+### Recovery Procedures
+
+See the [Disaster Recovery Guide](DISASTER-RECOVERY.md) for detailed runbooks covering:
+- Accidental data deletion recovery
+- Key Vault secret recovery
+- Complete region failure recovery
+- Application rollback procedures
 
 ## Admin Features
 
