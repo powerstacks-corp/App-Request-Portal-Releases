@@ -141,6 +141,20 @@
             }
           },
           {
+            "name": "releaseChannel",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Release Channel",
+            "defaultValue": "Stable (Recommended)",
+            "toolTip": "Choose which version to deploy. Stable is recommended for production, Staging includes the latest features and previews.",
+            "constraints": {
+              "required": true,
+              "allowedValues": [
+                { "label": "Stable (Recommended)", "value": "Latest" },
+                { "label": "Staging (Preview Features)", "value": "Staging" }
+              ]
+            }
+          },
+          {
             "name": "appServicePlanSku",
             "type": "Microsoft.Common.DropDown",
             "label": "App Service Plan Size",
@@ -200,6 +214,7 @@
       "frontendClientId": "[steps('authentication').frontendSection.frontendClientId]",
       "sqlAdminLogin": "[steps('database').sqlAdminLogin]",
       "sqlAdminPassword": "[steps('database').sqlAdminPassword]",
+      "releaseChannel": "[steps('advanced').releaseChannel]",
       "appServicePlanSku": "[steps('advanced').appServicePlanSku]",
       "appServicePlanInstanceCount": "[steps('advanced').appServicePlanInstanceCount]",
       "enableAutoHeal": "[steps('advanced').enableAutoHeal]",
