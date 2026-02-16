@@ -64,17 +64,10 @@
     },
     "releaseChannel": {
       "type": "string",
-      "defaultValue": "stable",
-      "allowedValues": ["stable", "beta", "custom"],
+      "defaultValue": "Latest",
+      "allowedValues": ["Latest", "Staging"],
       "metadata": {
-        "description": "Release channel: 'stable' for production-ready releases, 'beta' for preview features, 'custom' to specify a version"
-      }
-    },
-    "customVersion": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "(Only used when releaseChannel is 'custom') Specific version to deploy (e.g., '1.1.0', '1.2.0-beta.1'). Leave empty for latest stable."
+        "description": "Release channel: 'Latest' for stable production releases, 'Staging' for preview/beta features"
       }
     },
     "adminGroupId": {
@@ -163,10 +156,9 @@
     "logAnalyticsName": "[concat('la-apprequest-', parameters('environmentName'))]",
     "keyVaultName": "[concat('kv-appreq-', uniqueString(resourceGroup().id))]",
     "releasesBaseUrl": "https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases",
-    "stablePackageUrl": "[concat(variables('releasesBaseUrl'), '/latest/download/AppRequestPortal.zip')]",
-    "betaPackageUrl": "[concat(variables('releasesBaseUrl'), '/download/beta/AppRequestPortal.zip')]",
-    "customPackageUrl": "[if(empty(parameters('customVersion')), variables('stablePackageUrl'), concat(variables('releasesBaseUrl'), '/download/v', parameters('customVersion'), '/AppRequestPortal.zip'))]",
-    "packageUrl": "[if(equals(parameters('releaseChannel'), 'stable'), variables('stablePackageUrl'), if(equals(parameters('releaseChannel'), 'beta'), variables('betaPackageUrl'), variables('customPackageUrl')))]",
+    "latestPackageUrl": "[concat(variables('releasesBaseUrl'), '/latest/download/AppRequestPortal.zip')]",
+    "stagingPackageUrl": "[concat(variables('releasesBaseUrl'), '/download/staging/AppRequestPortal.zip')]",
+    "packageUrl": "[if(equals(parameters('releaseChannel'), 'Latest'), variables('latestPackageUrl'), variables('stagingPackageUrl'))]",
     "deployPackage": true,
     "websiteContributorRoleId": "de139f84-1756-47ae-9be6-808fbbe84772",
     "skuTierMap": {
