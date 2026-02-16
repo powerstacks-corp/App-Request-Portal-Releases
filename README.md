@@ -64,12 +64,17 @@ The deployment creates the following Azure resources:
 - **Version History & Rollback** - Track app versions and rollback to previous versions if needed
 - **Bulk Publishing** - Publish multiple Winget packages to Intune in one operation
 
+### Reporting & Analytics
+- **Intune Install Status Tracking** - Real-time deployment status monitoring (Pending, Installing, Installed, Failed)
+- **Dashboard Charts & Trends** - Visualize request patterns, top apps, and completion trends over time
+- **ROI Calculator** - Quantify help desk cost savings with automated app deployment
+- **Detailed Reports** - Export analytics by app, user, approval activity, and installation status
+- **Application Insights Integration** - Performance metrics, error tracking, and usage analytics
+
 ### Advanced Features
 - **SLA Tracking** - Monitor request processing times with configurable SLA targets and breach alerts
 - **Bulk Operations** - Request multiple apps at once or process multiple approvals simultaneously
 - **Request on Behalf** - IT staff can submit requests for other users
-- **Application Insights Dashboard** - Performance metrics, error tracking, and usage analytics
-- **Reports & ROI Calculator** - Detailed analytics showing help desk cost savings and request trends
 - **Branding** - Customize logo, colors, and text to match your organization
 - **Dark Mode** - Admin-configurable with user override option
 
