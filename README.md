@@ -59,7 +59,7 @@ The deployment creates the following Azure resources:
 - **Windows, macOS, Linux** - Multi-platform app deployment
 
 ### Winget Integration
-- **Winget Package Browser** - Browse and publish apps from the Windows Package Manager catalog
+- **Winget Package Browser** - Browse and publish apps from the Windows Package Manager catalog to Intune
 - **Auto-Update Detection** - Automatically detect available updates for Winget-sourced apps
 - **Version History & Rollback** - Track app versions and rollback to previous versions if needed
 - **Bulk Publishing** - Publish multiple Winget packages to Intune in one operation
