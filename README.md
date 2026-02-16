@@ -45,16 +45,33 @@ The deployment creates the following Azure resources:
 
 ## Features
 
+### Core Capabilities
 - **Self-Service App Catalog** - Users browse and request apps from your Intune library
 - **Approval Workflows** - Configurable multi-stage approvals with manager and group-based routing
+- **Conditional Workflows** - Route approvals based on cost, category, platform, publisher, or department
 - **Actionable Email Notifications** - Approve/reject directly from email without visiting the portal (Office 365 MessageCard format)
 - **Auto-Escalation** - Automatically escalate stale approval requests with configurable thresholds
 - **Per-App Acknowledgments** - Require users to acknowledge terms before requesting specific apps
-- **Automatic Group Management** - Creates Azure AD groups and Intune assignments automatically
-- **Dark Mode** - Admin-configurable with user override option
-- **Reports & Analytics** - ROI calculator, usage reports, and approval metrics
+- **Automatic Group Management** - Creates Entra ID groups and Intune assignments automatically
+
+### Mobile & Platform Support
+- **iOS & Android Apps** - Full support for iOS App Store, Google Play Store, and VPP apps
+- **Windows, macOS, Linux** - Multi-platform app deployment
+
+### Winget Integration
+- **Winget Package Browser** - Browse and publish apps from the Windows Package Manager catalog
+- **Auto-Update Detection** - Automatically detect available updates for Winget-sourced apps
+- **Version History & Rollback** - Track app versions and rollback to previous versions if needed
+- **Bulk Publishing** - Publish multiple Winget packages to Intune in one operation
+
+### Advanced Features
+- **SLA Tracking** - Monitor request processing times with configurable SLA targets and breach alerts
+- **Bulk Operations** - Request multiple apps at once or process multiple approvals simultaneously
+- **Request on Behalf** - IT staff can submit requests for other users
+- **Application Insights Dashboard** - Performance metrics, error tracking, and usage analytics
+- **Reports & ROI Calculator** - Detailed analytics showing help desk cost savings and request trends
 - **Branding** - Customize logo, colors, and text to match your organization
-- **Winget Integration** - Browse and publish apps from the Windows Package Manager catalog
+- **Dark Mode** - Admin-configurable with user override option
 
 ---
 
