@@ -47,6 +47,7 @@ The deployment creates the following Azure resources:
 
 ### Core Capabilities
 - **Self-Service App Catalog** - Users browse and request apps from your Intune library
+- **User & Device Targeting** - Deploy apps to user profiles or specific devices
 - **Approval Workflows** - Configurable multi-stage approvals with manager and group-based routing
 - **Conditional Workflows** - Route approvals based on cost, category, platform, publisher, or department
 - **Actionable Email Notifications** - Approve/reject directly from email without visiting the portal (Office 365 MessageCard format)
