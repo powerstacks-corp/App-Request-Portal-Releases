@@ -459,6 +459,86 @@ If you didn't add them during initial setup:
 - **User not found**: Verify the user has a valid Teams license and can receive chats
 - **Messages not appearing**: Check that the app has been granted tenant-wide admin consent
 
+## Troubleshooting Deployment Issues
+
+### Key Vault Reference Failures (Red X Marks)
+
+After deploying to Azure App Service, you may see red X marks next to Key Vault references in the Configuration settings, indicating the app cannot access secrets. This is usually caused by Azure AD identity propagation delays.
+
+**Symptoms:**
+- App Service Configuration shows red X marks next to Key Vault source settings
+- `/health` endpoint returns 503 Service Unavailable
+- `/health/migrations` returns error: `Keyword not supported: '@microsoft.keyvault'`
+- App logs show "ArgumentException" related to connection strings
+
+**Root Cause:**
+When deploying with Managed Identity and Key Vault for the first time, there's a 5-15 minute propagation delay for the identity to sync across Azure services. During this time, the App Service cannot resolve Key Vault references.
+
+**Solution:**
+
+1. **Wait for propagation (recommended for new deployments):**
+   - After deployment completes, wait 10-15 minutes
+   - Refresh the Configuration page to check if red X marks turn to green checkmarks
+   - Restart the App Service
+   - Verify `/health` and `/health/migrations` endpoints return successful responses
+
+2. **Verify Managed Identity is enabled:**
+   - Go to App Service → **Identity** → **System assigned**
+   - Ensure Status is **On**
+   - Note the **Object (principal) ID**
+
+3. **Verify Key Vault access policy:**
+   - Go to Key Vault → **Access policies**
+   - Verify an access policy exists for your App Service's Managed Identity
+   - Required permissions: **Get** and **List** under Secret permissions
+   - If missing, click **+ Create** and add the App Service principal
+
+4. **Check Key Vault networking:**
+   - Go to Key Vault → **Networking**
+   - Ensure either:
+     - "Allow public access from all networks" is selected, OR
+     - App Service outbound IPs are added to the firewall allowlist
+
+5. **Verify secret names match:**
+   - Go to Key Vault → **Secrets**
+   - Verify these secrets exist:
+     - `AzureAdClientSecret` (or similar name for the client secret)
+     - `SqlConnectionString` (or the name referenced in connection strings)
+     - `StorageConnectionString` (if using Azure Storage)
+   - In App Service → Configuration, click "Show value" on each Key Vault reference
+   - The secret name in the URL must **exactly match** the secret name in Key Vault (case-sensitive)
+
+6. **Force refresh:**
+   - Go to App Service → **Restart**
+   - Wait 2-3 minutes for cold start
+   - Check Configuration again for green checkmarks
+
+**Prevention for Future Deployments:**
+- After deploying ARM template, wait 10 minutes before testing the app
+- Use `/health/migrations` endpoint to verify database connectivity before troubleshooting further
+- Always check Configuration page for green checkmarks on Key Vault references
+
+### Database Migration Issues
+
+**Symptoms:**
+- `/health/migrations` shows `"pendingCount" > 0`
+- Portal returns "Error loading settings" or "Error saving license key"
+- Database tables are missing
+
+**Solution:**
+1. Verify `/health/migrations` endpoint shows pending migrations
+2. Restart the App Service (migrations auto-apply on startup)
+3. Wait 2 minutes and check `/health/migrations` again
+4. If still pending, check Application Insights logs for migration errors
+5. Common errors:
+   - **SQL firewall:** Add App Service IP to SQL Server firewall rules
+   - **Connection timeout:** Increase timeout in connection string
+   - **Permission denied:** Ensure SQL user has db_owner role
+
+See [.claude/DEPLOYMENT-CHECKLIST.md](.claude/DEPLOYMENT-CHECKLIST.md) for comprehensive post-deployment verification steps.
+
+---
+
 ## Next Steps
 
 - Read the [Admin Guide](ADMIN-GUIDE.md) to learn how to configure the portal through the web UI
