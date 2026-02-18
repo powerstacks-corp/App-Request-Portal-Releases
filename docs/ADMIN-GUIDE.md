@@ -508,6 +508,25 @@ Unsupported apps appear in the admin UI with their type displayed, but the **Vis
 
 Use this to control which Intune apps are available for self-service requests. Apps that shouldn't be requested (system apps, dependencies, etc.) should remain hidden.
 
+**Hiding Apps with Active Deployments:**
+
+When you uncheck the "Visible" toggle on an app that has an active Intune deployment and Azure AD group, a confirmation dialog appears asking:
+
+> Are you sure you want to hide "[App Name]"?
+>
+> This app has an Intune deployment (GroupName).
+>
+> Do you want to also delete the deployment group and assignment?
+>
+> • Click OK to hide the app AND delete the deployment/group
+> • Click Cancel to hide the app but keep the deployment/group
+
+This gives you two options:
+- **OK**: Hides the app from the catalog AND removes the Intune assignment and deletes the Azure AD deployment group
+- **Cancel**: Only hides the app from the catalog but preserves the deployment infrastructure (useful if you plan to make it visible again later)
+
+> **Note:** Deleting the deployment and group is permanent. Users who currently have the app will lose access when group membership is removed.
+
 **Automatic Deployment Setup:**
 
 When you toggle an app's visibility to **Yes** for the first time, the portal automatically:
@@ -528,8 +547,17 @@ This automation ensures that when a user's request is approved, they simply need
 
 - **Yes**: Requests go through the configured approval workflow before completion
 - **No**: Requests are auto-approved and the user/device is immediately added to the target group
+- **Disabled** (grayed out): App is not visible - approval can only be enabled for visible apps
 
 Use "No" for low-risk apps that don't need oversight. Use "Yes" for apps that need manager or IT approval.
+
+**Approval Requires Visibility:**
+
+The approval toggle is automatically disabled if the app is not visible. This validation ensures that:
+- You cannot enable approval for apps that users cannot see in the catalog
+- You cannot hide an app that currently requires approval (you must disable approval first)
+
+If you try to enable approval for a hidden app, you'll see the tooltip: "App must be visible to enable approval".
 
 ### Edit App Modal
 
@@ -1057,9 +1085,22 @@ The **Winget Catalog** tab in the Admin Dashboard allows you to browse over 9,00
 ### Publishing to Intune
 
 1. Find the app you want to publish
-2. Click **Publish to Intune** button on the package card
-3. A packaging job is created and queued for processing
-4. Monitor job status in the **Packaging Jobs** section below the catalog
+2. **Select architecture and locale** (if available):
+   - Each package card displays available architectures (e.g., x64, x86, arm64) and locales (e.g., en-US, de-DE, fr-FR)
+   - If multiple options are available, they appear as dropdown selectors
+   - If only one option is available, it appears as a label showing what will be published
+   - Default selections: x64 for architecture, en-US for locale
+3. Click **Publish to Intune** button on the package card
+4. A packaging job is created with your selected architecture and locale
+5. Monitor job status in the **Packaging Jobs** section below the catalog
+
+**Architecture and Locale Tracking:**
+
+When apps are published from the WinGet catalog:
+- The selected architecture and locale are stored in the packaging job
+- When the app is synced from Intune, it automatically inherits these values
+- Deployment groups are named to include both: `AppPortal-AppName-x64-en-US-Required`
+- This helps identify which variant of multi-architecture apps is deployed
 
 ### Packaging Jobs
 

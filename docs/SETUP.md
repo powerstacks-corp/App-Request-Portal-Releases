@@ -47,7 +47,7 @@ You need to create two app registrations in Entra ID:
      - `DeviceManagementApps.ReadWrite.All` - Manage Intune apps and create assignments
      - `DeviceManagementManagedDevices.Read.All` - Read user devices
      - `Group.ReadWrite.All` - Create and manage security groups
-     - `User.Read.All` - Read user profiles
+     - `User.Read.All` - Read user profiles, photos, managers, and group memberships
      - `Directory.Read.All` - Read directory data
      - `Mail.Send` - Send email notifications (optional, see Step 9)
      - `Chat.Create` - Create Teams chats for direct approver notifications (optional, see Step 11)
