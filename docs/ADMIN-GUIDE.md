@@ -588,6 +588,76 @@ For apps that just need someone from the Approver Group to sign off:
 
 See [APPROVAL-WORKFLOWS.md](APPROVAL-WORKFLOWS.md) for detailed workflow configuration options.
 
+### Version History and Rollback
+
+The portal tracks version history for apps published from the Winget Catalog, enabling you to rollback to previous versions if a new version introduces issues.
+
+#### Viewing Version History
+
+1. Go to **Admin** > **App Management** tab
+2. Find the app in the app table
+3. Click the **History** button in the Actions column
+4. The Version History modal displays all recorded versions
+
+#### Understanding Version Status
+
+Each version in the history shows a status badge:
+
+| Status | Description |
+|--------|-------------|
+| **Current** (blue) | The version currently deployed in Intune |
+| **Archived** (gray) | Previous version that was deployed, available for rollback |
+| **Failed** (red) | Deployment or publish attempt that failed |
+
+#### Version Information Displayed
+
+For each version, you'll see:
+
+- **Version number** - The semantic version (e.g., "1.2.3")
+- **Recorded date** - When this version was detected/published
+- **Updated by** - User who published this version (if available)
+- **Installer size** - Size of the installer package
+- **Release notes** - Change summary for this version
+- **Package ID** - WinGet package identifier (e.g., "7zip.7zip")
+
+#### Rolling Back to a Previous Version
+
+If a new app version causes issues, you can rollback to a previous version:
+
+1. Open the **Version History** modal for the app
+2. Find the version you want to rollback to (must have "Archived" status)
+3. Click the **Rollback** button on that version
+4. Click **Confirm Rollback** to proceed
+5. The portal will:
+   - Re-publish the selected version to Intune
+   - Update the app assignment with the older version
+   - Mark the rolled-back version as "Current"
+   - Archive the previously current version
+
+> **Important:** Rollback is only available for versions marked as "Archived". Failed deployments and the current version cannot be rolled back to.
+
+#### Version History Limitations
+
+- **Winget apps only**: Version history is only tracked for apps published from the Winget Catalog
+- **Manual Intune apps**: Apps added directly to Intune (not via portal) do not have version history
+- **Retention policy**: By default, the portal keeps all versions indefinitely. Admins can configure retention limits in Settings
+
+#### Troubleshooting Rollback Issues
+
+**Rollback button is grayed out:**
+- Only "Archived" versions can be rolled back to
+- Ensure the version's installer is still available
+
+**Rollback fails:**
+- Check Graph API permissions (`DeviceManagementApps.ReadWrite.All`)
+- Verify the installer URL is still accessible
+- Review API logs for detailed error messages
+
+**Version history is empty:**
+- Version history only tracks apps published through the portal
+- If you synced an existing Intune app, its pre-sync versions are not tracked
+- Only new publishes/updates will appear in history
+
 ## Pending Approvals
 
 The Pending Approvals tab shows all requests waiting for your approval.
@@ -953,7 +1023,7 @@ With automatic group and assignment creation, the portal handles most group mana
 
 ## Winget Catalog & Cloud Packaging
 
-The **Winget Catalog** tab in the Admin Dashboard allows you to browse over 10,000 apps from the Windows Package Manager repository and publish them directly to Intune as Win32 apps.
+The **Winget Catalog** tab in the Admin Dashboard allows you to browse over 9,000 apps from Microsoft's official WinGet repository ([microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs)) and publish them directly to Intune as Win32 apps. Package manifests are fetched directly from GitHub (no third-party services), ensuring zero supply chain attack risk.
 
 ### Browsing the Winget Catalog
 
@@ -1027,7 +1097,33 @@ In **Admin** > **Settings** > **Winget Integration**:
 
 | Setting | Description |
 |---------|-------------|
-| **Winget Repository API URL** | Custom Winget API endpoint. Leave empty to use the public api.winget.run. Use this to point to a private/trusted repository. |
+| **WinGet Repository URL** | GitHub repository URL for WinGet packages. Default: `https://github.com/microsoft/winget-pkgs` (Microsoft's official repository). Format: `https://github.com/owner/repo` or `owner/repo`. Organizations with custom/private WinGet repositories can point to their internal GitLab/GitHub mirror. **Warning**: Changing this will clear the entire package cache. |
+| **GitHub Personal Access Token** | Optional GitHub Personal Access Token for authenticated API requests. Increases rate limit from 60/hour to 5,000/hour. Recommended for faster initial sync and reliability. Create a classic token at [https://github.com/settings/tokens](https://github.com/settings/tokens) with `public_repo` scope. |
+
+#### Why Use a GitHub Token?
+
+**Without token** (unauthenticated):
+- 60 API requests per hour
+- Initial cache sync takes 2-3 hours
+- May hit rate limits during heavy use
+
+**With token** (authenticated):
+- 5,000 API requests per hour
+- Initial cache sync takes 30-60 minutes
+- Reliable operation even with many users
+
+**Creating a GitHub Personal Access Token:**
+
+1. Go to [GitHub Settings → Personal Access Tokens → Tokens (classic)](https://github.com/settings/tokens)
+2. Click "Generate new token" → "Generate new token (classic)"
+3. Give it a descriptive name: "App Request Portal WinGet Integration"
+4. Select scope: **public_repo** (Access public repositories)
+5. Click "Generate token"
+6. Copy the token (starts with `ghp_...`)
+7. Paste into Admin Settings → WinGet Integration → GitHub Personal Access Token
+8. Click Save Settings
+
+**Note**: Tokens are stored securely in Azure Key Vault and never exposed in logs or UI.
 
 ### Local Development Testing
 
