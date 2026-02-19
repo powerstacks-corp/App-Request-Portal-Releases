@@ -380,7 +380,7 @@ Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json):
 - **User not found**: Verify the `SendAsUserId` is a valid Object ID
 - **Email not sent**: Check the API logs for detailed error messages
 
-## Step 10: Configure Microsoft Teams Notifications (Optional)
+## Step 10: Configure Microsoft Teams Channel Notifications (Optional)
 
 Send notifications to a Microsoft Teams channel when app requests are submitted, approved, or rejected.
 
@@ -395,7 +395,7 @@ Send notifications to a Microsoft Teams channel when app requests are submitted,
 ### Configure in Portal
 
 1. Navigate to **Admin** > **Settings** tab
-2. Under **Microsoft Teams Notifications**:
+2. Under **Microsoft Teams Channel Notifications**:
    - Toggle **Enable Teams notifications** on
    - Paste the **Webhook URL**
    - Click **Test** to verify the connection

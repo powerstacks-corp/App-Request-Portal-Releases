@@ -59,7 +59,7 @@ Configure how the portal sends email notifications for request submissions and a
 
 > **Note:** The app registration must have the `Mail.Send` Microsoft Graph permission with admin consent granted.
 
-### Microsoft Teams Notifications
+### Microsoft Teams Channel Notifications
 
 Send notifications to a Microsoft Teams channel when app requests are submitted, approved, or rejected. This uses Teams Incoming Webhooks for simple, secure integration.
 
@@ -96,7 +96,7 @@ Send notifications to a Microsoft Teams channel when app requests are submitted,
 **Step 3: Configure the Portal**
 
 1. Go to **Admin** > **Settings** tab
-2. Scroll to **Microsoft Teams Notifications**
+2. Scroll to **Microsoft Teams Channel Notifications**
 3. Enable **Enable Teams notifications**
 4. Paste the webhook URL in the **Webhook URL** field
 5. Click **Test** to verify the connection - you should see a test message in Teams
