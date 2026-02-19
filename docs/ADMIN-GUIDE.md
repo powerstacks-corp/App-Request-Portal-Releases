@@ -38,9 +38,8 @@ The wizard saves your settings as you progress through each step. You can skip t
 **Quick Reference Commands** (shown in wizard completion):
 | Component | Command |
 |-----------|---------|
-| API | `cd src/AppRequestPortal.API && dotnet run` |
+| API (includes packaging service) | `cd src/AppRequestPortal.API && dotnet run` |
 | Web | `cd src/AppRequestPortal.Web && npm start` |
-| Packager | `cd src/AppRequestPortal.PackagingAgent && dotnet run` |
 
 ## Portal Settings
 
@@ -1109,50 +1108,42 @@ The Packaging Jobs section shows all queued and completed packaging operations:
 | Status | Description |
 |--------|-------------|
 | **Pending** | Job is queued, waiting for processing |
-| **Downloading** | Cloud agent is downloading the package from Winget |
-| **Packaging** | Creating .intunewin package with IntuneWinAppUtil |
+| **Downloading** | Downloading the installer from WinGet manifest URL |
+| **Packaging** | Wrapping in PSADT v4 and creating .intunewin package |
 | **Uploading** | Uploading package to Intune via Graph API |
 | **Creating** | Creating Win32LobApp in Intune |
 | **Completed** | App successfully created in Intune |
 | **Failed** | Error occurred - click Retry to requeue |
 
-### Cloud Packaging Architecture
+### Packaging Architecture
 
-The packaging process runs entirely in the cloud using Azure Container Instance:
+The packaging process runs in-process on the App Service — no separate containers, agents, or functions needed:
 
 1. **Queue Message**: When you click "Publish to Intune", a job is added to Azure Storage Queue
-2. **Azure Function**: A queue-triggered function detects the new message
-3. **Container Instance**: The function starts a Windows container with IntuneWinAppUtil.exe
-4. **Package Creation**: The container downloads the app, creates the .intunewin package
-5. **Intune Upload**: The package is uploaded to Intune and a Win32 app is created
+2. **Background Service**: The in-process `PackagingQueueService` picks up the job
+3. **Download**: Installer is downloaded from the URL in the WinGet manifest
+4. **PSADT Wrapping**: Installer is wrapped in PSAppDeployToolkit v4 for standardized deployment
+5. **Package Creation**: `.intunewin` package is created using the cross-platform SvRooij.ContentPrep library
+6. **Intune Upload**: The package is uploaded and a Win32LobApp is created via Graph API
 
-No on-premises infrastructure is required. Containers start on-demand and terminate when complete.
+**Detection scripts** are auto-generated using `AppsAndFeaturesEntries` from WinGet manifests, providing accurate ProductCode (MSI GUID) or DisplayName + Version matching against Add/Remove Programs registry entries.
 
-### Setting Up Cloud Packaging
+**Install/Uninstall commands** are standardized across all packages:
+- Install: `Invoke-AppDeployToolkit.exe -DeploymentType Install -DeployMode Silent`
+- Uninstall: `Invoke-AppDeployToolkit.exe -DeploymentType Uninstall -DeployMode Silent`
 
-If you deployed with `enablePackagingAgent=true` (default), the infrastructure is already in place. You just need to:
+### Setting Up Packaging
 
-1. **Build and push the container image**:
-   ```bash
-   # Authenticate to your Azure Container Registry
-   az acr login --name <your-acr-name>
+Packaging works out of the box with the default deployment. No additional setup is required beyond:
 
-   # Build and push the packaging agent image
-   cd src/AppRequestPortal.PackagingAgent
-   docker build -t <your-acr>.azurecr.io/packaging-agent:latest .
-   docker push <your-acr>.azurecr.io/packaging-agent:latest
-   ```
-
-2. **Deploy the Azure Function**:
-   ```bash
-   cd src/AppRequestPortal.PackagingTrigger
-   func azure functionapp publish <your-function-app-name>
-   ```
-
+1. **Azure Storage Account** (deployed by default via Bicep template)
+2. **Graph API permissions** for Intune app management (see Prerequisites)
 3. **Verify connectivity**:
    - Go to Admin > Winget Catalog
    - Try publishing a test app (e.g., "7-Zip")
    - Check Packaging Jobs for status
+
+The PSADT v4 template is automatically downloaded from the [official GitHub repository](https://github.com/PSAppDeployToolkit/PSAppDeployToolkit) on first use and cached in Azure Blob Storage.
 
 ### Winget Integration Settings
 
@@ -1190,69 +1181,46 @@ In **Admin** > **Settings** > **Winget Integration**:
 
 ### Local Development Testing
 
-For developers testing the packaging feature locally (without Azure Container Instance):
+For developers testing the packaging feature locally:
 
 1. **Prerequisites**:
-   - Download [IntuneWinAppUtil.exe](https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool) to `C:\Tools\IntuneWinAppUtil.exe`
-   - Ensure Winget CLI is installed on your machine
-   - Azure Storage account configured (uses the same storage queue as production)
+   - Azure Storage account configured (uses the same storage queue and blob container as production)
+   - Graph API credentials configured for Intune access
 
-2. **Configure the Packaging Agent** (`src/AppRequestPortal.PackagingAgent/appsettings.json`):
-   ```json
-   {
-     "PortalApi": {
-       "BaseUrl": "http://localhost:5000",
-       "ApiKey": ""
-     },
-     "IntuneWinAppUtil": {
-       "Path": "C:\\Tools\\IntuneWinAppUtil.exe"
-     }
-   }
-   ```
-
-3. **Configure the API** (`src/AppRequestPortal.API/appsettings.json`):
+2. **Configure the API** (`src/AppRequestPortal.API/appsettings.json`):
    - Ensure `AzureStorage:ConnectionString` points to your Azure Storage account
-   - Optionally set `PackagingAgent:ApiKey` to secure the callback endpoints
 
-4. **Run all services**:
+3. **Run the services**:
    ```bash
-   # API (port 5000)
+   # API with background packaging service (port 5000)
    cd src/AppRequestPortal.API && dotnet run
 
    # Frontend (port 3000)
    cd src/AppRequestPortal.Web && npm start
-
-   # Packaging Agent (polls queue)
-   cd src/AppRequestPortal.PackagingAgent && dotnet run
    ```
 
-5. **Test**: Go to Admin > Winget Catalog, search for an app, click "Publish to Intune". The local agent will pick up the job and process it.
+4. **Test**: Go to Admin > Winget Catalog, search for an app, click "Publish to Intune". The in-process background service will pick up the job and process it.
 
-### Troubleshooting Cloud Packaging
+### Troubleshooting Packaging
 
 **Jobs stuck in Pending:**
-- Verify the Azure Function is deployed and running (or the local Packaging Agent is running)
-- Check Function App logs in Azure Portal
-- Ensure the storage queue connection is configured
+- Verify the App Service is running and the background service started (check Application Insights logs for `PackagingQueueService`)
+- Ensure the `AzureStorage:ConnectionString` is configured correctly
+- Check that the storage queue `packaging-jobs` exists
 
-**Jobs failing with download errors:**
-- The agent tries multiple download methods (Winget, Chocolatey, direct download)
-- Check if the package exists and is accessible
-- For local testing: ensure Winget CLI is installed and working
+**Jobs failing during download:**
+- The service downloads directly from the installer URL in the WinGet manifest
+- Check if the package exists in the Microsoft winget-pkgs repository
+- Review logs for HTTP errors or GitHub API rate limits
+
+**Jobs failing during PSADT wrapping:**
+- PSADT wrapping has graceful fallback — if it fails, the raw installer is packaged instead
+- Check logs for `PsadtService` entries
+- First-time use requires downloading the PSADT template from GitHub; ensure outbound HTTPS is allowed
 
 **Jobs failing during upload:**
 - Verify the API has Graph API permissions for Intune (`DeviceManagementApps.ReadWrite.All`)
-- Check the `PortalApi:BaseUrl` setting points to your API
 - Review API logs for Graph API errors (detailed error messages are logged)
-
-**Jobs failing with "Request body too large":**
-- This was fixed in recent updates. Ensure your API is running the latest code
-- The `/api/packaging/jobs/{id}/complete` endpoint now has `[DisableRequestSizeLimit]` attribute
-
-**Container not starting (Azure):**
-- Verify the container image is pushed to ACR
-- Check ACR credentials in Function App settings
-- Ensure the subscription has Windows container quota available
 
 ## Database Maintenance
 
