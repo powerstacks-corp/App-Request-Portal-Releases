@@ -116,7 +116,7 @@ Two Entra ID App Registrations are required:
 | Microsoft Graph | `DeviceManagementApps.ReadWrite.All` | Application | Create/update Intune apps |
 | Microsoft Graph | `DeviceManagementManagedDevices.Read.All` | Application | Count managed devices for licensing |
 | Microsoft Graph | `Group.ReadWrite.All` | Application | Create and manage Entra ID groups |
-| Microsoft Graph | `User.Read.All` | Application | Read user profiles, photos, managers, and group memberships |
+| Microsoft Graph | `User.Read.All` | Application | Read user profiles, managers, and group memberships |
 | Microsoft Graph | `Directory.Read.All` | Application | Read directory data |
 | Microsoft Graph | `Mail.Send` | Application | Send email notifications (optional) |
 
@@ -138,7 +138,7 @@ Two Entra ID App Registrations are required:
 
 | API | Permission | Type | Purpose |
 |-----|-----------|------|---------|
-| Microsoft Graph | `User.Read` | Delegated | Read signed-in user's profile |
+| Microsoft Graph | `User.Read` | Delegated | Read signed-in user's profile and photo |
 | Backend API | `access_as_user` | Delegated | Call backend API on behalf of user |
 
 **Redirect URIs**:
