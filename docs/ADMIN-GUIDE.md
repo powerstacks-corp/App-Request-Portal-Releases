@@ -530,9 +530,10 @@ This gives you two options:
 
 When you toggle an app's visibility to **Yes** for the first time, the portal automatically:
 
-1. **Creates an Entra ID Security Group** named `{GroupNamePrefix}{AppName}-Required`
-   - Example: `AppPortal-Microsoft Teams-Required`
+1. **Creates an Entra ID Security Group** named `{GroupNamePrefix}{AppName}-{arch}-{locale}-v{version}-Required`
+   - Example: `AppPortal-Microsoft Teams-x64-en-US-v1-0-0-Required`
    - The prefix is configurable in Settings (default: `AppPortal-`)
+   - Dots in version numbers are replaced with dashes (e.g., `1.0.0` becomes `v1-0-0`)
 
 2. **Creates an Intune App Assignment**
    - The app is assigned as **Required** to the new security group
@@ -634,6 +635,22 @@ For apps that just need someone from the Approver Group to sign off:
    - **Linear**: Specific users approve in sequence
    - **Pooled**: Any member of specified groups can approve
 3. Add approval stages as needed
+
+#### Conditional Stages (v1.8.2)
+
+Each approval stage can be made conditional, so it only applies when specific criteria are met:
+
+1. Open the Approval Workflow Editor for an app
+2. Add a stage and assign an approver or group
+3. Toggle "Make this stage conditional"
+4. Add conditions using the condition builder:
+   - Select a condition type (Department, Cost Center, Job Title, Location, Platform, Request Count)
+   - Choose an operator (Equals, Not Equals, Contains, etc.)
+   - Enter the comparison value
+5. Add multiple conditions with AND/OR logic
+6. A human-readable summary of the conditions is shown on the stage card
+
+See [APPROVAL-WORKFLOWS.md](APPROVAL-WORKFLOWS.md#conditional-workflows-v160-ui-in-v182) for detailed condition types and operators.
 
 See [APPROVAL-WORKFLOWS.md](APPROVAL-WORKFLOWS.md) for detailed workflow configuration options.
 
@@ -1057,7 +1074,7 @@ Audit logs are stored indefinitely in the SQL database. There is no automatic pu
 With automatic group and assignment creation, the portal handles most group management for you:
 
 1. **Automatic Setup**: When you make an app visible, the portal creates a security group and Intune assignment automatically
-2. **Consistent Naming**: Groups follow the pattern `{GroupNamePrefix}{AppName}-Required` (e.g., `AppPortal-Microsoft Teams-Required`)
+2. **Consistent Naming**: Groups follow the pattern `{GroupNamePrefix}{AppName}-{arch}-{locale}-v{version}-Required` (e.g., `AppPortal-Microsoft Teams-x64-en-US-v1-0-0-Required`). Dots in version numbers are replaced with dashes.
 3. **Custom Prefix**: Configure the Group Name Prefix in Settings to match your organization's naming conventions
 4. **Manual Override**: You can still manually set a Target Group on an app if you prefer to use an existing group
 
@@ -1077,9 +1094,10 @@ The **Winget Catalog** tab in the Admin Dashboard allows you to browse over 9,00
 ### Browsing the Winget Catalog
 
 1. Navigate to **Admin** > **Winget Catalog** tab
-2. Browse popular packages or use the search box to find specific apps
-3. Each package shows: name, publisher, version, and description
-4. Icons are loaded automatically where available
+2. Popular packages are displayed 24 per page with pagination controls
+3. Use the search box to find specific apps (search uses "Load More" infinite scroll)
+4. Each package shows: name, publisher, version, and description
+5. Icons are loaded automatically where available
 
 ### Publishing to Intune
 
@@ -1093,13 +1111,14 @@ The **Winget Catalog** tab in the Admin Dashboard allows you to browse over 9,00
 4. A packaging job is created with your selected architecture and locale
 5. Monitor job status in the **Packaging Jobs** section below the catalog
 
-**Architecture and Locale Tracking:**
+**Architecture, Locale, and Version Tracking:**
 
 When apps are published from the WinGet catalog:
-- The selected architecture and locale are stored in the packaging job
+- The selected architecture, locale, and version are stored in the packaging job
 - When the app is synced from Intune, it automatically inherits these values
-- Deployment groups are named to include both: `AppPortal-AppName-x64-en-US-Required`
-- This helps identify which variant of multi-architecture apps is deployed
+- Deployment groups are named to include all three: `AppPortal-AppName-x64-en-US-v25-10-186-0-Required`
+- Dots in version numbers are replaced with dashes (e.g., `25.10.186.0` becomes `v25-10-186-0`)
+- This helps identify which variant and version of multi-architecture apps is deployed, and prevents duplicate deployments of the same version
 
 ### Packaging Jobs
 
@@ -1144,6 +1163,32 @@ Packaging works out of the box with the default deployment. No additional setup 
    - Check Packaging Jobs for status
 
 The PSADT v4 template is automatically downloaded from the [official GitHub repository](https://github.com/PSAppDeployToolkit/PSAppDeployToolkit) on first use and cached in Azure Blob Storage.
+
+### App Updates
+
+The **App Updates** section on the Winget Catalog tab shows all apps that have been published from WinGet and are being tracked for version updates.
+
+**Tracked Apps Table:**
+
+| Column | Description |
+|--------|-------------|
+| **App** | App name and publisher |
+| **WinGet Package ID** | The WinGet identifier (e.g., `Microsoft.VisualStudioCode`) |
+| **Published Version** | Version currently in your portal/Intune |
+| **Latest Version** | Latest version available in the WinGet repository |
+| **Status** | "Update Available" (green) or "Up to Date" |
+| **Last Checked** | When the version was last compared |
+| **Actions** | Apply or Dismiss update (only shown when update is available) |
+
+**Automatic Tracking:**
+- Apps published from the WinGet catalog are automatically tracked for updates
+- The `SourceWingetPackageId` is backfilled automatically by the background service (no manual Intune sync required)
+- Update checks run on a configurable schedule (default: every hour when enabled)
+
+**Actions:**
+- **Check for Updates**: Manually trigger an update check for all tracked apps
+- **Apply**: Updates the portal record with the latest version information
+- **Dismiss**: Hides the update notification for that app
 
 ### Winget Integration Settings
 

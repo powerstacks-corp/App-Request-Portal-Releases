@@ -358,42 +358,47 @@ Approvers can now approve or reject requests **directly from their email** witho
 
 ## Advanced Workflow Features
 
-### Conditional Workflows (v1.6.0)
+### Conditional Workflows (v1.6.0, UI in v1.8.2)
 
 Configure approval requirements that vary based on app characteristics, requestor department, or other conditions.
 
+> **New in v1.8.2:** Conditional workflows can be configured directly in the Approval Workflow Editor UI. Each approval stage has a "Make this stage conditional" toggle that reveals the condition builder.
+
 **Available Conditions:**
-- **Cost Threshold**: Route expensive apps ($500+) to finance team
-- **Category**: Different approval chains for "Development Tools" vs "Productivity"
-- **Platform**: Separate workflows for Windows, iOS, Android apps
-- **Publisher**: Special approval for apps from untrusted publishers
-- **Department**: Route requests based on requestor's department (from Entra ID)
+- **Department**: Route based on requestor's department (from Entra ID)
+- **Cost Center**: Route based on requestor's cost center
+- **Job Title**: Route based on requestor's job title
+- **Location**: Route based on requestor's office location
+- **Platform**: Route based on device/app platform (Windows, macOS, iOS, Android, Linux, Web)
+- **Request Count**: Route based on number of previous requests
+- **Always**: Stage always applies (default)
 
 **Operators:**
 - `Equals`, `NotEquals`
-- `GreaterThan`, `LessThan`, `GreaterThanOrEqual`, `LessThanOrEqual`
-- `Contains`, `In`
+- `Contains`
+- `GreaterThan`, `LessThan`, `Between`
+- `InList`
 
 **Logical Combinations:**
 - Combine multiple conditions with `AND` or `OR`
-- Example: "Cost > $1000 AND Category = Security Tools"
+- Example: "Department Equals 'Engineering' AND Request Count GreaterThan 5"
 
-**Example: Route by Cost**
+**Example: Route by Request Count**
 
 ```json
 {
   "workflowConditions": [
     {
-      "conditionType": "Cost",
+      "conditionType": "RequestCount",
       "operator": "GreaterThan",
-      "value": "1000",
-      "resultWorkflowId": "expensive-app-workflow-id"
+      "value": "10",
+      "resultWorkflowId": "frequent-requester-workflow-id"
     },
     {
-      "conditionType": "Cost",
-      "operator": "LessThanOrEqual",
-      "value": "1000",
-      "resultWorkflowId": "standard-app-workflow-id"
+      "conditionType": "Department",
+      "operator": "InList",
+      "value": "Engineering,DevOps,IT",
+      "resultWorkflowId": "tech-department-workflow-id"
     }
   ]
 }
