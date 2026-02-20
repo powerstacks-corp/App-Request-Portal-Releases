@@ -1464,6 +1464,10 @@ View logs as they happen. This is the quickest way to see what's happening:
 
 View historical logs and run queries. This is useful for investigating past issues.
 
+> **Setup Required:** Application Insights requires a connection string and (optionally) API credentials to be configured in your Azure App Service. If you haven't set this up yet, see **[Step 12: Configure Application Insights](SETUP.md#step-12-configure-application-insights-optional)** in the Setup Guide. The key settings are:
+> - `APPLICATIONINSIGHTS_CONNECTION_STRING` — enables telemetry collection (logs, traces, exceptions)
+> - `ApplicationInsights__AppId` and `ApplicationInsights__ApiKey` — enables the metrics dashboard in the Admin panel
+
 > **Important:** You must navigate to the **Application Insights resource directly** (e.g., `ai-apprequest-prod`), NOT the "Logs" blade inside App Service. The App Service > Logs blade queries Log Analytics tables (`AppServiceConsoleLogs`), not Application Insights tables (`traces`).
 
 **Steps:**
