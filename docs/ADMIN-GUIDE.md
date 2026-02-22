@@ -404,7 +404,17 @@ Configure how the portal sends email notifications for request submissions and a
 | **Send As User ID** | The Entra ID Object ID of the user or shared mailbox that will send emails. Find this in Azure Portal > Entra ID > Users > [select user] > Object ID |
 | **From Address** | The email address displayed in the From field (should match the mailbox) |
 | **Portal URL** | The URL of your portal, used in email links to direct users back to the portal |
-| **Notify on App Published** | Send email when a WinGet app is published to Intune |
+
+**Email Events** — When email notifications are enabled, you can toggle individual events:
+
+| Event | Description |
+|-------|-------------|
+| **Request Submitted** | Notify requestor when their request is submitted |
+| **Approval Required** | Notify approvers when their approval is needed |
+| **Request Approved** | Notify requestor when their request is approved |
+| **Request Rejected** | Notify requestor when their request is rejected |
+| **App Installed** | Notify requestor when their app is installed on their device |
+| **App Published** | Notify admin when a WinGet app is published to Intune |
 
 > **Note:** The app registration must have the `Mail.Send` Microsoft Graph permission with admin consent granted.
 
@@ -482,6 +492,7 @@ Send direct Teams chat messages to individual approvers and requestors. Unlike c
 | **Approval Required** | Notify approvers when their approval is needed |
 | **Request Approved** | Notify requestor when their request is approved |
 | **Request Rejected** | Notify requestor when their request is rejected |
+| **App Installed** | Notify requestor when their app is installed on their device |
 | **App Published** | Notify admin when a WinGet app is published to Intune |
 
 > **Note:** Requires `Chat.Create` and `Chat.ReadWrite.All` Graph API permissions with admin consent.
