@@ -337,7 +337,7 @@ You need the Object ID of the user or shared mailbox that will send emails:
 
 ### Option A: Configure via Portal Settings UI (Recommended)
 
-1. Navigate to **Admin** > **Settings** tab
+1. Navigate to **Admin** > **Communications** tab
 2. Under **Email Notifications**:
    - Toggle **Enable email notifications** on
    - Enter the **Send As User ID** (Object ID of mailbox)
@@ -394,7 +394,7 @@ Send notifications to a Microsoft Teams channel when app requests are submitted,
 
 ### Configure in Portal
 
-1. Navigate to **Admin** > **Settings** tab
+1. Navigate to **Admin** > **Communications** tab
 2. Under **Microsoft Teams Channel Notifications**:
    - Toggle **Enable Teams notifications** on
    - Paste the **Webhook URL**
@@ -437,7 +437,7 @@ If you didn't add them during initial setup:
 
 ### Configure in Portal
 
-1. Navigate to **Admin** > **Settings** tab
+1. Navigate to **Admin** > **Communications** tab
 2. Under **Microsoft Teams Direct Chat**:
    - Toggle **Enable Teams direct chat** on
    - Select which events should trigger chat messages:

@@ -260,7 +260,7 @@ The portal uses two notification channels:
 | **EmailNotificationService** | Direct user notifications | Microsoft Graph Mail.Send API |
 | **TeamsNotificationService** | Channel-wide notifications | Teams Incoming Webhooks with Adaptive Cards |
 
-Both services are optional and can be enabled/disabled independently in Admin Settings.
+Both services are optional and can be enabled/disabled independently in the Admin Communications tab.
 
 ### App Sync Flow
 

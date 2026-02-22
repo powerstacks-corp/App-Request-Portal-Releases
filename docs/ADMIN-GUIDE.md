@@ -10,10 +10,11 @@ After initial deployment and Entra ID configuration (see [SETUP.md](SETUP.md)), 
 
 1. Sign in to the portal with an account that is a member of the Admin Group
 2. Click **Admin** in the navigation menu
-3. You'll see six tabs:
+3. You'll see seven tabs:
    - **App Management** - Manage apps synced from Intune
    - **Pending Approvals** - Review and approve/reject requests
-   - **Settings** - Configure portal-wide options
+   - **Settings** - Configure portal-wide options (authorization, display, deployment)
+   - **Communications** - Notification settings, company branding, and Terms of Service
    - **Branding** - Customize portal appearance
    - **Winget Catalog** - Browse and publish apps from Winget
    - **Reports** - View analytics, trends, and deployment status
@@ -43,84 +44,7 @@ The wizard saves your settings as you progress through each step. You can skip t
 
 ## Portal Settings
 
-The Settings tab allows you to configure portal-wide options without editing configuration files.
-
-### Email Notifications
-
-Configure how the portal sends email notifications for request submissions and approvals.
-
-| Setting | Description |
-|---------|-------------|
-| **Enable email notifications** | Toggle to turn email notifications on or off |
-| **Send As User ID** | The Entra ID Object ID of the user or shared mailbox that will send emails. Find this in Azure Portal > Entra ID > Users > [select user] > Object ID |
-| **From Address** | The email address displayed in the From field (should match the mailbox) |
-| **Portal URL** | The URL of your portal, used in email links to direct users back to the portal |
-
-> **Note:** The app registration must have the `Mail.Send` Microsoft Graph permission with admin consent granted.
-
-### Microsoft Teams Channel Notifications
-
-Send notifications to a Microsoft Teams channel when app requests are submitted, approved, or rejected. This uses Teams Incoming Webhooks for simple, secure integration.
-
-| Setting | Description |
-|---------|-------------|
-| **Enable Teams notifications** | Toggle to turn Teams channel notifications on or off |
-| **Webhook URL** | The Incoming Webhook URL from your Teams channel |
-| **Test** | Send a test notification to verify the webhook is configured correctly |
-| **New request submitted** | Notify the channel when a new app request is submitted |
-| **Request approved** | Notify the channel when a request is approved |
-| **Request rejected** | Notify the channel when a request is rejected |
-
-#### Setting Up Teams Notifications
-
-**Step 1: Create a Teams Channel (or use existing)**
-
-1. Open **Microsoft Teams**
-2. Navigate to the Team where you want notifications
-3. Create a new channel (e.g., "App Approvals") or use an existing one
-4. Ensure approvers/admins who need to see notifications are members of this channel
-
-**Step 2: Add an Incoming Webhook Connector**
-
-1. In Teams, right-click the channel name and select **Manage channel**
-2. Click the **Connectors** tab (or **Edit** > **Connectors** in newer versions)
-3. Search for **Incoming Webhook** and click **Configure**
-4. Enter a name (e.g., "App Request Portal") - this name appears on notifications
-5. Optionally upload a custom icon for the webhook
-6. Click **Create**
-7. **Copy the webhook URL** - you'll need this for the portal settings
-
-> **Important:** The webhook URL is a secret. Anyone with this URL can post to your channel. Store it securely and don't commit it to source control.
-
-**Step 3: Configure the Portal**
-
-1. Go to **Admin** > **Settings** tab
-2. Scroll to **Microsoft Teams Channel Notifications**
-3. Enable **Enable Teams notifications**
-4. Paste the webhook URL in the **Webhook URL** field
-5. Click **Test** to verify the connection - you should see a test message in Teams
-6. Configure which events should trigger notifications
-7. Click **Save Settings**
-
-#### How It Works
-
-- Notifications are sent as **Adaptive Cards** - rich, formatted messages in Teams
-- Each notification includes:
-  - Title (e.g., "New App Request Submitted")
-  - Requestor name and email
-  - App name and publisher
-  - Timestamp
-  - Action button linking to the portal
-- The notification appears to come from the webhook connector name you configured
-- Everyone in the Teams channel sees the notification
-
-#### Limitations
-
-- **Channel-based only**: Notifications go to a channel, not direct messages to individuals
-- **One-way**: Users cannot approve/reject directly from Teams - they click through to the portal
-- **Single channel**: All notification types go to the same channel (the configured webhook)
-
-> **Tip:** For a dedicated approvals workflow, create a private channel with only approvers as members, and use that channel's webhook URL.
+The Settings tab allows you to configure portal-wide options including authorization, display settings, deployment configuration, and version management. Notification and messaging settings are on the **Communications** tab (see below).
 
 ### Group-Based Authorization
 
@@ -450,10 +374,142 @@ Before configuring a custom domain:
 Once your custom domain is configured:
 
 1. **Update Entra ID Redirect URIs** - Add your custom domain URLs to your App Registration
-2. **Update Portal URL** - In Settings > Email Notifications, update the Portal URL to use your custom domain
+2. **Update Portal URL** - In Communications > Email Notifications, update the Portal URL to use your custom domain
 3. **Test Authentication** - Sign out and sign back in to verify authentication works
 
 > **Note:** For detailed DNS configuration, certificate options, and troubleshooting, see [CUSTOM-DOMAINS.md](CUSTOM-DOMAINS.md).
+
+## Communications
+
+The Communications tab (formerly "Terms of Service") consolidates all notification, messaging, and company branding settings in one place.
+
+### Company Information
+
+Configure your organization's branding details. These fields are used in notification messages and will support further message customization in future releases.
+
+| Setting | Description |
+|---------|-------------|
+| **Company Name** | Your organization's name, displayed in notifications |
+| **Company Logo** | Upload a logo image (PNG/JPEG). Displayed in branded communications |
+| **Support Email** | Contact email for support inquiries |
+| **Support Phone** | Contact phone number for support |
+
+### Email Notifications
+
+Configure how the portal sends email notifications for request submissions and approvals.
+
+| Setting | Description |
+|---------|-------------|
+| **Enable email notifications** | Toggle to turn email notifications on or off |
+| **Send As User ID** | The Entra ID Object ID of the user or shared mailbox that will send emails. Find this in Azure Portal > Entra ID > Users > [select user] > Object ID |
+| **From Address** | The email address displayed in the From field (should match the mailbox) |
+| **Portal URL** | The URL of your portal, used in email links to direct users back to the portal |
+| **Notify on App Published** | Send email when a WinGet app is published to Intune |
+
+> **Note:** The app registration must have the `Mail.Send` Microsoft Graph permission with admin consent granted.
+
+### Microsoft Teams Channel Notifications
+
+Send notifications to a Microsoft Teams channel when app requests are submitted, approved, or rejected. This uses Teams Incoming Webhooks for simple, secure integration.
+
+| Setting | Description |
+|---------|-------------|
+| **Enable Teams notifications** | Toggle to turn Teams channel notifications on or off |
+| **Webhook URL** | The Incoming Webhook URL from your Teams channel |
+| **Test** | Send a test notification to verify the webhook is configured correctly |
+| **New request submitted** | Notify the channel when a new app request is submitted |
+| **Request approved** | Notify the channel when a request is approved |
+| **Request rejected** | Notify the channel when a request is rejected |
+
+#### Setting Up Teams Notifications
+
+**Step 1: Create a Teams Channel (or use existing)**
+
+1. Open **Microsoft Teams**
+2. Navigate to the Team where you want notifications
+3. Create a new channel (e.g., "App Approvals") or use an existing one
+4. Ensure approvers/admins who need to see notifications are members of this channel
+
+**Step 2: Add an Incoming Webhook Connector**
+
+1. In Teams, right-click the channel name and select **Manage channel**
+2. Click the **Connectors** tab (or **Edit** > **Connectors** in newer versions)
+3. Search for **Incoming Webhook** and click **Configure**
+4. Enter a name (e.g., "App Request Portal") - this name appears on notifications
+5. Optionally upload a custom icon for the webhook
+6. Click **Create**
+7. **Copy the webhook URL** - you'll need this for the portal settings
+
+> **Important:** The webhook URL is a secret. Anyone with this URL can post to your channel. Store it securely and don't commit it to source control.
+
+**Step 3: Configure the Portal**
+
+1. Go to **Admin** > **Communications** tab
+2. Scroll to **Microsoft Teams Channel Notifications**
+3. Enable **Enable Teams notifications**
+4. Paste the webhook URL in the **Webhook URL** field
+5. Click **Test** to verify the connection - you should see a test message in Teams
+6. Configure which events should trigger notifications
+7. Click **Save Settings**
+
+#### How It Works
+
+- Notifications are sent as **Adaptive Cards** - rich, formatted messages in Teams
+- Each notification includes:
+  - Title (e.g., "New App Request Submitted")
+  - Requestor name and email
+  - App name and publisher
+  - Timestamp
+  - Action button linking to the portal
+- The notification appears to come from the webhook connector name you configured
+- Everyone in the Teams channel sees the notification
+
+#### Limitations
+
+- **Channel-based only**: Notifications go to a channel, not direct messages to individuals
+- **One-way**: Users cannot approve/reject directly from Teams - they click through to the portal
+- **Single channel**: All notification types go to the same channel (the configured webhook)
+
+> **Tip:** For a dedicated approvals workflow, create a private channel with only approvers as members, and use that channel's webhook URL.
+
+### Microsoft Teams Direct Chat
+
+Send direct Teams chat messages to individual approvers and requestors. Unlike channel notifications, these are 1:1 messages.
+
+| Setting | Description |
+|---------|-------------|
+| **Enable Teams direct chat** | Toggle to enable/disable direct chat messages |
+| **Approval Required** | Notify approvers when their approval is needed |
+| **Request Approved** | Notify requestor when their request is approved |
+| **Request Rejected** | Notify requestor when their request is rejected |
+| **App Published** | Notify admin when a WinGet app is published to Intune |
+
+> **Note:** Requires `Chat.Create` and `Chat.ReadWrite.All` Graph API permissions with admin consent.
+
+### Approval Reminders
+
+Automatically send reminder emails for pending approvals.
+
+| Setting | Description |
+|---------|-------------|
+| **Enable approval reminders** | Toggle to enable/disable automatic reminders |
+| **Reminder interval (days)** | Days before the first reminder is sent (default: 2) |
+| **Max reminders** | Maximum number of reminders per request (default: 3) |
+
+### Stale Request Escalation
+
+Automatically escalate requests that have been pending too long.
+
+| Setting | Description |
+|---------|-------------|
+| **Enable escalation** | Toggle to enable/disable automatic escalation |
+| **Escalation threshold (hours)** | Hours before a request is escalated (default: 48) |
+| **Recipient email(s)** | Comma-separated email addresses for escalation notifications |
+| **Recipient group** | Entra ID group whose members receive escalation notifications |
+
+### Terms of Service
+
+The Terms of Service section remains within the Communications tab, allowing admins to create and manage TOS versions that users must accept.
 
 ## App Management
 
@@ -1444,7 +1500,7 @@ We recommend testing your recovery capability monthly:
 
 - Verify `Mail.Send` permission has admin consent
 - Check the **Send As User ID** is a valid Object ID
-- Confirm **Enable email notifications** is toggled on
+- Confirm **Enable email notifications** is toggled on in the **Communications** tab
 - Look at API logs for email sending errors
 
 ### Request Shows "Failed" Status
