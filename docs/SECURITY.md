@@ -464,7 +464,7 @@ CREATE TABLE AuditLogs (
 - [ ] Entra ID App Registrations created with minimum required permissions
 - [ ] Admin consent granted for application permissions
 - [ ] Strong SQL administrator password configured
-- [ ] Admin Group ID configured (restricts admin access)
+- [ ] Admin Group ID configured (**required** — admin access is denied without it)
 - [ ] Approver Group ID configured (restricts approver access)
 
 ### Post-Deployment

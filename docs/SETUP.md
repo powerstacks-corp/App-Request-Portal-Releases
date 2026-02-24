@@ -212,23 +212,11 @@ The portal uses Entra ID security groups to control administrative access. You c
 4. Add users who should have admin access to this group
 5. Copy the **Object ID** of the group (found on the group's Overview page)
 
-### Option A: Configure via Portal Settings UI (Recommended)
+### Option A: Configure via appsettings.json (Required for Initial Setup)
 
-Once you have admin access to the portal:
+> **Important (v1.10.6+):** The `AdminGroupId` setting is **required** before any user can access admin functions. The portal uses a fail-closed security model — if no admin group is configured, all admin endpoints return 403 Forbidden. You must set `AdminGroupId` in `appsettings.json` or as an environment variable before first use.
 
-1. Navigate to **Admin** > **Settings** tab
-2. Under **Group-Based Authorization**:
-   - Enter the **Admin Group** Object ID
-   - Enter the **Approver Group** Object ID
-3. Under **App Deployment Settings**:
-   - Set the **Group Name Prefix** (default: `AppPortal-`) - this prefix is used when auto-creating Entra ID security groups for app deployments
-4. Click **Save Settings**
-
-See [ADMIN-GUIDE.md](ADMIN-GUIDE.md) for detailed instructions on using the Portal Settings UI.
-
-### Option B: Configure via appsettings.json
-
-Alternatively, update [appsettings.json](../src/AppRequestPortal.API/appsettings.json) with the group Object ID:
+Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json) with the group Object IDs:
 
 ```json
 {
@@ -243,12 +231,26 @@ Alternatively, update [appsettings.json](../src/AppRequestPortal.API/appsettings
 
 | Setting | Description |
 |---------|-------------|
-| `AdminGroupId` | Object ID of the Entra ID group for administrators. Admins can sync apps from Intune and manage all settings. |
+| `AdminGroupId` | **(Required)** Object ID of the Entra ID group for administrators. Admins can sync apps from Intune and manage all settings. |
 | `ApproverGroupId` | Object ID of the Entra ID group for approvers. Approvers can approve/reject app requests. |
 
-> **Note:** If both settings are left empty, all authenticated users can access admin functions. This is useful for development but should not be used in production.
-
 You can use the same group for both settings, or create separate groups for more granular control.
+
+### Option B: Configure via Portal Settings UI
+
+Once you have initial admin access (via `appsettings.json` config above):
+
+1. Navigate to **Admin** > **Settings** tab
+2. Under **Group-Based Authorization**:
+   - Enter the **Admin Group** Object ID
+   - Enter the **Approver Group** Object ID
+3. Under **App Deployment Settings**:
+   - Set the **Group Name Prefix** (default: `AppPortal-`) - this prefix is used when auto-creating Entra ID security groups for app deployments
+4. Click **Save Settings**
+
+See [ADMIN-GUIDE.md](ADMIN-GUIDE.md) for detailed instructions on using the Portal Settings UI.
+
+> **Note:** The portal settings database values take precedence over `appsettings.json`. Once you configure the admin group via the UI, the `appsettings.json` value serves as a fallback only.
 
 ### App Deployment Settings
 
