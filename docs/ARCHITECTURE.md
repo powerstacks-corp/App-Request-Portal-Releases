@@ -157,12 +157,14 @@ CREATE TABLE PortalSettings (
     EmailFromAddress NVARCHAR(255),
     EmailPortalUrl NVARCHAR(500),
     EmailNotificationsEnabled BIT NOT NULL DEFAULT 0,
-    -- Teams notification settings
-    TeamsNotificationsEnabled BIT NOT NULL DEFAULT 0,
-    TeamsWebhookUrl NVARCHAR(MAX),
-    TeamsNotifyOnNewRequest BIT NOT NULL DEFAULT 1,
-    TeamsNotifyOnApproval BIT NOT NULL DEFAULT 1,
-    TeamsNotifyOnRejection BIT NOT NULL DEFAULT 1,
+    -- Teams Bot notification settings
+    TeamsBotEnabled BIT NOT NULL DEFAULT 0,
+    TeamsBotAppId NVARCHAR(MAX),
+    TeamsBotNotifyOnApprovalRequired BIT NOT NULL DEFAULT 1,
+    TeamsBotNotifyOnApproved BIT NOT NULL DEFAULT 1,
+    TeamsBotNotifyOnRejected BIT NOT NULL DEFAULT 1,
+    TeamsBotNotifyOnInstalled BIT NOT NULL DEFAULT 1,
+    TeamsBotNotifyOnAppPublished BIT NOT NULL DEFAULT 1,
     -- Group authorization
     AdminGroupId NVARCHAR(100),
     AdminGroupName NVARCHAR(255),
@@ -235,12 +237,12 @@ GET /users/{user-id}/managedDevices
 2. User submits request
    Frontend → API → Database (save request)
                   → Email service (notify approvers)
-                  → Teams service (notify channel)
+                  → Teams bot (notify users)
 
 3. Approver reviews request
    Frontend → API → Database (update status)
                   → Email service (notify requester)
-                  → Teams service (notify channel)
+                  → Teams bot (notify users)
 
 4. System processes approved request
    API → Graph API (create/get AD group)
@@ -248,7 +250,7 @@ GET /users/{user-id}/managedDevices
        → Intune (app deployment triggered automatically)
        → Database (update request status)
        → Email service (notify requester)
-       → Teams service (notify channel)
+       → Teams bot (notify users)
 ```
 
 ### Notification Services
@@ -258,9 +260,9 @@ The portal uses two notification channels:
 | Service | Purpose | Technology |
 |---------|---------|------------|
 | **EmailNotificationService** | Direct user notifications | Microsoft Graph Mail.Send API |
-| **TeamsNotificationService** | Channel-wide notifications | Teams Incoming Webhooks with Adaptive Cards |
+| **TeamsBotService** | Personal Teams notifications | Bot Framework proactive messaging with Adaptive Cards |
 
-Both services are optional and can be enabled/disabled independently in the Admin Communications tab.
+Both services are optional and can be enabled/disabled independently in the Admin Communications tab. The Teams Bot sends personal 1:1 messages to users via stored conversation references (the bot must be pre-installed for users via Teams Admin Center setup policies).
 
 ### App Sync Flow
 

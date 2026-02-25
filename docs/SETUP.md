@@ -50,13 +50,9 @@ You need to create two app registrations in Entra ID:
      - `User.Read.All` - Read user profiles, managers, and group memberships
      - `Directory.Read.All` - Read directory data
      - `Mail.Send` - Send email notifications (optional, see Step 9)
-     - `Chat.Create` - Create Teams chats for direct approver notifications (optional, see Step 11)
-     - `Chat.ReadWrite.All` - Send Teams chat messages (optional, see Step 11)
    - Click "Grant admin consent"
 
    > **Note:** `DeviceManagementApps.ReadWrite.All` is required to automatically create Intune app assignments when apps are made visible in the portal.
-
-   > **Note:** The Teams chat permissions (`Chat.Create` and `Chat.ReadWrite.All`) are optional. Without them, the portal will function normally but Teams direct chat notifications will not be available. You can still use webhook-based Teams channel notifications (Step 10) which don't require these permissions.
 
 9. Create a client secret:
    - Click "Certificates & secrets" > "New client secret"
@@ -389,86 +385,87 @@ Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json):
 - **User not found**: Verify the `SendAsUserId` is a valid Object ID
 - **Email not sent**: Check the API logs for detailed error messages
 
-## Step 10: Configure Microsoft Teams Channel Notifications (Optional)
+## Step 10: Configure Microsoft Teams Bot Notifications (Optional)
 
-Send notifications to a Microsoft Teams channel when app requests are submitted, approved, or rejected.
+Send personal Teams notifications to approvers and requestors via a Teams Bot using Bot Framework proactive messaging. Each user receives individual Adaptive Card notifications in their Teams chat.
 
-### Create an Incoming Webhook
+### Step 10a: Register an Azure Bot
 
-1. In **Microsoft Teams**, navigate to the channel where you want notifications
-2. Click the three dots (...) next to the channel name > **Manage channel**
-3. Go to **Connectors** tab > search for **Incoming Webhook** > **Configure**
-4. Enter a name (e.g., "App Request Portal") and optionally upload an icon
-5. Click **Create** and **copy the webhook URL**
+1. Navigate to **Azure Portal** > **Create a resource** > search for **Azure Bot**
+2. Click **Create** and fill in:
+   - **Bot handle**: A unique name (e.g., `AppRequestPortalBot`)
+   - **Subscription/Resource Group**: Use your existing resource group
+   - **Pricing tier**: Free (F0) is sufficient
+   - **Microsoft App ID**: Select **Create new Microsoft App ID**
+3. After creation, go to the Bot resource > **Configuration**
+4. Set **Messaging endpoint** to: `https://your-app-url/api/messages`
+5. Note the **Microsoft App ID** — you'll need this
+6. Go to **Configuration** > **Manage Password** > create a new client secret
+7. Copy the **secret value** — you'll need this
 
-### Configure in Portal
+### Step 10b: Configure the API
+
+Add the Bot credentials to your API configuration (`appsettings.json` or App Service environment variables):
+
+```json
+{
+  "Bot": {
+    "MicrosoftAppId": "your-bot-app-id",
+    "MicrosoftAppPassword": "your-bot-client-secret"
+  }
+}
+```
+
+### Step 10c: Add the Teams Channel
+
+1. In the Azure Bot resource, go to **Channels**
+2. Click **Microsoft Teams** > **Apply**
+3. This enables the bot to communicate through Teams
+
+### Step 10d: Pre-install the Bot for Users
+
+For proactive messaging to work, the bot must be installed for each user. A ready-to-use Teams app manifest is included in the `teams-bot-manifest/` directory.
+
+1. Edit `teams-bot-manifest/manifest.json` — replace `{{BOT_APP_ID}}` with your Bot's Microsoft App ID and update the URLs
+2. Optionally replace the placeholder icons (`color.png`, `outline.png`) with your organization's branding
+3. Zip the three files (`manifest.json`, `color.png`, `outline.png`) into a `.zip` file
+4. In **Teams Admin Center** > **Teams apps** > **Manage apps** > **Upload new app** — upload the zip
+5. Go to **Teams apps** > **Setup policies** > edit **Global (Org-wide default)** (or create a custom policy)
+6. Under **Installed apps**, click **Add apps**, search for "App Request Portal", and add it
+7. Click **Save** — the bot will be automatically installed for all users in scope
+
+> **Note:** It may take up to 24 hours for the policy to apply to all users. When the bot is installed for a user, it automatically stores a conversation reference that enables proactive messaging. See `teams-bot-manifest/README.md` for detailed instructions.
+
+### Step 10e: Configure in Portal
 
 1. Navigate to **Admin** > **Communications** tab
-2. Under **Microsoft Teams Channel Notifications**:
-   - Toggle **Enable Teams notifications** on
-   - Paste the **Webhook URL**
-   - Click **Test** to verify the connection
+2. Under **Microsoft Teams Bot Notifications**:
+   - Toggle **Enable Teams bot notifications** on
+   - Enter the **Bot App ID** (same as Microsoft App ID from Step 10a)
+   - Click **Test** to send a test notification to yourself
    - Select which events should trigger notifications
 3. Click **Save Settings**
 
 ### What Gets Notified
 
-| Event | Card Content |
-|-------|-------------|
-| **New Request** | Requestor name, app name, publisher, justification, link to review |
-| **Approved** | Requestor, app, who approved, link to portal |
-| **Rejected** | Requestor, app, who rejected, rejection reason |
+| Event | Recipient | Card Content |
+|-------|-----------|-------------|
+| **Approval Required** | Approvers | Requestor, app name, publisher, justification, link to review |
+| **Request Approved** | Requestor | App name, who approved, link to portal |
+| **Request Rejected** | Requestor | App name, who rejected, rejection reason |
+| **App Installed** | Requestor | App name, publisher, install timestamp |
+| **App Published** | Admin/Creator | Package name, version, Intune App ID |
 
-See [ADMIN-GUIDE.md](ADMIN-GUIDE.md#microsoft-teams-notifications) for detailed setup instructions with screenshots.
+### Troubleshooting Teams Bot Issues
 
-## Step 11: Configure Microsoft Teams Direct Chat (Optional)
+- **Bot not sending messages**: Ensure the bot is installed for the target user (check `BotConversationReferences` table in the database)
+- **401 Unauthorized on /api/messages**: Verify the `Bot:MicrosoftAppId` and `Bot:MicrosoftAppPassword` in appsettings.json match the Azure Bot registration
+- **Test notification fails**: The bot must be installed for your user account first — check Teams Admin Center setup policies
+- **Messages not appearing for some users**: The setup policy may not have propagated yet (up to 24 hours). Users can also manually install the bot from the Teams app store
 
-Send direct Teams chat messages to approvers when their approval is required. Unlike channel notifications, direct chat messages are sent individually to each approver, ensuring they receive personal notifications in their Teams chat.
+See [ADMIN-GUIDE.md](ADMIN-GUIDE.md#microsoft-teams-bot-notifications) for detailed configuration instructions.
 
-### Prerequisites
-
-1. **Chat.Create permission** must be added to your API app registration (see Step 1, item 8)
-2. **Chat.ReadWrite.All permission** must be added to your API app registration (see Step 1, item 8)
-
-### Add Teams Chat Permissions
-
-If you didn't add them during initial setup:
-
-1. Navigate to Azure Portal > Microsoft Entra ID > App registrations
-2. Select your **backend API** app registration
-3. Click "API permissions" > "Add a permission"
-4. Select "Microsoft Graph" > "Application permissions"
-5. Search for and add:
-   - `Chat.Create` - Create chats with users
-   - `Chat.ReadWrite.All` - Read and write all chat messages
-6. Click "Add permissions"
-7. Click **"Grant admin consent for [your tenant]"** (requires Global Admin or Privileged Role Administrator)
-
-### Configure in Portal
-
-1. Navigate to **Admin** > **Communications** tab
-2. Under **Microsoft Teams Direct Chat**:
-   - Toggle **Enable Teams direct chat** on
-   - Select which events should trigger chat messages:
-     - **Approval Required** - Notify approvers when their approval is needed
-     - **Request Approved** - Notify requestor when their request is approved
-     - **Request Rejected** - Notify requestor when their request is rejected
-3. Click **Save Settings**
-
-### How It Works
-
-- When approval is required, each approver receives a personal Teams chat message
-- For **pooled approvals** (group-based), the portal expands the group membership and sends individual messages to each group member
-- For **sequential approvals**, only the current stage approvers are notified
-- Messages include Adaptive Cards with request details and a link to the portal
-
-### Troubleshooting Teams Chat Issues
-
-- **403 Forbidden**: Ensure `Chat.Create` and `Chat.ReadWrite.All` permissions have admin consent granted
-- **User not found**: Verify the user has a valid Teams license and can receive chats
-- **Messages not appearing**: Check that the app has been granted tenant-wide admin consent
-
-## Step 12: Configure Application Insights (Optional)
+## Step 11: Configure Application Insights (Optional)
 
 Application Insights provides telemetry logging and the in-portal **Application Insights Dashboard** (performance metrics, error tracking, usage analytics, health monitoring). There are two parts to configure:
 

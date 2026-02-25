@@ -1,0 +1,42 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.11.0",
+  "id": "{{BOT_APP_ID}}",
+  "developer": {
+    "name": "Your Organization",
+    "websiteUrl": "https://your-portal-url.azurewebsites.net",
+    "privacyUrl": "https://your-portal-url.azurewebsites.net/privacy",
+    "termsOfUseUrl": "https://your-portal-url.azurewebsites.net/terms"
+  },
+  "name": {
+    "short": "App Request Portal",
+    "full": "App Request Portal Notifications"
+  },
+  "description": {
+    "short": "Receive app request notifications",
+    "full": "Receive personal notifications from the App Request Portal. Get notified when approval is required, when requests are approved or rejected, when apps are installed, and when apps are published to Intune."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#0078D4",
+  "bots": [
+    {
+      "botId": "{{BOT_APP_ID}}",
+      "scopes": [
+        "personal"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": true
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "your-portal-url.azurewebsites.net"
+  ]
+}

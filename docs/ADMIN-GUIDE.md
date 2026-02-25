@@ -420,84 +420,55 @@ Configure how the portal sends email notifications for request submissions and a
 
 > **Note:** The app registration must have the `Mail.Send` Microsoft Graph permission with admin consent granted.
 
-### Microsoft Teams Channel Notifications
+### Microsoft Teams Bot Notifications
 
-Send notifications to a Microsoft Teams channel when app requests are submitted, approved, or rejected. This uses Teams Incoming Webhooks for simple, secure integration.
-
-| Setting | Description |
-|---------|-------------|
-| **Enable Teams notifications** | Toggle to turn Teams channel notifications on or off |
-| **Webhook URL** | The Incoming Webhook URL from your Teams channel |
-| **Test** | Send a test notification to verify the webhook is configured correctly |
-| **New request submitted** | Notify the channel when a new app request is submitted |
-| **Request approved** | Notify the channel when a request is approved |
-| **Request rejected** | Notify the channel when a request is rejected |
-
-#### Setting Up Teams Notifications
-
-**Step 1: Create a Teams Channel (or use existing)**
-
-1. Open **Microsoft Teams**
-2. Navigate to the Team where you want notifications
-3. Create a new channel (e.g., "App Approvals") or use an existing one
-4. Ensure approvers/admins who need to see notifications are members of this channel
-
-**Step 2: Add an Incoming Webhook Connector**
-
-1. In Teams, right-click the channel name and select **Manage channel**
-2. Click the **Connectors** tab (or **Edit** > **Connectors** in newer versions)
-3. Search for **Incoming Webhook** and click **Configure**
-4. Enter a name (e.g., "App Request Portal") - this name appears on notifications
-5. Optionally upload a custom icon for the webhook
-6. Click **Create**
-7. **Copy the webhook URL** - you'll need this for the portal settings
-
-> **Important:** The webhook URL is a secret. Anyone with this URL can post to your channel. Store it securely and don't commit it to source control.
-
-**Step 3: Configure the Portal**
-
-1. Go to **Admin** > **Communications** tab
-2. Scroll to **Microsoft Teams Channel Notifications**
-3. Enable **Enable Teams notifications**
-4. Paste the webhook URL in the **Webhook URL** field
-5. Click **Test** to verify the connection - you should see a test message in Teams
-6. Configure which events should trigger notifications
-7. Click **Save Settings**
-
-#### How It Works
-
-- Notifications are sent as **Adaptive Cards** - rich, formatted messages in Teams
-- Each notification includes:
-  - Title (e.g., "New App Request Submitted")
-  - Requestor name and email
-  - App name and publisher
-  - Timestamp
-  - Action button linking to the portal
-- The notification appears to come from the webhook connector name you configured
-- Everyone in the Teams channel sees the notification
-
-#### Limitations
-
-- **Channel-based only**: Notifications go to a channel, not direct messages to individuals
-- **One-way**: Users cannot approve/reject directly from Teams - they click through to the portal
-- **Single channel**: All notification types go to the same channel (the configured webhook)
-
-> **Tip:** For a dedicated approvals workflow, create a private channel with only approvers as members, and use that channel's webhook URL.
-
-### Microsoft Teams Direct Chat
-
-Send direct Teams chat messages to individual approvers and requestors. Unlike channel notifications, these are 1:1 messages.
+Send personal Teams notifications to approvers and requestors via a Teams Bot. Each user receives individual Adaptive Card messages in their Teams chat. This uses Microsoft Bot Framework proactive messaging.
 
 | Setting | Description |
 |---------|-------------|
-| **Enable Teams direct chat** | Toggle to enable/disable direct chat messages |
+| **Enable Teams bot notifications** | Toggle to turn Teams bot notifications on or off |
+| **Bot App ID** | The Microsoft App ID of your registered Azure Bot |
+| **Test** | Send a test notification to yourself to verify the bot is working |
 | **Approval Required** | Notify approvers when their approval is needed |
 | **Request Approved** | Notify requestor when their request is approved |
 | **Request Rejected** | Notify requestor when their request is rejected |
 | **App Installed** | Notify requestor when their app is installed on their device |
 | **App Published** | Notify admin when a WinGet app is published to Intune |
 
-> **Note:** Requires `Chat.Create` and `Chat.ReadWrite.All` Graph API permissions with admin consent.
+#### Prerequisites
+
+1. An **Azure Bot** resource registered in Azure Portal (see [SETUP.md](SETUP.md#step-10-configure-microsoft-teams-bot-notifications-optional))
+2. The bot's **Microsoft App ID** and **client secret** configured in `appsettings.json` under `Bot:MicrosoftAppId` and `Bot:MicrosoftAppPassword`
+3. The **Microsoft Teams** channel enabled on the Azure Bot resource
+4. The bot **pre-installed for users** via Teams Admin Center setup policies
+
+#### Configuring the Portal
+
+1. Go to **Admin** > **Communications** tab
+2. Scroll to **Microsoft Teams Bot Notifications**
+3. Enable **Enable Teams bot notifications**
+4. Enter the **Bot App ID** (the Microsoft App ID from your Azure Bot registration)
+5. Click **Test** to send a test notification to yourself
+6. Select which events should trigger notifications
+7. Click **Save Settings**
+
+#### How It Works
+
+- The bot is pre-installed for users via Teams Admin Center setup policies
+- When the bot is installed for a user, Teams sends a `conversationUpdate` event — the portal stores a conversation reference for that user
+- To send a notification, the portal retrieves the stored conversation reference and uses Bot Framework proactive messaging
+- For **pooled approvals** (group-based), the portal expands the group membership and sends individual messages to each group member
+- For **sequential approvals**, only the current stage approvers are notified
+- Notifications are sent as **Adaptive Cards** with request details and action buttons
+
+#### Troubleshooting
+
+- **Bot not sending messages**: Verify the bot is installed for the user by checking the `BotConversationReferences` table
+- **Test notification fails**: Ensure the bot is installed for your user account first
+- **401 errors**: Check that `Bot:MicrosoftAppId` and `Bot:MicrosoftAppPassword` match the Azure Bot registration
+- **Some users don't receive notifications**: The Teams Admin Center setup policy may take up to 24 hours to propagate
+
+> **Note:** No additional Microsoft Graph API permissions are required for Teams bot notifications. Bot Framework handles its own authentication.
 
 ### Approval Reminders
 
