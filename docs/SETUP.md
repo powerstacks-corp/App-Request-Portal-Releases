@@ -196,11 +196,11 @@ The web app will be available at `http://localhost:3000`
 3. Authenticate with your Entra ID account
 4. You should see the home page
 
-## Step 6: Configure Admin Access
+## Step 6: Configure Admin Access (REQUIRED)
 
-The portal uses Entra ID security groups to control administrative access. You can configure these through the web UI or in configuration files.
+> **CRITICAL (v1.10.6+):** You **must** configure the `AdminGroupId` before anyone can access admin functions. The portal uses a fail-closed security model — if no admin group is configured, **all admin endpoints return 403 Forbidden** for every user, including the person who deployed the portal. There is no first-run setup wizard; if you skip this step, the only way to recover admin access is to set the `AdminGroupId` in `appsettings.json` or the `AppSettings__AdminGroupId` environment variable and restart the application.
 
-### Create Security Groups
+### Step 6a: Create Security Groups
 
 1. Navigate to Azure Portal > Microsoft Entra ID > Groups
 2. Create a new security group:
@@ -212,11 +212,11 @@ The portal uses Entra ID security groups to control administrative access. You c
 4. Add users who should have admin access to this group
 5. Copy the **Object ID** of the group (found on the group's Overview page)
 
-### Option A: Configure via appsettings.json (Required for Initial Setup)
+### Step 6b: Set AdminGroupId in Configuration (Required)
 
-> **Important (v1.10.6+):** The `AdminGroupId` setting is **required** before any user can access admin functions. The portal uses a fail-closed security model — if no admin group is configured, all admin endpoints return 403 Forbidden. You must set `AdminGroupId` in `appsettings.json` or as an environment variable before first use.
+You **must** set `AdminGroupId` before the first admin can log in. Choose one of the following methods:
 
-Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json) with the group Object IDs:
+**Method 1: appsettings.json** — Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json):
 
 ```json
 {
@@ -227,22 +227,29 @@ Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json) with the
 }
 ```
 
+**Method 2: Environment variable** (recommended for Azure App Service):
+
+```
+AppSettings__AdminGroupId=your-admin-group-object-id
+AppSettings__ApproverGroupId=your-approver-group-object-id
+```
+
 **Configuration options:**
 
 | Setting | Description |
 |---------|-------------|
-| `AdminGroupId` | **(Required)** Object ID of the Entra ID group for administrators. Admins can sync apps from Intune and manage all settings. |
+| `AdminGroupId` | **(Required)** Object ID of the Entra ID group for administrators. Admins can sync apps from Intune and manage all settings. **Without this, no user can access admin features.** |
 | `ApproverGroupId` | Object ID of the Entra ID group for approvers. Approvers can approve/reject app requests. |
 
 You can use the same group for both settings, or create separate groups for more granular control.
 
-### Option B: Configure via Portal Settings UI
+### Step 6c: Configure Additional Settings via Portal UI
 
-Once you have initial admin access (via `appsettings.json` config above):
+Once you have initial admin access (via the configuration above):
 
 1. Navigate to **Admin** > **Settings** tab
 2. Under **Group-Based Authorization**:
-   - Enter the **Admin Group** Object ID
+   - Enter the **Admin Group** Object ID (this saves it to the database so it persists independently of `appsettings.json`)
    - Enter the **Approver Group** Object ID
 3. Under **App Deployment Settings**:
    - Set the **Group Name Prefix** (default: `AppPortal-`) - this prefix is used when auto-creating Entra ID security groups for app deployments
@@ -250,7 +257,7 @@ Once you have initial admin access (via `appsettings.json` config above):
 
 See [ADMIN-GUIDE.md](ADMIN-GUIDE.md) for detailed instructions on using the Portal Settings UI.
 
-> **Note:** The portal settings database values take precedence over `appsettings.json`. Once you configure the admin group via the UI, the `appsettings.json` value serves as a fallback only.
+> **Note:** The portal checks the database settings first, then falls back to `appsettings.json`. Once you configure the admin group via the UI, the `appsettings.json` value serves as a fallback only. It is recommended to keep the `appsettings.json` value as a recovery mechanism in case the database value is accidentally cleared.
 
 ### App Deployment Settings
 

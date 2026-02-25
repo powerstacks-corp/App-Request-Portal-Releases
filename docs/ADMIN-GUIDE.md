@@ -52,10 +52,12 @@ Control who has admin and approver access to the portal.
 
 | Setting | Description |
 |---------|-------------|
-| **Admin Group** | Entra ID group Object ID. Members have full admin access to sync apps, manage settings, and view all requests |
+| **Admin Group** | **(Required)** Entra ID group Object ID. Members have full admin access to sync apps, manage settings, and view all requests. **If not configured, all admin endpoints return 403 Forbidden.** |
 | **Approver Group** | Entra ID group Object ID. Members can approve/reject requests (in addition to workflow-specific approvers) |
 
-> **Tip:** Leave these empty during development to allow all authenticated users admin access. For production, always configure security groups.
+> **Important (v1.10.6+):** The Admin Group is **required**. If no Admin Group ID is configured (in either portal settings or `appsettings.json`), all users are denied admin access. See [SETUP.md](SETUP.md#step-6-configure-admin-access-required) for initial configuration instructions.
+>
+> **Lost admin access?** If the Admin Group ID is accidentally cleared from portal settings, the `appsettings.json` / environment variable value is used as a fallback. If neither is set, you must set `AppSettings__AdminGroupId` as an environment variable (or in `appsettings.json`) and restart the application to regain access.
 
 ### Recommended Conditional Access Policy
 
