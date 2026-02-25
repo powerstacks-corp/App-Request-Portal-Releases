@@ -427,7 +427,7 @@ Send personal Teams notifications to approvers and requestors via a Teams Bot. E
 | Setting | Description |
 |---------|-------------|
 | **Enable Teams bot notifications** | Toggle to turn Teams bot notifications on or off |
-| **Bot App ID** | The Microsoft App ID of your registered Azure Bot |
+| **Bot App ID** | Your API Client ID (the bot reuses the API app registration) |
 | **Test** | Send a test notification to yourself to verify the bot is working |
 | **Approval Required** | Notify approvers when their approval is needed |
 | **Request Approved** | Notify requestor when their request is approved |
@@ -437,8 +437,8 @@ Send personal Teams notifications to approvers and requestors via a Teams Bot. E
 
 #### Prerequisites
 
-1. An **Azure Bot** resource registered in Azure Portal (see [SETUP.md](SETUP.md#step-10-configure-microsoft-teams-bot-notifications-optional))
-2. The bot's **Microsoft App ID** and **client secret** configured in `appsettings.json` under `Bot:MicrosoftAppId` and `Bot:MicrosoftAppPassword`
+1. An **Azure Bot** resource registered in Azure Portal using your API app registration (see [SETUP.md](SETUP.md#step-10-configure-microsoft-teams-bot-notifications-optional))
+2. The `Bot__MicrosoftAppId`, `Bot__MicrosoftAppPassword`, `Bot__MicrosoftAppType`, and `Bot__MicrosoftAppTenantId` environment variables configured (these reuse your API app registration credentials)
 3. The **Microsoft Teams** channel enabled on the Azure Bot resource
 4. The bot **pre-installed for users** via Teams Admin Center setup policies
 
@@ -447,7 +447,7 @@ Send personal Teams notifications to approvers and requestors via a Teams Bot. E
 1. Go to **Admin** > **Communications** tab
 2. Scroll to **Microsoft Teams Bot Notifications**
 3. Enable **Enable Teams bot notifications**
-4. Enter the **Bot App ID** (the Microsoft App ID from your Azure Bot registration)
+4. Enter the **Bot App ID** (your API Client ID — the bot reuses the same app registration)
 5. Click **Test** to send a test notification to yourself
 6. Select which events should trigger notifications
 7. Click **Save Settings**
@@ -465,7 +465,7 @@ Send personal Teams notifications to approvers and requestors via a Teams Bot. E
 
 - **Bot not sending messages**: Verify the bot is installed for the user by checking the `BotConversationReferences` table
 - **Test notification fails**: Ensure the bot is installed for your user account first
-- **401 errors**: Check that `Bot:MicrosoftAppId` and `Bot:MicrosoftAppPassword` match the Azure Bot registration
+- **401 errors**: Check that all 4 `Bot__` settings are present and `Bot__MicrosoftAppType` is set to `SingleTenant`
 - **Some users don't receive notifications**: The Teams Admin Center setup policy may take up to 24 hours to propagate
 
 > **Note:** No additional Microsoft Graph API permissions are required for Teams bot notifications. Bot Framework handles its own authentication.

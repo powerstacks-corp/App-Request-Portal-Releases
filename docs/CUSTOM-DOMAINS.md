@@ -146,6 +146,38 @@ Ensure all traffic uses HTTPS:
 3. Set **HTTPS Only** to **On**
 4. Click **Save**
 
+## Step 7: Update Teams Bot Configuration (if enabled)
+
+If you have the Teams Bot enabled for proactive notifications, two things need updating:
+
+### Update Azure Bot Messaging Endpoint
+
+1. Navigate to **Azure Portal** → **Azure Bot** resource → **Configuration**
+2. Change **Messaging endpoint** from:
+   ```
+   https://your-app.azurewebsites.net/api/messages
+   ```
+   to:
+   ```
+   https://apps.yourdomain.com/api/messages
+   ```
+3. Click **Apply**
+
+### Update Teams App Manifest
+
+1. Edit `manifest.json` and add your custom domain to `validDomains`:
+   ```json
+   "validDomains": [
+       "apps.yourdomain.com",
+       "your-app.azurewebsites.net"
+   ]
+   ```
+2. Optionally update the `developer` URLs (`websiteUrl`, `privacyUrl`, `termsOfUseUrl`) to use the custom domain
+3. Re-zip the manifest files (`manifest.json`, `color.png`, `outline.png`)
+4. In **Teams Admin Center** → **Teams apps** → **Manage apps**, find the existing App Request Portal bot, click it, and upload the updated package
+
+> **Note:** Keeping both domains in `validDomains` ensures the bot continues to work during the transition. You can remove the `.azurewebsites.net` entry later once the custom domain is fully verified.
+
 ## Verification Checklist
 
 After configuration, verify:
@@ -156,6 +188,7 @@ After configuration, verify:
 - [ ] Login/authentication works
 - [ ] All navigation links use the custom domain
 - [ ] Email notifications contain correct URLs
+- [ ] Teams bot notifications still arrive (if enabled)
 
 ## Troubleshooting
 
