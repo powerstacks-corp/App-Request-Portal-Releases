@@ -144,6 +144,13 @@
       "metadata": {
         "description": "SQL backup storage redundancy: Local (single region) or Geo (cross-region, recommended for DR)"
       }
+    },
+    "enableTeamsBot": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Deploy an Azure Bot resource for Teams notifications. Uses the API app registration — no separate bot registration required."
+      }
     }
   },
   "variables": {
@@ -339,6 +346,7 @@
       "apiVersion": "2022-09-15",
       "name": "[variables('botName')]",
       "location": "global",
+      "condition": "[parameters('enableTeamsBot')]",
       "kind": "azurebot",
       "sku": {
         "name": "F0"
@@ -361,6 +369,7 @@
       "apiVersion": "2022-09-15",
       "name": "[concat(variables('botName'), '/MsTeamsChannel')]",
       "location": "global",
+      "condition": "[parameters('enableTeamsBot')]",
       "dependsOn": [
         "[resourceId('Microsoft.BotService/botServices', variables('botName'))]"
       ],
@@ -465,19 +474,19 @@
             },
             {
               "name": "Bot__MicrosoftAppId",
-              "value": "[parameters('apiClientId')]"
+              "value": "[if(parameters('enableTeamsBot'), parameters('apiClientId'), '')]"
             },
             {
               "name": "Bot__MicrosoftAppPassword",
-              "value": "[concat('@Microsoft.KeyVault(SecretUri=https://', variables('keyVaultName'), '.vault.azure.net/secrets/AzureAdClientSecret/)')]"
+              "value": "[if(parameters('enableTeamsBot'), concat('@Microsoft.KeyVault(SecretUri=https://', variables('keyVaultName'), '.vault.azure.net/secrets/AzureAdClientSecret/)'), '')]"
             },
             {
               "name": "Bot__MicrosoftAppType",
-              "value": "SingleTenant"
+              "value": "[if(parameters('enableTeamsBot'), 'SingleTenant', '')]"
             },
             {
               "name": "Bot__MicrosoftAppTenantId",
-              "value": "[parameters('tenantId')]"
+              "value": "[if(parameters('enableTeamsBot'), parameters('tenantId'), '')]"
             }
           ]
         }
@@ -555,11 +564,17 @@
       "type": "string",
       "value": "[concat('https://', variables('keyVaultName'), '.vault.azure.net/')]"
     },
+    "teamsBotEnabled": {
+      "type": "bool",
+      "value": "[parameters('enableTeamsBot')]"
+    },
     "teamsBotMessagingEndpoint": {
+      "condition": "[parameters('enableTeamsBot')]",
       "type": "string",
       "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('appName'))).defaultHostName, '/api/messages')]"
     },
     "teamsBotAppId": {
+      "condition": "[parameters('enableTeamsBot')]",
       "type": "string",
       "value": "[parameters('apiClientId')]"
     }

@@ -202,6 +202,13 @@
             "label": "Enable Health Check (Recommended)",
             "defaultValue": true,
             "toolTip": "Monitor app health and automatically route traffic away from unhealthy instances. Free feature, recommended for all deployments."
+          },
+          {
+            "name": "enableTeamsBot",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Teams Bot Notifications",
+            "defaultValue": false,
+            "toolTip": "Deploy an Azure Bot resource for proactive Teams notifications. Uses the API app registration — no separate bot registration required. You can also enable this later from Admin Settings."
           }
         ]
       }
@@ -218,7 +225,8 @@
       "appServicePlanSku": "[steps('advanced').appServicePlanSku]",
       "appServicePlanInstanceCount": "[steps('advanced').appServicePlanInstanceCount]",
       "enableAutoHeal": "[steps('advanced').enableAutoHeal]",
-      "enableHealthCheck": "[steps('advanced').enableHealthCheck]"
+      "enableHealthCheck": "[steps('advanced').enableHealthCheck]",
+      "enableTeamsBot": "[steps('advanced').enableTeamsBot]"
     }
   }
 }
