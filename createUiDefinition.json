@@ -128,6 +128,69 @@
         ]
       },
       {
+        "name": "teamsBot",
+        "label": "Teams Bot (Optional)",
+        "elements": [
+          {
+            "name": "botInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": true,
+            "options": {
+              "icon": "Info",
+              "text": "Optionally deploy a Teams Bot for proactive notifications (approval requests, status updates). This requires a separate Entra ID app registration for the bot. You can skip this and configure it later from Admin Settings."
+            }
+          },
+          {
+            "name": "enableTeamsBot",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Teams Bot Notifications"
+          },
+          {
+            "name": "teamsBotSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Bot App Registration",
+            "visible": "[steps('teamsBot').enableTeamsBot]",
+            "elements": [
+              {
+                "name": "botSetupInfo",
+                "type": "Microsoft.Common.InfoBox",
+                "visible": true,
+                "options": {
+                  "icon": "Info",
+                  "text": "Create a separate Entra ID app registration for the bot (single-tenant, no redirect URIs needed). The ARM template will create the Azure Bot resource and Teams channel automatically."
+                }
+              },
+              {
+                "name": "teamsBotAppId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Bot App ID",
+                "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                "toolTip": "Application (client) ID of the bot's Entra ID app registration",
+                "constraints": {
+                  "required": true,
+                  "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                  "validationMessage": "Must be a valid GUID"
+                }
+              },
+              {
+                "name": "teamsBotAppPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Bot Client Secret"
+                },
+                "toolTip": "Client secret from the bot's Entra ID app registration",
+                "constraints": {
+                  "required": true
+                },
+                "options": {
+                  "hideConfirmation": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "advanced",
         "label": "Advanced",
         "elements": [
@@ -218,7 +281,10 @@
       "appServicePlanSku": "[steps('advanced').appServicePlanSku]",
       "appServicePlanInstanceCount": "[steps('advanced').appServicePlanInstanceCount]",
       "enableAutoHeal": "[steps('advanced').enableAutoHeal]",
-      "enableHealthCheck": "[steps('advanced').enableHealthCheck]"
+      "enableHealthCheck": "[steps('advanced').enableHealthCheck]",
+      "enableTeamsBot": "[steps('teamsBot').enableTeamsBot]",
+      "teamsBotAppId": "[if(steps('teamsBot').enableTeamsBot, steps('teamsBot').teamsBotSection.teamsBotAppId, '')]",
+      "teamsBotAppPassword": "[if(steps('teamsBot').enableTeamsBot, steps('teamsBot').teamsBotSection.teamsBotAppPassword, '')]"
     }
   }
 }

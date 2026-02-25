@@ -389,6 +389,8 @@ Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json):
 
 Send personal Teams notifications to approvers and requestors via a Teams Bot using Bot Framework proactive messaging. Each user receives individual Adaptive Card notifications in their Teams chat.
 
+> **ARM Template Deployment:** If you're using the "Deploy to Azure" button, check the **Teams Bot (Optional)** step in the deployment wizard. The ARM template will automatically create the Azure Bot resource, enable the Teams channel, and configure the App Service — you can skip Steps 10a through 10c and proceed directly to [Step 10d](#step-10d-pre-install-the-bot-for-users).
+
 ### Step 10a: Register an Azure Bot
 
 1. Navigate to **Azure Portal** > **Create a resource** > search for **Azure Bot**
