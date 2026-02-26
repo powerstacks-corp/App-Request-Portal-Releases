@@ -610,36 +610,31 @@ If you try to enable approval for a hidden app, you'll see the tooltip: "App mus
 
 #### Delete from Intune
 
-For apps that were published to Intune from the WinGet catalog, a red **Delete** button appears in the Actions column. This allows you to remove the app from Intune and clear all deployment references so the app can be republished.
+A red **Delete** button appears in the Actions column for any app with a real Intune deployment (not synced apps with a `winget-` prefix). Clicking it removes the app from both Intune and the portal entirely.
 
 **Confirmation flow:**
 
-1. **First prompt**: Confirms you want to delete the app from Intune
-2. **Second prompt** (if the app has a deployment group): Asks whether to also delete the deployment group and assignment, similar to the visibility toggle:
-
-> Do you also want to delete the deployment group and assignment?
->
-> - Click **OK** to delete the app AND the deployment group
-> - Click **Cancel** to delete the app but keep the deployment group (useful if you plan to republish)
+1. **Step 1** — "Are you sure you want to delete *[app name]* from Intune?"
+   - Click **Delete** to proceed, or **Cancel** to abort
+2. **Step 2** *(only for portal-published apps with a deployment group)* — "This app has a deployment group (*group name*). Do you also want to delete the deployment group?"
+   - Click **Yes** to delete the group, or **No** to keep it for reuse when republishing
 
 **What gets deleted:**
 
-| Action | Always | Only if "delete group" chosen |
-|--------|--------|------------------------------|
+| Action | Always | Only if "Yes" to group deletion |
+|--------|--------|-------------------------------|
 | Win32 app removed from Intune | Yes | — |
 | Intune assignment removed | Yes | — |
-| Portal deployment references cleared | Yes | — |
+| All associated requests removed | Yes | — |
+| App record removed from portal | Yes | — |
 | Entra ID security group deleted | — | Yes |
-| Group references cleared from portal | — | Yes |
 
-After deletion, the app remains in the portal catalog with its visibility and settings intact. You can republish it from the WinGet catalog at any time. If you preserved the deployment group, the republished app will automatically reuse it.
-
-> **Note:** The Delete button only appears for apps that have an Intune deployment created by the portal (not for apps synced from Intune with a `winget-` prefix).
+After deletion, the app is completely removed from the portal. To restore it, republish from the WinGet catalog.
 
 **When to use Delete from Intune:**
 - You need to republish an app with updated settings (e.g., different silent switches, updated installer)
 - An app deployment is in a bad state and needs to be recreated
-- You want to remove a portal-published app from Intune while keeping it in the portal catalog
+- You want to permanently remove an app from both Intune and the portal
 
 ### Edit App Modal
 
