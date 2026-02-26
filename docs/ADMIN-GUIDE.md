@@ -1272,15 +1272,17 @@ Package/
 
 For **MSI** installers:
 ```powershell
-Execute-MSI -Action Install -Path "$dirFiles\installer.msi" -Parameters '{silent switch}'
+Execute-MSI -Action Install -Path "$dirFiles\installer.msi"
 ```
+
+PSADT automatically adds `/qn /norestart` when running in Silent deploy mode. If a custom silent switch was provided that includes MSI properties (e.g., `TRANSFORMS=...`, `PROPERTY=VALUE`), those are passed via `-AddParameters`.
 
 For **EXE** installers:
 ```powershell
 Execute-Process -Path "$dirFiles\installer.exe" -Parameters '{silent switch}' -WaitForMsiExec
 ```
 
-The `-WaitForMsiExec` parameter ensures PSADT waits if another MSI installation is already in progress.
+The `-WaitForMsiExec` parameter ensures PSADT waits if another MSI installation is already in progress. EXE installers always get explicit silent switches since PSADT doesn't know the correct flags for each installer.
 
 **Uninstall section — what runs during uninstallation:**
 
