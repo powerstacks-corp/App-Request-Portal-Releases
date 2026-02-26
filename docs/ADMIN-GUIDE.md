@@ -1197,15 +1197,184 @@ The packaging process runs in-process on the App Service — no separate contain
 1. **Queue Message**: When you click "Publish to Intune", a job is added to Azure Storage Queue
 2. **Background Service**: The in-process `PackagingQueueService` picks up the job
 3. **Download**: Installer is downloaded from the URL in the WinGet manifest
-4. **PSADT Wrapping**: Installer is wrapped in PSAppDeployToolkit v4 for standardized deployment
+4. **Wrapping** (PSADT mode only): Installer is wrapped in PSAppDeployToolkit v4 for standardized deployment
 5. **Package Creation**: `.intunewin` package is created using the cross-platform SvRooij.ContentPrep library
 6. **Intune Upload**: The package is uploaded and a Win32LobApp is created via Graph API
 
-**Detection scripts** are auto-generated using `AppsAndFeaturesEntries` from WinGet manifests, providing accurate ProductCode (MSI GUID) or DisplayName + Version matching against Add/Remove Programs registry entries.
+### Packaging Methods: Raw vs PSADT
 
-**Install/Uninstall commands** are standardized across all packages:
-- Install: `Invoke-AppDeployToolkit.exe -DeploymentType Install -DeployMode Silent`
-- Uninstall: `Invoke-AppDeployToolkit.exe -DeploymentType Uninstall -DeployMode Silent`
+When publishing an app from the Winget Catalog, you can choose between two packaging methods using the dropdown on each package card:
+
+| Method | Description |
+|--------|-------------|
+| **Raw** (default) | Packages the installer directly. The installer executable is the entry point — Intune runs it with silent switches. Simpler, smaller package size. |
+| **PSADT** | Wraps the installer in [PSAppDeployToolkit v4](https://psappdeploytoolkit.com/). Provides standardized logging, pre/post-install hooks, and consistent exit codes across all installer types. Larger package size due to framework files. |
+
+**When to use PSADT:**
+- You need standardized deployment logging across all apps
+- You want consistent install/uninstall behavior regardless of installer type
+- You need the pre-installation and post-installation hooks (e.g., closing running applications before install)
+
+**When to use Raw:**
+- You want the simplest, most direct installation
+- Package size matters (PSADT adds ~5 MB of framework files)
+- The app's native installer already handles silent installation well
+
+#### Raw Packaging Details
+
+In Raw mode, the installer is packaged directly into the `.intunewin` file. The install and uninstall commands sent to Intune depend on the installer type:
+
+**Install commands by file type:**
+
+| File Type | Install Command | Uninstall Command |
+|-----------|----------------|-------------------|
+| `.msi` | `msiexec /i "installer.msi" {silent switch}` | `msiexec /x "installer.msi" {silent switch}` |
+| `.exe` | `"installer.exe" {silent switch}` | Registry lookup (see below) |
+| `.msix` / `.appx` | `powershell.exe Add-AppxPackage -Path 'installer.msix'` | Registry lookup (see below) |
+
+**Registry-based uninstall (for non-MSI):** For EXE and other non-MSI installers, the uninstall command searches the Windows registry (`HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall` and the `Wow6432Node` equivalent) for an entry matching the app's display name. It uses the `QuietUninstallString` if available, otherwise appends `/S /silent /quiet` to the `UninstallString`.
+
+#### PSADT Packaging Details
+
+In PSADT mode, the installer is placed inside a PSAppDeployToolkit v4 folder structure. The PSADT framework provides a standardized wrapper around the installer with logging, error handling, and consistent exit codes.
+
+**Package structure created:**
+
+```
+Package/
++-- Invoke-AppDeployToolkit.exe       <-- Entry point (what Intune runs)
++-- Deploy-Application.ps1            <-- Generated install/uninstall logic
++-- AppDeployToolkit/                 <-- Framework files (from PSADT v4 template)
+|   +-- AppDeployToolkitMain.ps1
+|   +-- AppDeployToolkitHelpers.ps1
+|   +-- ...
++-- Files/
+    +-- installer.exe (or .msi)       <-- Your actual installer
+```
+
+**Intune commands (all PSADT packages use the same commands):**
+- **Install:** `Invoke-AppDeployToolkit.exe -DeploymentType Install -DeployMode Silent`
+- **Uninstall:** `Invoke-AppDeployToolkit.exe -DeploymentType Uninstall -DeployMode Silent`
+
+**Generated Deploy-Application.ps1 script variables:**
+
+| Variable | Value |
+|----------|-------|
+| `$appVendor` | Publisher name from the Winget manifest |
+| `$appName` | Package name from the Winget manifest |
+| `$appVersion` | (empty — version tracked via Intune metadata) |
+| `$appLang` | `EN` |
+| `$appRevision` | `01` |
+| `$appScriptVersion` | `1.0.0` |
+| `$appScriptAuthor` | `AppRequestPortal` |
+
+**Install section — what runs during installation:**
+
+For **MSI** installers:
+```powershell
+Execute-MSI -Action Install -Path "$dirFiles\installer.msi" -Parameters '{silent switch}'
+```
+
+For **EXE** installers:
+```powershell
+Execute-Process -Path "$dirFiles\installer.exe" -Parameters '{silent switch}' -WaitForMsiExec
+```
+
+The `-WaitForMsiExec` parameter ensures PSADT waits if another MSI installation is already in progress.
+
+**Uninstall section — what runs during uninstallation:**
+
+For **MSI** installers:
+```powershell
+Execute-MSI -Action Uninstall -Path "$dirFiles\installer.msi"
+```
+
+For **non-MSI** installers, the script searches the registry for the app's uninstall string:
+```powershell
+$regPaths = @(
+    'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+    'HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+$app = Get-ItemProperty $regPaths |
+    Where-Object { $_.DisplayName -like '*AppName*' } |
+    Select-Object -First 1
+
+if ($app.QuietUninstallString) {
+    Execute-Process -Path 'cmd.exe' -Parameters "/c $($app.QuietUninstallString)"
+} elseif ($app.UninstallString) {
+    Execute-Process -Path 'cmd.exe' -Parameters "/c $($app.UninstallString) /S /silent /quiet"
+}
+```
+
+**Repair section:** Runs the same commands as the install section. PSADT supports `Invoke-AppDeployToolkit.exe -DeploymentType Repair -DeployMode Silent` for reinstallation.
+
+**Error handling:** If the PSADT script encounters a fatal error, it exits with code `60001` and logs the error details. PSADT's built-in logging writes to `C:\Windows\Logs\Software\` on the target device.
+
+**PSADT fallback:** If PSADT wrapping fails for any reason (e.g., template download failure, extraction error), the system automatically falls back to Raw packaging. The job will still complete successfully — just without the PSADT wrapper.
+
+**PSADT template caching:** The PSADT v4 template is downloaded once from the [official GitHub releases](https://github.com/PSAppDeployToolkit/PSAppDeployToolkit/releases) and cached in Azure Blob Storage (`psadt-template/PSAppDeployToolkit_Template_v4.zip`). Subsequent packaging jobs reuse the cached template.
+
+#### Silent Switches
+
+Silent switches tell the installer to run without displaying any UI. The portal resolves the silent switch in this order:
+
+1. **Winget manifest value** — if the manifest specifies `InstallerSwitches.Silent`, that value is used
+2. **Installer type default** — based on the `InstallerType` field in the Winget manifest
+3. **File extension fallback** — based on the installer's file extension
+4. **Last resort** — `/S /silent`
+
+**Default silent switches by installer type:**
+
+| Installer Type | Silent Switch | Used By |
+|---------------|--------------|---------|
+| **MSI** / **WiX** | `/qn /norestart` | Windows Installer packages |
+| **InnoSetup** | `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-` | Inno Setup installers |
+| **Nullsoft** / **NSIS** | `/S` | NSIS installers |
+| **Burn** | `/quiet /norestart` | WiX Burn bootstrapper bundles |
+| **EXE** (generic) | `/S /silent` | Generic executables |
+
+These defaults are applied in both Raw and PSADT modes.
+
+#### Detection Scripts
+
+Every app published to Intune includes an auto-generated PowerShell detection script. Intune runs this script on target devices to determine whether the app is already installed.
+
+**Detection strategy (in order of preference):**
+
+1. **ProductCode detection (most reliable)** — If the Winget manifest includes `AppsAndFeaturesEntries` with a `ProductCode` (MSI GUID), the script checks for that exact GUID in the registry uninstall paths. This is the most precise detection method.
+
+2. **DisplayName detection (fallback)** — If no ProductCode is available, the script searches the registry for an entry where `DisplayName` matches the app name (using wildcard matching). Publisher name is also checked if available in the manifest.
+
+**Version checking:** When a version number is available from the Winget manifest (via `AppsAndFeaturesEntries.DisplayVersion` or the package version), the detection script compares the installed version against the required minimum version. Apps with older versions are reported as "Not Installed" so Intune will upgrade them.
+
+**Registry paths checked:**
+- `HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*`
+- `HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*`
+
+**Script execution context:** Detection scripts run as 64-bit PowerShell (`runAs32Bit: false`) without signature enforcement (`enforceSignatureCheck: false`). The script exits with code `0` if the app is detected, or `1` if not installed.
+
+#### Intune Win32 App Configuration
+
+When the app is created in Intune via the Graph API, the following settings are applied:
+
+| Setting | Value |
+|---------|-------|
+| **Applicable architectures** | x64, x86 |
+| **Minimum OS** | Windows 10 1903 |
+| **Install context** | System (runs as SYSTEM account) |
+| **Device restart behavior** | Based on return code |
+
+**Return codes configured:**
+
+| Code | Type | Meaning |
+|------|------|---------|
+| `0` | Success | Installation completed successfully |
+| `1707` | Success | Installation completed successfully (MSI) |
+| `3010` | Soft reboot | Installation succeeded, reboot recommended |
+| `1641` | Hard reboot | Installation succeeded, reboot initiated |
+| `1618` | Retry | Another installation is in progress, retry later |
+
+**App icon:** If available, the app icon is fetched automatically (via Google S2 Favicon API or GitHub publisher avatar) and included as a PNG or JPEG in the Intune app metadata.
 
 ### Setting Up Packaging
 
