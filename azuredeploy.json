@@ -163,7 +163,7 @@
     "logAnalyticsName": "[concat('la-apprequest-', parameters('environmentName'))]",
     "keyVaultName": "[concat('kv-appreq-', uniqueString(resourceGroup().id))]",
     "botName": "[concat('bot-apprequest-', parameters('environmentName'), '-', uniqueString(resourceGroup().id))]",
-    "releasesBaseUrl": "https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases",
+    "releasesBaseUrl": "https://github.com/powerstacks-corp/App-Request-Portal-Releases/releases",
     "latestPackageUrl": "[concat(variables('releasesBaseUrl'), '/latest/download/AppRequestPortal.zip')]",
     "stagingPackageUrl": "[concat(variables('releasesBaseUrl'), '/download/staging/AppRequestPortal.zip')]",
     "packageUrl": "[if(equals(parameters('releaseChannel'), 'Latest'), variables('latestPackageUrl'), variables('stagingPackageUrl'))]",
@@ -414,7 +414,7 @@
           "appSettings": [
             {
               "name": "Application__ReleasesUrl",
-              "value": "https://api.github.com/repos/PowerStacks-BI/App-Request-Portal-Releases/releases/latest"
+              "value": "https://api.github.com/repos/powerstacks-corp/App-Request-Portal-Releases/releases/latest"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",

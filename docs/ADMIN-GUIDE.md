@@ -243,7 +243,7 @@ If auto-update is not configured, you can manually update using either method be
 
 For existing deployments, use the Kudu ZIP deployment feature:
 
-1. Go to the [releases repository](https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases)
+1. Go to the [releases repository](https://github.com/powerstacks-corp/App-Request-Portal-Releases/releases)
 2. Download the latest `AppRequestPortal-X.X.X.zip` file (not the source code)
 3. In Azure Portal, navigate to your App Service
 4. Click **Advanced Tools** → **Go** (opens Kudu)
@@ -259,7 +259,7 @@ For existing deployments, use the Kudu ZIP deployment feature:
 
 For fresh installations on an empty resource group:
 
-1. Go to the [releases repository](https://github.com/PowerStacks-BI/App-Request-Portal-Releases)
+1. Go to the [releases repository](https://github.com/powerstacks-corp/App-Request-Portal-Releases)
 2. Click the **Deploy to Azure** button
 3. Select an **empty resource group** or create a new one
 4. Configure deployment parameters
@@ -1651,7 +1651,7 @@ az keyvault secret recover --vault-name <vault> --name AzureAdClientSecret
 **Rollback to previous app version:**
 ```bash
 az webapp config appsettings set --resource-group <rg> --name <app> \
-  --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases/download/v1.5.5/AppRequestPortal.zip"
+  --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/powerstacks-corp/App-Request-Portal-Releases/releases/download/v1.5.5/AppRequestPortal.zip"
 ```
 
 ### High Availability (Optional)
