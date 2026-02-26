@@ -608,6 +608,39 @@ The approval toggle is automatically disabled if the app is not visible. This va
 
 If you try to enable approval for a hidden app, you'll see the tooltip: "App must be visible to enable approval".
 
+#### Delete from Intune
+
+For apps that were published to Intune from the WinGet catalog, a red **Delete** button appears in the Actions column. This allows you to remove the app from Intune and clear all deployment references so the app can be republished.
+
+**Confirmation flow:**
+
+1. **First prompt**: Confirms you want to delete the app from Intune
+2. **Second prompt** (if the app has a deployment group): Asks whether to also delete the deployment group and assignment, similar to the visibility toggle:
+
+> Do you also want to delete the deployment group and assignment?
+>
+> - Click **OK** to delete the app AND the deployment group
+> - Click **Cancel** to delete the app but keep the deployment group (useful if you plan to republish)
+
+**What gets deleted:**
+
+| Action | Always | Only if "delete group" chosen |
+|--------|--------|------------------------------|
+| Win32 app removed from Intune | Yes | — |
+| Intune assignment removed | Yes | — |
+| Portal deployment references cleared | Yes | — |
+| Entra ID security group deleted | — | Yes |
+| Group references cleared from portal | — | Yes |
+
+After deletion, the app remains in the portal catalog with its visibility and settings intact. You can republish it from the WinGet catalog at any time. If you preserved the deployment group, the republished app will automatically reuse it.
+
+> **Note:** The Delete button only appears for apps that have an Intune deployment created by the portal (not for apps synced from Intune with a `winget-` prefix).
+
+**When to use Delete from Intune:**
+- You need to republish an app with updated settings (e.g., different silent switches, updated installer)
+- An app deployment is in a bad state and needs to be recreated
+- You want to remove a portal-published app from Intune while keeping it in the portal catalog
+
 ### Edit App Modal
 
 Click **Edit** on any app row to open the Edit App Modal, which provides access to all configurable app properties:
@@ -1310,7 +1343,18 @@ if ($app.QuietUninstallString) {
 
 **Repair section:** Runs the same commands as the install section. PSADT supports `Invoke-AppDeployToolkit.exe -DeploymentType Repair -DeployMode Silent` for reinstallation.
 
-**Error handling:** If the PSADT script encounters a fatal error, it exits with code `60001` and logs the error details. PSADT's built-in logging writes to `C:\Windows\Logs\Software\` on the target device.
+**Error handling:** If the PSADT script encounters a fatal error, it exits with an error code in the 60000 range and logs the error details. PSADT's built-in logging writes to `C:\Windows\Logs\Software\` on the target device.
+
+The following PSADT error codes are mapped as "Failed" return codes in Intune:
+
+| Exit Code | Description |
+|-----------|-------------|
+| `60001` | General PSADT error (catch block in Deploy-Application.ps1) |
+| `60002` | Error during pre-installation phase |
+| `60003` | Error during installation phase |
+| `60008` | Generic non-zero exit from the wrapped installer |
+
+These are registered in the Intune Win32 app return code mappings so that PSADT failures are properly reported in Intune and reflected in the portal's install status tracking.
 
 **PSADT fallback:** If PSADT wrapping fails for any reason (e.g., template download failure, extraction error), the system automatically falls back to Raw packaging. The job will still complete successfully — just without the PSADT wrapper.
 
