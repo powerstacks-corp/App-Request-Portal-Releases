@@ -1464,7 +1464,7 @@ In **Admin** > **Settings** > **Winget Integration**:
 | Setting | Description |
 |---------|-------------|
 | **WinGet Repository URL** | GitHub repository URL for WinGet packages. Default: `https://github.com/microsoft/winget-pkgs` (Microsoft's official repository). Format: `https://github.com/owner/repo` or `owner/repo`. Organizations with custom/private WinGet repositories can point to their internal GitLab/GitHub mirror. **Warning**: Changing this will clear the entire package cache. |
-| **GitHub Personal Access Token** | Optional GitHub Personal Access Token for authenticated API requests. Increases rate limit from 60/hour to 5,000/hour. Recommended for faster initial sync and reliability. Create a classic token at [https://github.com/settings/tokens](https://github.com/settings/tokens) with `public_repo` scope. |
+| **GitHub Personal Access Token** | Recommended. Required for the "Show More Results" live search feature (GitHub's Code Search API requires authentication). Also increases API rate limits from 60/hour to 5,000/hour for faster cache syncs. Create a classic token at [https://github.com/settings/tokens](https://github.com/settings/tokens) with `public_repo` scope. |
 
 #### Why Use a GitHub Token?
 
@@ -1472,11 +1472,13 @@ In **Admin** > **Settings** > **Winget Integration**:
 - 60 API requests per hour
 - Initial cache sync takes 2-3 hours
 - May hit rate limits during heavy use
+- **"Show More Results" live search will not work** — GitHub's Code Search API requires authentication. Only cached results and exact package ID lookups (e.g., `Google.Chrome`) will return results.
 
 **With token** (authenticated):
 - 5,000 API requests per hour
 - Initial cache sync takes 30-60 minutes
 - Reliable operation even with many users
+- **Full live search** — "Show More Results" queries the entire WinGet repository in real time via GitHub Code Search, finding packages that may not yet be in the local cache
 
 **Creating a GitHub Personal Access Token:**
 
