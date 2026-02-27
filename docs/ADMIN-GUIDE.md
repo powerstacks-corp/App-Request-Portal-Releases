@@ -437,10 +437,11 @@ Send personal Teams notifications to approvers and requestors via a Teams Bot. E
 
 #### Prerequisites
 
-1. An **Azure Bot** resource registered in Azure Portal using your API app registration (see [SETUP.md](SETUP.md#step-10-configure-microsoft-teams-bot-notifications-optional))
-2. The `Bot__MicrosoftAppId`, `Bot__MicrosoftAppPassword`, `Bot__MicrosoftAppType`, and `Bot__MicrosoftAppTenantId` environment variables configured (these reuse your API app registration credentials)
-3. The **Microsoft Teams** channel enabled on the Azure Bot resource
-4. The bot **pre-installed for users** via Teams Admin Center setup policies
+1. An **Azure Bot** resource registered in Azure Portal using your API app registration's Client ID (see [SETUP.md](SETUP.md#step-10-configure-microsoft-teams-bot-notifications-optional))
+2. The **Microsoft Teams** channel enabled on the Azure Bot resource
+3. The bot **pre-installed for users** via Teams Admin Center setup policies
+
+> No separate `Bot__` environment variables are needed — the bot uses `AzureAd__ClientId`, `AzureAd__ClientSecret`, and `AzureAd__TenantId` directly.
 
 #### Configuring the Portal
 
@@ -465,7 +466,7 @@ Send personal Teams notifications to approvers and requestors via a Teams Bot. E
 
 - **Bot not sending messages**: Verify the bot is installed for the user by checking the `BotConversationReferences` table
 - **Test notification fails**: Ensure the bot is installed for your user account first
-- **401 errors**: Check that all 4 `Bot__` settings are present and `Bot__MicrosoftAppType` is set to `SingleTenant`
+- **401 errors**: Verify the Azure Bot resource's Microsoft App ID matches your `AzureAd__ClientId` and the client secret is valid
 - **Some users don't receive notifications**: The Teams Admin Center setup policy may take up to 24 hours to propagate
 
 > **Note:** No additional Microsoft Graph API permissions are required for Teams bot notifications. Bot Framework handles its own authentication.

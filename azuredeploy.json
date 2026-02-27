@@ -471,22 +471,6 @@
             {
               "name": "AzureStorage__ConnectionString",
               "value": "[concat('@Microsoft.KeyVault(SecretUri=https://', variables('keyVaultName'), '.vault.azure.net/secrets/StorageConnectionString/)')]"
-            },
-            {
-              "name": "Bot__MicrosoftAppId",
-              "value": "[if(parameters('enableTeamsBot'), parameters('apiClientId'), '')]"
-            },
-            {
-              "name": "Bot__MicrosoftAppPassword",
-              "value": "[if(parameters('enableTeamsBot'), concat('@Microsoft.KeyVault(SecretUri=https://', variables('keyVaultName'), '.vault.azure.net/secrets/AzureAdClientSecret/)'), '')]"
-            },
-            {
-              "name": "Bot__MicrosoftAppType",
-              "value": "[if(parameters('enableTeamsBot'), 'SingleTenant', '')]"
-            },
-            {
-              "name": "Bot__MicrosoftAppTenantId",
-              "value": "[if(parameters('enableTeamsBot'), parameters('tenantId'), '')]"
             }
           ]
         }

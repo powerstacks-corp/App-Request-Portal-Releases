@@ -389,11 +389,11 @@ Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json):
 
 Send personal Teams notifications to approvers and requestors via a Teams Bot using Bot Framework proactive messaging. Each user receives individual Adaptive Card notifications in their Teams chat.
 
-> **ARM Template Deployment:** If you used the "Deploy to Azure" button, the ARM template automatically created the Azure Bot resource, enabled the Teams channel, and configured the App Service using your API app registration credentials. You can skip Steps 10a through 10c and proceed directly to [Step 10d](#step-10d-pre-install-the-bot-for-users).
+The bot uses the same app registration as the API — no separate `Bot__` environment variables are needed. Credentials are read directly from `AzureAd__ClientId`, `AzureAd__ClientSecret`, and `AzureAd__TenantId`.
+
+> **ARM Template Deployment:** If you used the "Deploy to Azure" button, the ARM template automatically created the Azure Bot resource and enabled the Teams channel. You can skip Steps 10a and 10b and proceed directly to [Step 10c](#step-10c-pre-install-the-bot-for-users).
 
 ### Step 10a: Register an Azure Bot
-
-The bot reuses your existing **API app registration** — no separate app registration is needed.
 
 1. Navigate to **Azure Portal** > **Create a resource** > search for **Azure Bot**
 2. Click **Create** and fill in:
@@ -401,28 +401,17 @@ The bot reuses your existing **API app registration** — no separate app regist
    - **Subscription/Resource Group**: Use your existing resource group
    - **Pricing tier**: Free (F0) is sufficient
    - **Type of App**: Single Tenant
-   - **Microsoft App ID**: Select **Use existing app registration** and enter your **API Client ID** (the same one from Step 1)
+   - **Microsoft App ID**: Select **Use existing app registration** and enter your **API Client ID** (the same `AzureAd__ClientId` from Step 1)
 3. After creation, go to the Bot resource > **Configuration**
 4. Set **Messaging endpoint** to: `https://your-app-url/api/messages`
 
-### Step 10b: Configure the API
-
-Add the Bot settings to your App Service environment variables. These reuse the same API app registration credentials:
-
-| Setting | Value |
-|---------|-------|
-| `Bot__MicrosoftAppId` | Same as `AzureAd__ClientId` (your API Client ID) |
-| `Bot__MicrosoftAppPassword` | Same as `AzureAd__ClientSecret` (your API Client Secret or Key Vault reference) |
-| `Bot__MicrosoftAppType` | `SingleTenant` |
-| `Bot__MicrosoftAppTenantId` | Same as `AzureAd__TenantId` (your Tenant ID) |
-
-### Step 10c: Add the Teams Channel
+### Step 10b: Add the Teams Channel
 
 1. In the Azure Bot resource, go to **Channels**
 2. Click **Microsoft Teams** > **Apply**
 3. This enables the bot to communicate through Teams
 
-### Step 10d: Pre-install the Bot for Users
+### Step 10c: Pre-install the Bot for Users
 
 For proactive messaging to work, the bot must be installed for each user. A ready-to-use Teams app manifest is included in the `teams-bot-manifest/` directory.
 
@@ -436,7 +425,7 @@ For proactive messaging to work, the bot must be installed for each user. A read
 
 > **Note:** It may take up to 24 hours for the policy to apply to all users. When the bot is installed for a user, it automatically stores a conversation reference that enables proactive messaging. See `teams-bot-manifest/README.md` for detailed instructions.
 
-### Step 10e: Configure in Portal
+### Step 10d: Configure in Portal
 
 1. Navigate to **Admin** > **Communications** tab
 2. Under **Microsoft Teams Bot Notifications**:
@@ -459,9 +448,11 @@ For proactive messaging to work, the bot must be installed for each user. A read
 ### Troubleshooting Teams Bot Issues
 
 - **Bot not sending messages**: Ensure the bot is installed for the target user (check `BotConversationReferences` table in the database)
-- **401 Unauthorized on /api/messages**: Verify the `Bot__MicrosoftAppId` matches your API Client ID and all 4 Bot__ settings are present (AppId, AppPassword, AppType=SingleTenant, AppTenantId)
+- **401 Unauthorized on /api/messages**: Verify the Azure Bot resource's Microsoft App ID matches your `AzureAd__ClientId`, and that the app registration has a valid client secret
 - **Test notification fails**: The bot must be installed for your user account first — check Teams Admin Center setup policies
 - **Messages not appearing for some users**: The setup policy may not have propagated yet (up to 24 hours). Users can also manually install the bot from the Teams app store
+
+> **Upgrading from v1.11.13 or earlier:** Remove the 4 deprecated `Bot__` environment variables (`Bot__MicrosoftAppId`, `Bot__MicrosoftAppPassword`, `Bot__MicrosoftAppType`, `Bot__MicrosoftAppTenantId`) from your App Service. If your Azure Bot resource was created with a different App ID than your API Client ID, you must delete and recreate it with the correct App ID.
 
 See [ADMIN-GUIDE.md](ADMIN-GUIDE.md#microsoft-teams-bot-notifications) for detailed configuration instructions.
 
