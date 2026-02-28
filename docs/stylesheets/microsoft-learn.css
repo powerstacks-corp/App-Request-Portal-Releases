@@ -1,0 +1,338 @@
+/*
+ * Microsoft Learn-inspired theme for MkDocs Material
+ * Matches the look and feel of learn.microsoft.com
+ */
+
+/* ── Color palette ── */
+:root,
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #0078d4;
+  --md-primary-fg-color--light: #2899f5;
+  --md-primary-fg-color--dark: #005a9e;
+  --md-accent-fg-color: #0078d4;
+  --md-default-bg-color: #ffffff;
+  --md-default-fg-color: #171717;
+  --md-default-fg-color--light: #424242;
+  --md-typeset-color: #171717;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #4dabf7;
+  --md-primary-fg-color--light: #74c0fc;
+  --md-primary-fg-color--dark: #339af0;
+  --md-accent-fg-color: #4dabf7;
+  --md-default-bg-color: #1b1b1b;
+  --md-default-fg-color: #e8e8e8;
+  --md-default-fg-color--light: #b0b0b0;
+  --md-typeset-color: #e8e8e8;
+  --md-code-bg-color: #2d2d2d;
+}
+
+/* ── Typography — match Microsoft's Segoe UI stack ── */
+:root {
+  --md-text-font: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  --md-code-font: "Cascadia Code", "Consolas", "Courier New", monospace;
+}
+
+.md-typeset {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--md-typeset-color);
+}
+
+/* ── Header — Microsoft Learn blue bar ── */
+.md-header {
+  background-color: #0078d4;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-md-color-scheme="slate"] .md-header {
+  background-color: #1b1b1b;
+  border-bottom: 1px solid #333;
+}
+
+.md-header__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ── Left navigation — Microsoft Learn sidebar style ── */
+.md-nav--primary .md-nav__title {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--md-default-fg-color--light);
+}
+
+.md-nav__item {
+  padding: 0;
+}
+
+.md-nav__link {
+  font-size: 0.825rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  margin: 1px 0;
+}
+
+.md-nav__link:hover {
+  background-color: rgba(0, 120, 212, 0.06);
+}
+
+[data-md-color-scheme="slate"] .md-nav__link:hover {
+  background-color: rgba(77, 171, 247, 0.1);
+}
+
+.md-nav__link--active,
+.md-nav__item .md-nav__link--active {
+  font-weight: 600;
+  color: var(--md-primary-fg-color);
+  border-left: 2px solid var(--md-primary-fg-color);
+  padding-left: calc(0.6rem - 2px);
+  background-color: rgba(0, 120, 212, 0.04);
+}
+
+[data-md-color-scheme="slate"] .md-nav__link--active,
+[data-md-color-scheme="slate"] .md-nav__item .md-nav__link--active {
+  background-color: rgba(77, 171, 247, 0.08);
+}
+
+/* Section labels (like "Getting Started", "Administration") */
+.md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__link,
+.md-nav--primary > .md-nav__list > .md-nav__item > label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.75rem;
+}
+
+/* ── Search bar — cleaner Microsoft-style ── */
+.md-search__input {
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+/* ── Content area ── */
+.md-content {
+  max-width: 900px;
+}
+
+.md-typeset h1 {
+  font-weight: 600;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--md-typeset-color);
+  border-bottom: none;
+}
+
+.md-typeset h2 {
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+[data-md-color-scheme="slate"] .md-typeset h2 {
+  border-bottom-color: #444;
+}
+
+.md-typeset h3 {
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin-top: 1.5rem;
+}
+
+.md-typeset h4 {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ── Tables — Microsoft Learn clean style ── */
+.md-typeset table:not([class]) {
+  font-size: 0.825rem;
+  border: 1px solid #e1e1e1;
+  border-collapse: collapse;
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) {
+  border-color: #444;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: #f3f3f3;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 2px solid #d1d1d1;
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: #2d2d2d;
+  border-bottom-color: #555;
+}
+
+.md-typeset table:not([class]) td {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) td {
+  border-bottom-color: #3a3a3a;
+}
+
+/* ── Code blocks — Microsoft Learn style ── */
+.md-typeset code {
+  font-size: 0.825em;
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  background-color: #f5f5f5;
+  color: #171717;
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: #2d2d2d;
+  color: #e8e8e8;
+}
+
+.md-typeset pre > code {
+  padding: 1rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* ── Admonitions — Microsoft-style notes/tips/warnings ── */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 4px;
+  border-left: 4px solid;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  box-shadow: none;
+  font-size: 0.85rem;
+}
+
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-left-color: #0078d4;
+  background-color: #f0f6ff;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .admonition.note,
+[data-md-color-scheme="slate"] .md-typeset details.note {
+  background-color: rgba(0, 120, 212, 0.1);
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-left-color: #107c10;
+  background-color: #f0fff0;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .admonition.tip,
+[data-md-color-scheme="slate"] .md-typeset details.tip {
+  background-color: rgba(16, 124, 16, 0.1);
+}
+
+.md-typeset .admonition.warning,
+.md-typeset details.warning {
+  border-left-color: #ff8c00;
+  background-color: #fff8f0;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .admonition.warning,
+[data-md-color-scheme="slate"] .md-typeset details.warning {
+  background-color: rgba(255, 140, 0, 0.1);
+}
+
+.md-typeset .admonition.danger,
+.md-typeset details.danger {
+  border-left-color: #d13438;
+  background-color: #fff0f0;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .admonition.danger,
+[data-md-color-scheme="slate"] .md-typeset details.danger {
+  background-color: rgba(209, 52, 56, 0.1);
+}
+
+/* ── Right-side TOC — thinner, Microsoft-style ── */
+.md-sidebar--secondary {
+  width: 13rem;
+}
+
+.md-nav--secondary .md-nav__link {
+  font-size: 0.775rem;
+}
+
+.md-nav--secondary .md-nav__title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Footer ── */
+.md-footer {
+  background-color: #f5f5f5;
+  color: #424242;
+}
+
+[data-md-color-scheme="slate"] .md-footer {
+  background-color: #1b1b1b;
+  color: #b0b0b0;
+}
+
+/* ── Breadcrumb-like path display ── */
+.md-typeset .md-content__breadcrumb {
+  font-size: 0.75rem;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 0.5rem;
+}
+
+/* ── Scrollbar styling (Chromium) ── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+/* ── Tabs — Microsoft pivot style ── */
+.md-typeset .tabbed-labels > label {
+  font-size: 0.825rem;
+  font-weight: 600;
+}
+
+.md-typeset .tabbed-labels > label--active {
+  border-bottom-color: var(--md-primary-fg-color);
+}
+
+/* ── Task lists ── */
+.md-typeset .task-list-indicator::before {
+  background-color: var(--md-primary-fg-color);
+}
+
+/* ── Permalink anchors ── */
+.md-typeset .headerlink {
+  color: var(--md-default-fg-color--light);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.md-typeset h1:hover .headerlink,
+.md-typeset h2:hover .headerlink,
+.md-typeset h3:hover .headerlink,
+.md-typeset h4:hover .headerlink {
+  opacity: 0.5;
+}
