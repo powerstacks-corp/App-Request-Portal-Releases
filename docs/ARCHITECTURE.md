@@ -51,10 +51,10 @@ This document provides a detailed overview of the App Portal for Intune architec
 - Responsive design for desktop and mobile
 - Real-time status updates for app requests
 
-**Files**:
-- [/src/AppRequestPortal.Web/src/App.tsx](../src/AppRequestPortal.Web/src/App.tsx)
-- [/src/AppRequestPortal.Web/src/authConfig.ts](../src/AppRequestPortal.Web/src/authConfig.ts)
-- [/src/AppRequestPortal.Web/src/services/apiClient.ts](../src/AppRequestPortal.Web/src/services/apiClient.ts)
+**Key Files**:
+- `src/AppRequestPortal.Web/src/App.tsx`
+- `src/AppRequestPortal.Web/src/authConfig.ts`
+- `src/AppRequestPortal.Web/src/services/apiClient.ts`
 
 ### 2. Backend API (ASP.NET Core)
 
@@ -67,18 +67,18 @@ This document provides a detailed overview of the App Portal for Intune architec
 **Architecture Pattern**: Clean Architecture / Layered Architecture
 
 **Layers**:
-1. **API Layer** ([AppRequestPortal.API](../src/AppRequestPortal.API/))
+1. **API Layer** (`AppRequestPortal.API`)
    - Controllers
    - Authentication/Authorization
    - Middleware
    - API endpoints
 
-2. **Core Layer** ([AppRequestPortal.Core](../src/AppRequestPortal.Core/))
+2. **Core Layer** (`AppRequestPortal.Core`)
    - Domain models
    - Business interfaces
    - Business logic (services)
 
-3. **Infrastructure Layer** ([AppRequestPortal.Infrastructure](../src/AppRequestPortal.Infrastructure/))
+3. **Infrastructure Layer** (`AppRequestPortal.Infrastructure`)
    - Data access (Entity Framework)
    - External service integrations (Graph API)
    - Repository implementations
@@ -651,9 +651,9 @@ GET /users/{user-id}/managedDevices
 - No additional Microsoft Graph permissions required
 
 **Key Files**:
-- [/src/AppRequestPortal.API/Bot/AppRequestBot.cs](../src/AppRequestPortal.API/Bot/AppRequestBot.cs) — Handles install/uninstall events
-- [/src/AppRequestPortal.API/Controllers/BotController.cs](../src/AppRequestPortal.API/Controllers/BotController.cs) — Bot messaging endpoint
-- [/src/AppRequestPortal.Infrastructure/Services/TeamsBotService.cs](../src/AppRequestPortal.Infrastructure/Services/TeamsBotService.cs) — Proactive notification service
+- `src/AppRequestPortal.API/Bot/AppRequestBot.cs` — Handles install/uninstall events
+- `src/AppRequestPortal.API/Controllers/BotController.cs` — Bot messaging endpoint
+- `src/AppRequestPortal.Infrastructure/Services/TeamsBotService.cs` — Proactive notification service
 
 ## Data Flow
 

@@ -102,7 +102,7 @@ You need to create two app registrations in Entra ID:
 
 ### Backend API Configuration
 
-1. Open [AppRequestPortal/src/AppRequestPortal.API/appsettings.json](../src/AppRequestPortal.API/appsettings.json)
+1. Open `appsettings.json` in the API project
 
 2. Update the following values:
 ```json
@@ -122,7 +122,7 @@ You need to create two app registrations in Entra ID:
 
 ### Frontend Configuration
 
-1. Copy [AppRequestPortal/src/AppRequestPortal.Web/.env.example](../src/AppRequestPortal.Web/.env.example) to `.env`
+1. Copy `.env.example` to `.env` in the Web project
 
 2. Update the values:
 ```
@@ -140,7 +140,7 @@ REACT_APP_API_URL=https://localhost:7001/api
    - **SQL Server Express**: Connection string uses `localhost\SQLEXPRESS`
    - **Azure SQL**: Use the full server FQDN from Azure Portal
 
-2. Update the connection string in [appsettings.json](../src/AppRequestPortal.API/appsettings.json)
+2. Update the connection string in `appsettings.json`
 
    Example for LocalDB:
    ```json
@@ -212,7 +212,7 @@ The web app will be available at `http://localhost:3000`
 
 You **must** set `AdminGroupId` before the first admin can log in. Choose one of the following methods:
 
-**Method 1: appsettings.json** — Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json):
+**Method 1: appsettings.json** — Update `appsettings.json`:
 
 ```json
 {
@@ -269,7 +269,7 @@ This setting is configured via the Portal Settings UI (Admin > Settings > App De
 
 ## Step 7: Deploy to Azure
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+For Azure deployment, use the **Deploy to Azure** button in the repository README, or follow the ARM template deployment steps below.
 
 ## Troubleshooting
 
@@ -352,7 +352,7 @@ You need the Object ID of the user or shared mailbox that will send emails:
 
 ### Option B: Configure via appsettings.json
 
-Update [appsettings.json](../src/AppRequestPortal.API/appsettings.json):
+Update `appsettings.json`:
 
 ```json
 {
