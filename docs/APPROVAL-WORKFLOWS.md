@@ -155,7 +155,7 @@ Removes the workflow configuration. Apps without a workflow will use the default
 
 1. **For Pooled workflows**: Create Entra ID security groups for each approval stage
 2. **For Linear workflows**: Know the Entra ID Object IDs of the specific approvers
-3. Admin access to the App Request Portal
+3. Admin access to the App Portal for Intune
 
 ### Using the UI (Recommended)
 

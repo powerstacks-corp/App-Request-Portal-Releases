@@ -1,6 +1,6 @@
 # Disaster Recovery Guide
 
-This document provides disaster recovery procedures for the App Request Portal, including backup strategies, recovery runbooks, and high availability options.
+This document provides disaster recovery procedures for the App Portal for Intune, including backup strategies, recovery runbooks, and high availability options.
 
 **Last Updated:** February 2026
 
@@ -77,7 +77,7 @@ The default ARM template deployment includes these disaster recovery features:
 | **Purge Protection** | Optional (prevents permanent deletion) |
 
 **What's Protected:**
-- Azure AD client secret
+- Entra ID client secret
 - SQL connection string
 - Storage connection string
 
@@ -158,7 +158,7 @@ The default ARM template deployment includes these disaster recovery features:
 
 3. **If purged (permanently deleted),** recreate the secret:
    ```bash
-   # Get new client secret from Azure AD App Registration
+   # Get new client secret from Entra ID App Registration
    az keyvault secret set \
      --vault-name <vault-name> \
      --name AzureAdClientSecret \
@@ -189,7 +189,7 @@ The default ARM template deployment includes these disaster recovery features:
    ```bash
    az deployment group create \
      --resource-group apprequest-dr \
-     --template-uri https://raw.githubusercontent.com/PowerStacks-BI/AppRequestPortal/main/azuredeploy.json \
+     --template-uri https://raw.githubusercontent.com/powerstacks-corp/AppRequestPortal/main/azuredeploy.json \
      --parameters \
        environmentName=prod \
        apiClientId=<client-id> \
@@ -213,7 +213,7 @@ The default ARM template deployment includes these disaster recovery features:
      --geo-backup-id <backup-id>
    ```
 
-4. **Update Azure AD redirect URIs:**
+4. **Update Entra ID redirect URIs:**
    - Add new App Service URL to Frontend SPA app registration
    - Add new URL to Backend API if needed
 
@@ -284,7 +284,7 @@ The default ARM template deployment includes these disaster recovery features:
    az webapp config appsettings set \
      --resource-group <rg> \
      --name <app-name> \
-     --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/PowerStacks-BI/App-Request-Portal-Releases/releases/download/v1.5.5/AppRequestPortal.zip"
+     --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/powerstacks-corp/app-portal-for-intune/releases/download/v1.5.5/AppRequestPortal.zip"
    ```
 
 2. **Restart App Service:**

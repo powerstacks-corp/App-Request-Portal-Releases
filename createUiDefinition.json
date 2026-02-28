@@ -6,7 +6,7 @@
     "config": {
       "isWizard": true,
       "basics": {
-        "description": "Deploy the **App Request Portal** - a self-service portal for users to request Intune-managed applications.\n\n**Prerequisites:**\n- Two Entra ID App Registrations (API and Frontend)\n- Entra ID tenant with Intune\n\nSee the [documentation](https://github.com/powerstacks-corp/AppRequestPortal) for setup instructions.",
+        "description": "Deploy the **App Portal for Intune** - a self-service portal for users to request Intune-managed applications.\n\n**Prerequisites:**\n- Two Entra ID App Registrations (API and Frontend)\n- Entra ID tenant with Intune\n\nSee the [documentation](https://github.com/powerstacks-corp/AppRequestPortal) for setup instructions.",
         "location": {
           "label": "Region",
           "allowedValues": [],

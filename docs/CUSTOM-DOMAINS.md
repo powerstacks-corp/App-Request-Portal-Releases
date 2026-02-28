@@ -1,6 +1,6 @@
 # Custom Domain Configuration
 
-This guide explains how to configure a custom domain (e.g., `apps.yourdomain.com`) for your App Request Portal deployment on Azure App Service.
+This guide explains how to configure a custom domain (e.g., `apps.yourdomain.com`) for your App Portal for Intune deployment on Azure App Service.
 
 ## Overview
 
@@ -98,7 +98,7 @@ DNS changes can take anywhere from a few minutes to 48 hours to propagate global
 Your Entra ID App Registration needs updated redirect URIs for authentication to work.
 
 1. Navigate to **Azure Portal** → **Microsoft Entra ID** → **App registrations**
-2. Select your App Request Portal registration
+2. Select your App Portal for Intune registration
 3. Go to **Authentication** → **Platform configurations** → **Web**
 4. Add the following redirect URIs:
 
@@ -174,7 +174,7 @@ If you have the Teams Bot enabled for proactive notifications, two things need u
    ```
 2. Optionally update the `developer` URLs (`websiteUrl`, `privacyUrl`, `termsOfUseUrl`) to use the custom domain
 3. Re-zip the manifest files (`manifest.json`, `color.png`, `outline.png`)
-4. In **Teams Admin Center** → **Teams apps** → **Manage apps**, find the existing App Request Portal bot, click it, and upload the updated package
+4. In **Teams Admin Center** → **Teams apps** → **Manage apps**, find the existing App Portal for Intune bot, click it, and upload the updated package
 
 > **Note:** Keeping both domains in `validDomains` ensures the bot continues to work during the transition. You can remove the `.azurewebsites.net` entry later once the custom domain is fully verified.
 

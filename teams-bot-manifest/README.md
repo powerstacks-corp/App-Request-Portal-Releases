@@ -1,6 +1,6 @@
 # Teams Bot Manifest
 
-This directory contains the Microsoft Teams app manifest for the App Request Portal bot.
+This directory contains the Microsoft Teams app manifest for the App Portal for Intune bot.
 
 ## Setup Instructions
 
@@ -12,7 +12,7 @@ Edit `manifest.json` and replace all placeholder values:
 |---|---|
 | `{{BOT_APP_ID}}` | Your Azure Bot's Microsoft App ID (GUID) |
 | `Your Organization` | Your company name |
-| `your-portal-url.azurewebsites.net` | Your App Request Portal URL (appears in `websiteUrl`, `privacyUrl`, `termsOfUseUrl`, and `validDomains`) |
+| `your-portal-url.azurewebsites.net` | Your App Portal for Intune URL (appears in `websiteUrl`, `privacyUrl`, `termsOfUseUrl`, and `validDomains`) |
 
 ### 2. Replace the icons (optional)
 
@@ -41,7 +41,7 @@ Compress-Archive -Path manifest.json, color.png, outline.png -DestinationPath Ap
 1. In Teams Admin Center, go to **Teams apps** > **Setup policies**
 2. Edit the **Global (Org-wide default)** policy or create a custom policy
 3. Under **Installed apps**, click **Add apps**
-4. Search for "App Request Portal" and add it
+4. Search for "App Portal for Intune" and add it
 5. Click **Save**
 
 The bot will be automatically installed for all users in scope. When installed, the bot stores a conversation reference that enables proactive notifications.

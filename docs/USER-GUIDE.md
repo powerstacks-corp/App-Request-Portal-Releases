@@ -1,6 +1,6 @@
-# App Request Portal - User Guide
+# App Portal for Intune - User Guide
 
-This guide helps employees use the App Request Portal to browse, request, and track application installations for their devices.
+This guide helps employees use the App Portal for Intune to browse, request, and track application installations for their devices.
 
 **Last Updated:** February 2026
 
@@ -11,11 +11,12 @@ This guide helps employees use the App Request Portal to browse, request, and tr
 1. [Getting Started](#getting-started)
 2. [Browsing Apps](#browsing-apps)
 3. [Requesting an App](#requesting-an-app)
-4. [Tracking Your Requests](#tracking-your-requests)
-5. [Install Status](#install-status)
-6. [Request on Behalf of Another User](#request-on-behalf-of-another-user)
-7. [Settings and Preferences](#settings-and-preferences)
-8. [FAQ](#faq)
+4. [Requesting a New App](#requesting-a-new-app)
+5. [Tracking Your Requests](#tracking-your-requests)
+6. [Install Status](#install-status)
+7. [Request on Behalf of Another User](#request-on-behalf-of-another-user)
+8. [Settings and Preferences](#settings-and-preferences)
+9. [FAQ](#faq)
 
 ---
 
@@ -23,7 +24,7 @@ This guide helps employees use the App Request Portal to browse, request, and tr
 
 ### Signing In
 
-1. Navigate to your organization's App Request Portal URL
+1. Navigate to your organization's App Portal for Intune URL
 2. Click **Sign in with Microsoft**
 3. Enter your work email and password
 4. Complete any MFA (multi-factor authentication) prompts if required
@@ -110,6 +111,41 @@ Apps may have different approval requirements:
 - **Multi-Stage Approval**: Multiple approvers in sequence
 
 You'll see the approval requirements before submitting.
+
+---
+
+## Requesting a New App
+
+If the app you need isn't in the catalog, you can submit a request to have it added.
+
+### How to Request a New App
+
+1. Go to the **Browse Apps** page
+2. Click the **+ Request New App** button in the top-right corner
+3. Fill out the request form:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| **App Name** | Yes | The name of the application you need |
+| **Publisher** | No | The company that makes the app (e.g., Microsoft, Adobe) |
+| **Why do you need this app?** | No | Your business justification for needing this app |
+| **Download URL** | No | A link to where the app can be downloaded |
+
+4. Click **Submit Request**
+
+### What Happens Next
+
+1. Your request is emailed to the IT administrators
+2. An administrator reviews your request
+3. If approved, they add the app to the portal
+4. You'll be able to request the app through the normal process
+
+### Tips for Getting Your Request Approved
+
+- **Be specific**: Include the exact app name and version if known
+- **Explain the business need**: How will this app help you do your job?
+- **Provide a download link**: If you know where to get the app, include the URL
+- **Check first**: Make sure the app isn't already in the catalog under a different name
 
 ---
 
@@ -263,7 +299,20 @@ Yes, you can submit a new request. Consider:
 
 ### How do I request an app that's not in the catalog?
 
-Contact your IT administrator. They can:
+Use the **Request New App** feature:
+
+1. Go to the **Browse Apps** page
+2. Click the **+ Request New App** button in the top-right corner
+3. Fill out the form:
+   - **App Name** (required): The name of the application you need
+   - **Publisher**: The company that makes the app
+   - **Why do you need this app?**: Explain your business justification
+   - **Download URL** (optional): Link to where the app can be downloaded
+4. Click **Submit Request**
+
+Your request is sent directly to the IT administrators, who will review it and may add the app to the portal.
+
+Alternatively, contact your IT administrator directly. They can:
 - Add the app to the Intune catalog
 - Make it visible in the portal
 - Configure appropriate approval workflows
@@ -271,13 +320,13 @@ Contact your IT administrator. They can:
 ### Who approves my requests?
 
 It depends on the app configuration:
-- **Manager Approval**: Your direct manager (from Azure AD)
+- **Manager Approval**: Your direct manager (from Entra ID)
 - **Designated Approver**: A specific person shown in the app details
 - **Approval Group**: Any member of a designated approver group
 
 ### Can I install apps on my personal device?
 
-The App Request Portal only deploys to Intune-enrolled devices. Personal devices are typically not eligible unless your organization has a BYOD (Bring Your Own Device) policy.
+The App Portal for Intune only deploys to Intune-enrolled devices. Personal devices are typically not eligible unless your organization has a BYOD (Bring Your Own Device) policy.
 
 ### I'm getting "Access Denied" - what do I do?
 

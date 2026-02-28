@@ -1,6 +1,6 @@
 # Security Overview
 
-This document provides comprehensive security documentation for the App Request Portal, including all Azure resources created, permissions granted, and security configurations. This is intended to assist security teams with reviews and compliance requirements.
+This document provides comprehensive security documentation for the App Portal for Intune, including all Azure resources created, permissions granted, and security configurations. This is intended to assist security teams with reviews and compliance requirements.
 
 ## Table of Contents
 
@@ -31,6 +31,8 @@ The ARM template deploys the following resources:
 | Storage Account | `stappreq{unique}` | Queue + blob storage for packaging |
 | Application Insights | `ai-apprequest-{env}` | Application monitoring |
 | Log Analytics Workspace | `la-apprequest-{env}` | Centralized logging |
+| Azure Bot | `bot-apprequest-{env}-{unique}` | Teams proactive messaging (optional) |
+| Bot Teams Channel | `{bot}/MsTeamsChannel` | Enables Teams communication (optional) |
 
 ### Resource Configuration Details
 
@@ -46,6 +48,27 @@ The ARM template deploys the following resources:
 - **TLS Version**: Minimum TLS 1.2
 - **Firewall**: Only Azure services allowed (0.0.0.0-0.0.0.0)
 - **Authentication**: SQL authentication (username/password)
+
+#### Azure Bot (Optional)
+- **SKU**: F0 (Free)
+- **Location**: Global
+- **App Type**: SingleTenant
+- **Microsoft App ID**: Reuses the Backend API Entra ID App Registration (`AzureAd:ClientId`)
+- **Messaging Endpoint**: `https://{app-url}/api/messages`
+- **Channels**: Microsoft Teams only
+- **Authentication**: Bot Framework handles its own authentication via `ConfigurationBotFrameworkAuthentication` using the same Entra ID client credentials as the API
+
+**Bot Framework Authentication Model:**
+- The Azure Bot resource does **not** use a separate App Registration — it shares the Backend API registration
+- Bot Framework validates incoming activities from Teams using the `AzureAd:ClientId`, `AzureAd:ClientSecret`, and `AzureAd:TenantId` configuration values
+- Proactive messages are sent via `BotAdapter.ContinueConversationAsync` or `CreateConversationAsync`, authenticated with the same credentials
+- No additional Microsoft Graph API permissions are required for Teams bot notifications — Bot Framework handles its own auth channel
+
+**Data Stored:**
+- `BotConversationReferences` table stores per-user conversation references for proactive messaging
+- Contains: User ID (Entra object ID), Conversation ID, Service URL, serialized ConversationReference JSON
+- Conversation references are encrypted/signed by Bot Framework and tied to the bot credentials that created them
+- If bot credentials change, existing conversation references become invalid and must be cleared
 
 ---
 
@@ -119,6 +142,8 @@ Two Entra ID App Registrations are required:
 | Microsoft Graph | `User.Read.All` | Application | Read user profiles, managers, and group memberships |
 | Microsoft Graph | `Directory.Read.All` | Application | Read directory data |
 | Microsoft Graph | `Mail.Send` | Application | Send email notifications (optional) |
+
+**Teams Bot Note**: No additional Microsoft Graph permissions are required for Teams bot notifications. Bot Framework handles its own authentication channel separately from Graph. Do **not** add `TeamsActivity.Send` or similar permissions — they are not used by this application.
 
 **Admin Consent**: Required for all application permissions.
 
@@ -194,6 +219,8 @@ Two Entra ID App Registrations are required:
 | HTTPS | 443 | Internet | App Service | User access |
 | HTTPS | 443 | App Service | Azure SQL | Database connections |
 | HTTPS | 443 | App Service | Microsoft Graph | API calls |
+| HTTPS | 443 | Bot Framework Service | App Service | Teams bot messages (`/api/messages`) |
+| HTTPS | 443 | App Service | Bot Framework Service | Proactive bot notifications |
 
 ### App Service Network Configuration
 
@@ -247,6 +274,7 @@ az sql server firewall-rule create --server <server-name> --resource-group <rg-n
 | Application data | Azure SQL Database | TDE (Transparent Data Encryption) |
 | User settings | Azure SQL Database | TDE |
 | Branding assets | Azure SQL Database | TDE |
+| Bot conversation references | Azure SQL Database | TDE |
 | Logs | Log Analytics | Azure-managed encryption |
 
 ### Data in Transit
@@ -263,6 +291,8 @@ az sql server firewall-rule create --server <server-name> --resource-group <rg-n
 | SQL Connection String | Azure Key Vault | Referenced via Key Vault reference in App Settings |
 | Storage Connection String | Azure Key Vault | Referenced via Key Vault reference in App Settings |
 | User tokens | Session storage (browser) | Not persisted server-side |
+| Action tokens | SQL Database | GUID per request, used for email approve/reject |
+| Bot conversation references | SQL Database | Conversation IDs and service URLs for Teams proactive messaging |
 | Audit logs | SQL Database | Retained indefinitely |
 
 ### Secrets Management
@@ -474,6 +504,8 @@ CREATE TABLE AuditLogs (
 - [ ] Verify role-based access (admin vs. user)
 - [ ] Review Entra ID sign-in logs
 - [ ] Enable Azure Security Center recommendations
+- [ ] If Teams bot enabled: verify Azure Bot App ID matches `AzureAd:ClientId`
+- [ ] If Teams bot enabled: test bot notification delivery
 
 ### Ongoing Operations
 

@@ -10,12 +10,12 @@
     "termsOfUseUrl": "https://your-portal-url.azurewebsites.net/terms"
   },
   "name": {
-    "short": "App Request Portal",
-    "full": "App Request Portal Notifications"
+    "short": "App Portal for Intune",
+    "full": "App Portal for Intune Notifications"
   },
   "description": {
     "short": "Receive app request notifications",
-    "full": "Receive personal notifications from the App Request Portal. Get notified when approval is required, when requests are approved or rejected, when apps are installed, and when apps are published to Intune."
+    "full": "Receive personal notifications from the App Portal for Intune. Get notified when approval is required, when requests are approved or rejected, when apps are installed, and when apps are published to Intune."
   },
   "icons": {
     "color": "color.png",

@@ -1,6 +1,6 @@
 # Admin Guide
 
-This guide walks administrators through setting up and managing the App Request Portal using the web-based admin interface.
+This guide walks administrators through setting up and managing the App Portal for Intune using the web-based admin interface.
 
 ## Getting Started
 
@@ -61,7 +61,7 @@ Control who has admin and approver access to the portal.
 
 ### Recommended Conditional Access Policy
 
-Since the App Request Portal is used to request apps for Intune-managed devices, we recommend protecting access to the portal with a Conditional Access policy that requires:
+Since the App Portal for Intune is used to request apps for Intune-managed devices, we recommend protecting access to the portal with a Conditional Access policy that requires:
 - **Managed device** - The device accessing the portal must be enrolled in Intune
 - **Compliant device** - The device must meet your organization's compliance policies
 
@@ -82,7 +82,7 @@ Before creating the policy:
    - Click **+ New policy**
 
 2. **Name the Policy**
-   - Enter a descriptive name: `App Request Portal - Require Compliant Device`
+   - Enter a descriptive name: `App Portal for Intune - Require Compliant Device`
 
 3. **Configure Assignments - Users**
    - Under **Users**, click **0 users and groups selected**
@@ -93,9 +93,9 @@ Before creating the policy:
    - Under **Target resources**, click **No target resources selected**
    - Select **Cloud apps**
    - Click **Include** > **Select apps**
-   - Search for and select your App Request Portal app registrations:
-     - `App Request Portal API` (or your API app registration name)
-     - `App Request Portal Frontend` (or your frontend app registration name)
+   - Search for and select your App Portal for Intune app registrations:
+     - `App Portal for Intune API` (or your API app registration name)
+     - `App Portal for Intune Frontend` (or your frontend app registration name)
    - Click **Select**
 
 5. **Configure Conditions (Optional)**
@@ -133,9 +133,9 @@ Before creating the policy:
 
 | Setting | Value |
 |---------|-------|
-| **Name** | App Request Portal - Require Compliant Device |
+| **Name** | App Portal for Intune - Require Compliant Device |
 | **Users** | All users (exclude break-glass account) |
-| **Cloud apps** | App Request Portal API, App Request Portal Frontend |
+| **Cloud apps** | App Portal for Intune API, App Portal for Intune Frontend |
 | **Conditions** | Device platforms: Windows, iOS, Android |
 | **Grant** | Require device to be marked as compliant |
 | **Enable policy** | Report-only (then On after testing) |
@@ -173,7 +173,7 @@ If you need to allow browser access from unmanaged devices (less secure), you ca
 4. Under **Grant**, require **Approved client app** or **App protection policy**
 5. This allows access from unmanaged devices but with some protection
 
-> **Recommendation:** For maximum security, require compliant managed devices. The App Request Portal is designed for employees requesting apps on their managed devices, so this policy aligns with the intended use case.
+> **Recommendation:** For maximum security, require compliant managed devices. The App Portal for Intune is designed for employees requesting apps on their managed devices, so this policy aligns with the intended use case.
 
 ### General Settings
 
@@ -243,7 +243,7 @@ If auto-update is not configured, you can manually update using either method be
 
 For existing deployments, use the Kudu ZIP deployment feature:
 
-1. Go to the [releases repository](https://github.com/powerstacks-corp/App-Request-Portal-Releases/releases)
+1. Go to the [releases repository](https://github.com/powerstacks-corp/app-portal-for-intune/releases)
 2. Download the latest `AppRequestPortal-X.X.X.zip` file (not the source code)
 3. In Azure Portal, navigate to your App Service
 4. Click **Advanced Tools** → **Go** (opens Kudu)
@@ -259,7 +259,7 @@ For existing deployments, use the Kudu ZIP deployment feature:
 
 For fresh installations on an empty resource group:
 
-1. Go to the [releases repository](https://github.com/powerstacks-corp/App-Request-Portal-Releases)
+1. Go to the [releases repository](https://github.com/powerstacks-corp/app-portal-for-intune)
 2. Click the **Deploy to Azure** button
 3. Select an **empty resource group** or create a new one
 4. Configure deployment parameters
@@ -418,7 +418,115 @@ Configure how the portal sends email notifications for request submissions and a
 | **App Installed** | Notify requestor when their app is installed on their device |
 | **App Published** | Notify admin when a WinGet app is published to Intune |
 
-> **Note:** The app registration must have the `Mail.Send` Microsoft Graph permission with admin consent granted.
+> **Note:** The app registration must have the `Mail.Send` Microsoft Graph application permission with admin consent granted.
+
+#### Creating a Service Account for Email Notifications
+
+For production deployments, we recommend creating a **dedicated shared mailbox** or service account with minimal permissions rather than using a personal user mailbox. This ensures email delivery is not tied to any individual's account.
+
+**Option A: Shared Mailbox (Recommended — No License Required)**
+
+1. In the **Microsoft 365 Admin Center**, go to **Teams & Groups** > **Shared mailboxes**
+2. Click **Add a shared mailbox**:
+   - **Name**: `App Portal for Intune` (or your preferred name)
+   - **Email**: `apprequests@yourdomain.com`
+3. Click **Create**
+4. Get the Object ID: Go to **Azure Portal** > **Entra ID** > **Users** > search for the shared mailbox > copy the **Object ID**
+5. In the portal admin settings, set:
+   - **Send As User ID**: The Object ID from step 4
+   - **From Address**: `apprequests@yourdomain.com`
+
+> Shared mailboxes do not require a Microsoft 365 license and cannot be used for interactive sign-in, making them ideal for automated email sending.
+
+**Option B: Dedicated Service Account (License Required)**
+
+1. In **Azure Portal** > **Entra ID** > **Users** > **New user**:
+   - **Display name**: `App Portal for Intune Service`
+   - **User principal name**: `svc-apprequest@yourdomain.com`
+2. Assign a **Microsoft 365 license** with Exchange Online
+3. **Disable interactive sign-in**: Entra ID > Users > [service account] > Properties > **Account enabled** = No (or use Conditional Access to block interactive sign-in)
+4. Copy the **Object ID** and configure as with Option A
+
+**Permissions Required:**
+
+The portal sends emails using the Microsoft Graph `Mail.Send` application permission via the backend app registration. This permission allows the app to send mail as **any** user in the organization. To limit which mailbox the portal actually uses:
+
+- Configure the **Send As User ID** in the portal settings to the specific shared mailbox or service account Object ID
+- Optionally, use an [Exchange Online Application Access Policy](https://learn.microsoft.com/en-us/graph/auth-limit-mailbox-access) to restrict the `Mail.Send` permission to only the designated mailbox:
+
+```powershell
+# Connect to Exchange Online
+Connect-ExchangeOnline
+
+# Create a mail-enabled security group for allowed senders
+New-DistributionGroup -Name "App Portal Email Senders" -Type Security
+
+# Add the shared mailbox to the group
+Add-DistributionGroupMember -Identity "App Portal Email Senders" -Member "apprequests@yourdomain.com"
+
+# Restrict the app registration to only send from mailboxes in this group
+New-ApplicationAccessPolicy `
+    -AppId "<your-api-client-id>" `
+    -PolicyScopeGroupId "App Portal Email Senders" `
+    -AccessRight RestrictAccess `
+    -Description "Restrict App Portal for Intune to send emails only from the designated mailbox"
+
+# Test the policy (may take up to 30 minutes to propagate)
+Test-ApplicationAccessPolicy -AppId "<your-api-client-id>" -Identity "apprequests@yourdomain.com"
+```
+
+#### Actionable Email Messages (Approve/Reject Buttons)
+
+When enabled, approval notification emails include **Approve** and **Reject** buttons directly in the email body (Outlook Actionable Messages). Approvers can approve or reject requests without leaving their inbox.
+
+> **Important:** Actionable email buttons require a one-time [provider registration with Microsoft](#registering-with-microsoft-required) and configuring the **Originator / Provider ID** in the portal settings. **Without registration, emails will still be sent** — they will contain the standard HTML body with a "Review Request" link to the portal. The Approve/Reject buttons will only appear once registration is complete and the Originator ID is configured.
+
+| Setting | Description |
+|---------|-------------|
+| **Enable actionable email messages** | Toggle to enable Approve/Reject buttons in approval emails |
+| **API Base URL for Email Actions** | The base URL of your API (e.g., `https://apprequest-prod-xxx.azurewebsites.net`). Used for the button callback endpoints. |
+| **Originator / Provider ID** | The Provider ID from your Microsoft Actionable Email registration. Required for Outlook to render action buttons. |
+
+**How it works:**
+1. When a request requires approval, the email includes an embedded MessageCard with Approve/Reject buttons
+2. The MessageCard is embedded in the email `<head>` as `application/ld+json` — Outlook reads this to render action buttons
+3. When an approver clicks Approve or Reject, Outlook sends an HTTP POST directly to your API
+4. The API validates the request using a secure action token and processes the approval
+5. **Fallback behavior**: If Outlook doesn't support Actionable Messages, or if the provider is not registered, or if the Originator ID is not configured, the email falls back to the standard HTML body with a "Review Request" link to the portal. Emails are **always sent** regardless of registration status — only the action buttons are affected.
+
+**Registering with Microsoft (Required for Action Buttons):**
+
+Outlook Actionable Messages require a one-time provider registration with Microsoft. Without this registration, Outlook will silently ignore the action buttons and only show the HTML fallback with a "Review Request" link.
+
+1. Go to the [Actionable Email Developer Dashboard](https://aka.ms/actionableemailregistration)
+2. Sign in with your Microsoft 365 admin account
+3. Click **New Provider** and fill in:
+   - **Friendly Name**: App Portal for Intune (or your preferred name)
+   - **Sender email address**: The From Address configured in your email settings (e.g., `apprequests@company.com`)
+   - **Target URL**: Your API Base URL (e.g., `https://apprequest-prod-xxx.azurewebsites.net`)
+   - **Scope**: Select **Organization** (your tenant only — auto-approved by tenant admin)
+   - **Public Key**: Leave blank (not required for organization-scoped registrations)
+4. Submit the registration — organization-scoped registrations are auto-approved by the tenant admin
+5. Copy the **Provider ID** (GUID) from your registration
+6. In the portal admin settings, paste the Provider ID into the **Originator / Provider ID** field
+7. Allow up to 24 hours for the registration to take effect
+
+**Verifying Exchange Online Settings:**
+
+If action buttons still don't appear after registration, verify that Actionable Messages are enabled in Exchange Online:
+
+```powershell
+# Check organization-level settings (both should be True)
+Get-OrganizationConfig | FL ConnectorsActionableMessagesEnabled, SmtpActionableMessagesEnabled
+
+# If disabled, enable them
+Set-OrganizationConfig -ConnectorsActionableMessagesEnabled $true -SmtpActionableMessagesEnabled $true
+
+# Check per-mailbox setting (should be True)
+Get-Mailbox -Identity apprequests@company.com | FL ConnectorsEnabled
+```
+
+> **Important:** Microsoft is transitioning Actionable Messages from External Access Tokens (EAT) to Entra ID token authentication. If Microsoft requires Entra ID tokens for new registrations, the portal's action endpoints may need to be updated in a future release. See the [Entra ID Token documentation](https://learn.microsoft.com/en-us/outlook/actionable-messages/enable-entra-token-for-actionable-messages) for details.
 
 ### Microsoft Teams Bot Notifications
 
@@ -1484,7 +1592,7 @@ In **Admin** > **Settings** > **Winget Integration**:
 
 1. Go to [GitHub Settings → Personal Access Tokens → Tokens (classic)](https://github.com/settings/tokens)
 2. Click "Generate new token" → "Generate new token (classic)"
-3. Give it a descriptive name: "App Request Portal WinGet Integration"
+3. Give it a descriptive name: "App Portal for Intune WinGet Integration"
 4. Select scope: **public_repo** (Access public repositories)
 5. Click "Generate token"
 6. Copy the token (starts with `ghp_...`)
@@ -1538,7 +1646,7 @@ For developers testing the packaging feature locally:
 
 ## Database Maintenance
 
-The App Request Portal uses Azure SQL Database Basic tier, which includes comprehensive automatic maintenance features. **No manual database maintenance is required.**
+The App Portal for Intune uses Azure SQL Database Basic tier, which includes comprehensive automatic maintenance features. **No manual database maintenance is required.**
 
 ### Why No Manual Maintenance is Needed
 
@@ -1586,7 +1694,7 @@ Azure SQL Database provides built-in backup and recovery capabilities:
 
 ### When to Consider Scaling Up
 
-The Basic tier (2GB, 5 DTUs) is suitable for the App Request Portal's typical workload. Consider scaling up if you observe:
+The Basic tier (2GB, 5 DTUs) is suitable for the App Portal for Intune's typical workload. Consider scaling up if you observe:
 
 - Consistent high DTU usage (>80%) in Azure metrics
 - Slow query response times
@@ -1617,11 +1725,11 @@ ORDER BY ips.avg_fragmentation_in_percent DESC;
 ALTER INDEX [IX_AppRequests_UserId] ON [AppRequests] REBUILD;
 ```
 
-However, for the App Request Portal's typical data volumes (hundreds to thousands of app requests), this manual intervention is almost never necessary.
+However, for the App Portal for Intune's typical data volumes (hundreds to thousands of app requests), this manual intervention is almost never necessary.
 
 ## Disaster Recovery & Backups
 
-The App Request Portal includes built-in disaster recovery features to protect your data.
+The App Portal for Intune includes built-in disaster recovery features to protect your data.
 
 ### What's Automatically Protected
 
@@ -1649,7 +1757,7 @@ az keyvault secret recover --vault-name <vault> --name AzureAdClientSecret
 **Rollback to previous app version:**
 ```bash
 az webapp config appsettings set --resource-group <rg> --name <app> \
-  --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/powerstacks-corp/App-Request-Portal-Releases/releases/download/v1.5.5/AppRequestPortal.zip"
+  --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/powerstacks-corp/app-portal-for-intune/releases/download/v1.5.5/AppRequestPortal.zip"
 ```
 
 ### High Availability (Optional)

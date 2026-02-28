@@ -46,7 +46,7 @@ Self-service application catalog for Microsoft Intune. Enable employees to reque
 
 ## Links
 
-- [GitHub Repository](https://github.com/powerstacks-corp/App-Request-Portal-Releases)
-- [Releases & Changelog](https://github.com/powerstacks-corp/App-Request-Portal-Releases/releases)
-- [Report an Issue](https://github.com/powerstacks-corp/App-Request-Portal-Releases/issues)
-- [Discussions](https://github.com/powerstacks-corp/App-Request-Portal-Releases/discussions)
+- [GitHub Repository](https://github.com/powerstacks-corp/app-portal-for-intune)
+- [Releases & Changelog](https://github.com/powerstacks-corp/app-portal-for-intune/releases)
+- [Report an Issue](https://github.com/powerstacks-corp/app-portal-for-intune/issues)
+- [Discussions](https://github.com/powerstacks-corp/app-portal-for-intune/discussions)

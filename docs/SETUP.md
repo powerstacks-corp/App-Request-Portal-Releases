@@ -1,6 +1,6 @@
-# App Request Portal - Setup Guide
+# App Portal for Intune - Setup Guide
 
-This guide walks you through setting up the App Request Portal from scratch.
+This guide walks you through setting up the App Portal for Intune from scratch.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ You need to create two app registrations in Entra ID:
 
 1. Navigate to Azure Portal > Microsoft Entra ID > App registrations
 2. Click "New registration"
-3. Name: `App Request Portal - API`
+3. Name: `App Portal for Intune - API`
 4. Supported account types: "Accounts in this organizational directory only"
 5. Redirect URI: Leave empty for now
 6. Click "Register"
@@ -73,7 +73,7 @@ You need to create two app registrations in Entra ID:
 ### Frontend SPA App Registration
 
 1. Click "New registration"
-2. Name: `App Request Portal - Frontend`
+2. Name: `App Portal for Intune - Frontend`
 3. Supported account types: "Accounts in this organizational directory only"
 4. Redirect URI:
    - Type: "Single-page application (SPA)"
@@ -202,7 +202,7 @@ The web app will be available at `http://localhost:3000`
 2. Create a new security group:
    - Group type: **Security**
    - Group name: `AppPortal-Admins` (or your preferred name)
-   - Group description: `Administrators for the App Request Portal`
+   - Group description: `Administrators for the App Portal for Intune`
    - Membership type: **Assigned**
 3. Click **Create**
 4. Add users who should have admin access to this group
@@ -420,7 +420,7 @@ For proactive messaging to work, the bot must be installed for each user. A read
 3. Zip the three files (`manifest.json`, `color.png`, `outline.png`) into a `.zip` file
 4. In **Teams Admin Center** > **Teams apps** > **Manage apps** > **Upload new app** — upload the zip
 5. Go to **Teams apps** > **Setup policies** > edit **Global (Org-wide default)** (or create a custom policy)
-6. Under **Installed apps**, click **Add apps**, search for "App Request Portal", and add it
+6. Under **Installed apps**, click **Add apps**, search for "App Portal for Intune", and add it
 7. Click **Save** — the bot will be automatically installed for all users in scope
 
 > **Note:** It may take up to 24 hours for the policy to apply to all users. When the bot is installed for a user, it automatically stores a conversation reference that enables proactive messaging. See `teams-bot-manifest/README.md` for detailed instructions.
@@ -492,7 +492,7 @@ The in-portal Application Insights Dashboard tab uses the Application Insights R
 
 **Create an API Key:**
 5. On the same **API Access** page, click **Create API key**
-6. Enter a description: `App Request Portal Metrics Dashboard`
+6. Enter a description: `App Portal for Intune Metrics Dashboard`
 7. Check **Read telemetry** under permissions
 8. Click **Generate key**
 9. **Copy the key immediately** — it won't be shown again
