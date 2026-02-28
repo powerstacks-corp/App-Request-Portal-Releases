@@ -1,17 +1,55 @@
-# PowerStacks App Portal for Intune
-
-Self-service application catalog for Microsoft Intune. Enable employees to request apps, streamline approvals, and automate deployments.
-
+---
+hide:
+  - toc
 ---
 
-## Get Started
+<div class="hero-banner" markdown>
 
-| | Guide | Description |
-|---|-------|-------------|
-| :material-rocket-launch: | **[Setup Guide](SETUP.md)** | Deploy to Azure, configure Entra ID, and get your portal running |
-| :material-shield-account: | **[Admin Guide](ADMIN-GUIDE.md)** | Configure the portal, manage apps, branding, notifications, and workflows |
-| :material-account: | **[User Guide](USER-GUIDE.md)** | Browse apps, submit requests, and track installations |
-| :material-lock: | **[Security](SECURITY.md)** | Security architecture, permissions, and compliance |
+# App Portal for Intune documentation
+
+Manage app requests, approvals, and deployments with Microsoft Intune.
+
+</div>
+
+<div class="quick-links" markdown>
+
+<a class="quick-link-card" href="SETUP/">
+  <span class="card-icon">:material-rocket-launch:</span>
+  <span class="card-content">
+    <span class="card-label">GETTING STARTED</span>
+    <span class="card-title">Setup Guide</span>
+  </span>
+</a>
+
+<a class="quick-link-card" href="ADMIN-GUIDE/">
+  <span class="card-icon">:material-shield-account:</span>
+  <span class="card-content">
+    <span class="card-label">ADMINISTRATION</span>
+    <span class="card-title">Admin Guide</span>
+  </span>
+</a>
+
+<a class="quick-link-card" href="USER-GUIDE/">
+  <span class="card-icon">:material-account:</span>
+  <span class="card-content">
+    <span class="card-label">USERS</span>
+    <span class="card-title">User Guide</span>
+  </span>
+</a>
+
+<a class="quick-link-card" href="SECURITY/">
+  <span class="card-icon">:material-lock:</span>
+  <span class="card-content">
+    <span class="card-label">SECURITY</span>
+    <span class="card-title">Security Overview</span>
+  </span>
+</a>
+
+</div>
+
+## Manage app requests, approvals, and deployments with Intune
+
+Explore the core capabilities of App Portal for Intune and learn how to enable self-service app management across your organization.
 
 ---
 

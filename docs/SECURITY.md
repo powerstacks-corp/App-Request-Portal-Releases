@@ -593,4 +593,4 @@ Monitor for these events in Entra ID and App Insights:
 ## Contact
 
 For security questions or to report vulnerabilities:
-- Email: security@powerstacks.com
+- Email: info@powerstacks.com

@@ -40,6 +40,107 @@
   color: var(--md-typeset-color);
 }
 
+/* ── Top bar — Microsoft Learn-style brand bar above header ── */
+.ms-top-bar {
+  background-color: #1b1b1b;
+  color: #ffffff;
+  font-size: 0.8rem;
+  padding: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.ms-top-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 1.2rem;
+  height: 100%;
+}
+
+.ms-top-bar__left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ms-top-bar__brand {
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
+}
+
+.ms-top-bar__separator {
+  color: #666;
+  font-weight: 300;
+}
+
+.ms-top-bar__product {
+  font-weight: 400;
+  color: #ccc;
+}
+
+.ms-top-bar__links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ms-top-bar__links a {
+  color: #ccc;
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  transition: background-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.ms-top-bar__links a:hover {
+  color: #ffffff;
+  background-color: #333;
+}
+
+.ms-top-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ms-top-bar__link-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #ccc;
+  text-decoration: none;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.ms-top-bar__link-btn:hover {
+  color: #ffffff;
+  background-color: #333;
+}
+
+/* Hide top bar links on mobile */
+@media screen and (max-width: 76.25em) {
+  .ms-top-bar__links {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 44.9375em) {
+  .ms-top-bar__right {
+    display: none;
+  }
+}
+
 /* ── Header — Microsoft Learn blue bar ── */
 .md-header {
   background-color: #0078d4;
@@ -306,6 +407,115 @@
 
 [data-md-color-scheme="slate"] ::-webkit-scrollbar-thumb {
   background: #555;
+}
+
+/* ── Navigation tabs — Microsoft Learn secondary nav bar ── */
+.md-tabs {
+  background-color: #005a9e;
+}
+
+[data-md-color-scheme="slate"] .md-tabs {
+  background-color: #252525;
+  border-bottom: 1px solid #333;
+}
+
+.md-tabs__link {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  opacity: 1;
+}
+
+/* ── Hero banner — Microsoft Learn blue banner ── */
+.hero-banner {
+  background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+  color: #ffffff;
+  padding: 3rem 2rem;
+  margin: -0.6rem -0.6rem 2rem -0.6rem;
+  border-radius: 0;
+}
+
+[data-md-color-scheme="slate"] .hero-banner {
+  background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%);
+}
+
+.hero-banner h1 {
+  color: #ffffff !important;
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  border-bottom: none;
+}
+
+.hero-banner p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 0;
+  max-width: 600px;
+}
+
+/* ── Quick link cards — Microsoft Learn feature cards ── */
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 0 0 2rem 0;
+}
+
+.quick-link-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: #f5f5f5;
+  border-radius: 6px;
+  text-decoration: none !important;
+  color: var(--md-typeset-color) !important;
+  transition: box-shadow 0.15s, transform 0.15s;
+  border: 1px solid #e8e8e8;
+}
+
+[data-md-color-scheme="slate"] .quick-link-card {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+.quick-link-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+[data-md-color-scheme="slate"] .quick-link-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.quick-link-card .card-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.quick-link-card .card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-link-card .card-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--md-default-fg-color--light);
+}
+
+.quick-link-card .card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--md-primary-fg-color);
 }
 
 /* ── Tabs — Microsoft pivot style ── */
