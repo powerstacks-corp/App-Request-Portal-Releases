@@ -258,6 +258,27 @@ az sql server firewall-rule create --server <server-name> --resource-group <rg-n
 
 ### Recommendations for Enhanced Security
 
+#### Conditional Access Policies
+
+We strongly recommend configuring the following Entra ID Conditional Access policies for the App Portal for Intune. Target these policies at the **Backend API** and **Frontend SPA** app registrations.
+
+| Policy | Description | Why It Matters |
+|--------|-------------|----------------|
+| **Require MFA** | Require multifactor authentication for all users accessing the portal | Prevents unauthorized access from compromised credentials |
+| **Require compliant device** | Only allow access from Intune-compliant devices | Since this portal manages Intune apps, ensuring the requesting device meets compliance is a natural fit |
+| **Require managed device** | Only allow access from Entra ID joined or hybrid joined devices | Prevents access from personal/unmanaged devices |
+| **Block risky sign-ins** | Block sign-ins flagged as medium or high risk by Entra ID Identity Protection | Automatically blocks access when suspicious activity is detected (requires Entra ID P2) |
+| **Restrict by location** | Only allow access from trusted named locations (office IPs, VPN ranges) | Limits exposure to known network boundaries |
+| **Sign-in frequency** | Require re-authentication every 8-12 hours | Limits the window of exposure from a stolen session token |
+
+!!! tip "Recommended minimum"
+    At a minimum, enable **Require MFA** and **Require compliant device**. These two policies provide strong protection without significant user friction, especially for organizations already using Intune for device management.
+
+!!! note "Admin vs User policies"
+    Consider creating a stricter policy for the **Admin Group** (e.g., require phishing-resistant MFA, restrict to trusted locations) since admins can modify portal settings, manage apps, and approve requests.
+
+#### Network Security Enhancements
+
 1. **Virtual Network Integration**: Deploy App Service into a VNet
 2. **Private Endpoints**: Use private endpoints for SQL and storage
 3. **IP Restrictions**: Limit access to known IP ranges
@@ -517,8 +538,8 @@ CREATE TABLE AuditLogs (
 
 ### Optional Enhancements
 
-- [ ] Enable Entra ID Conditional Access policies
-- [ ] Configure Entra ID Identity Protection
+- [ ] Enable Entra ID Conditional Access policies (see [Recommended Policies](#conditional-access-policies))
+- [ ] Configure Entra ID Identity Protection (required for risk-based CA policies)
 - [ ] Implement Private Endpoints for SQL and Key Vault
 - [ ] Add Azure Front Door with WAF
 - [ ] Enable Azure Defender for App Service
