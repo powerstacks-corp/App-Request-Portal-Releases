@@ -510,9 +510,10 @@
   justify-content: center;
 }
 
-.quick-link-card .card-icon svg {
-  width: 24px;
-  height: 24px;
+.quick-link-card .card-icon svg,
+.quick-link-card .card-icon img {
+  width: 40px;
+  height: 40px;
 }
 
 .quick-link-card .card-content {
