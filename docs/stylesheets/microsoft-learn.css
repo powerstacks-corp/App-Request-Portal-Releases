@@ -240,9 +240,9 @@
   font-size: 0.85rem;
 }
 
-/* ── Content area ── */
+/* ── Content area — full width like Microsoft Learn ── */
 .md-content {
-  max-width: 900px;
+  max-width: none;
 }
 
 .md-typeset h1 {
@@ -428,13 +428,13 @@
 
 /* ── Hero banner — Microsoft Learn blue banner ── */
 .hero-banner {
-  background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+  background: linear-gradient(135deg, #0693E3 0%, #9B51E0 100%);
   padding: 3rem 2rem;
   margin: -0.6rem -0.6rem 2rem -0.6rem;
 }
 
 [data-md-color-scheme="slate"] .hero-banner {
-  background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%);
+  background: linear-gradient(135deg, #0560a0 0%, #6b3a9e 100%);
 }
 
 .hero-banner h1 {

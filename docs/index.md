@@ -5,7 +5,7 @@ hide:
 ---
 
 <div class="hero-banner">
-  <h1>App Portal for Intune documentation</h1>
+  <h1>App Portal for Intune Documentation</h1>
   <p>Manage app requests, approvals, and deployments with Microsoft Intune.</p>
 </div>
 
