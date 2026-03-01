@@ -47,20 +47,24 @@
 }
 
 .md-banner__inner {
-  max-width: 100% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.ms-top-bar {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0 1.2rem;
+  max-width: 100% !important;
+  padding: 0 1.2rem !important;
+  margin: 0 !important;
   height: 40px;
   font-size: 0.8rem;
   color: #ffffff;
+}
+
+.ms-top-bar {
+  display: contents;
+}
+
+.ms-top-bar__inner {
+  display: contents;
 }
 
 .ms-top-bar__left {
@@ -428,13 +432,13 @@
 
 /* ── Hero banner — Microsoft Learn blue banner ── */
 .hero-banner {
-  background: linear-gradient(135deg, #0693E3 0%, #9B51E0 100%);
+  background: linear-gradient(to right, #1a0f7a 0%, #2d28b0 40%, #4f63e8 100%);
   padding: 3rem 2rem;
   margin: -0.6rem -0.6rem 2rem -0.6rem;
 }
 
 [data-md-color-scheme="slate"] .hero-banner {
-  background: linear-gradient(135deg, #0560a0 0%, #6b3a9e 100%);
+  background: linear-gradient(to right, #130a5c 0%, #221e88 40%, #3b4cb5 100%);
 }
 
 .hero-banner h1 {
