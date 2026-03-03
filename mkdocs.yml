@@ -91,6 +91,7 @@ nav:
   - Security & Compliance:
     - Security Overview: SECURITY.md
     - Disaster Recovery: DISASTER-RECOVERY.md
+  - Roadmap: ROADMAP-PUBLIC.md
 
 extra:
   social:
