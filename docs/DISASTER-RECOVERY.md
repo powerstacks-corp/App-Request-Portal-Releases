@@ -1,6 +1,6 @@
 # Disaster Recovery Guide
 
-This document provides disaster recovery procedures for the App Portal for Intune, including backup strategies, recovery runbooks, and high availability options.
+This document provides disaster recovery procedures for the App Store for Intune, including backup strategies, recovery runbooks, and high availability options.
 
 **Last Updated:** February 2026
 
@@ -189,7 +189,7 @@ The default ARM template deployment includes these disaster recovery features:
    ```bash
    az deployment group create \
      --resource-group apprequest-dr \
-     --template-uri https://raw.githubusercontent.com/powerstacks-corp/AppRequestPortal/main/azuredeploy.json \
+     --template-uri https://raw.githubusercontent.com/powerstacks-corp/app-store-for-intune/main/azuredeploy.json \
      --parameters \
        environmentName=prod \
        apiClientId=<client-id> \
@@ -284,7 +284,7 @@ The default ARM template deployment includes these disaster recovery features:
    az webapp config appsettings set \
      --resource-group <rg> \
      --name <app-name> \
-     --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/powerstacks-corp/app-portal-for-intune/releases/download/v1.5.5/AppRequestPortal.zip"
+     --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/powerstacks-corp/app-store-for-intune/releases/download/v1.5.5/AppRequestPortal.zip"
    ```
 
 2. **Restart App Service:**

@@ -1,6 +1,6 @@
 # Security Overview
 
-This document provides comprehensive security documentation for the App Portal for Intune, including all Azure resources created, permissions granted, and security configurations. This is intended to assist security teams with reviews and compliance requirements.
+This document provides comprehensive security documentation for the App Store for Intune, including all Azure resources created, permissions granted, and security configurations. This is intended to assist security teams with reviews and compliance requirements.
 
 ## Table of Contents
 
@@ -260,7 +260,7 @@ az sql server firewall-rule create --server <server-name> --resource-group <rg-n
 
 #### Conditional Access Policies
 
-We strongly recommend configuring the following Entra ID Conditional Access policies for the App Portal for Intune. Target these policies at the **Backend API** and **Frontend SPA** app registrations.
+We strongly recommend configuring the following Entra ID Conditional Access policies for the App Store for Intune. Target these policies at the **Backend API** and **Frontend SPA** app registrations.
 
 | Policy | Description | Why It Matters |
 |--------|-------------|----------------|

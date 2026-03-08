@@ -1,6 +1,6 @@
 # Admin Guide
 
-This guide walks administrators through setting up and managing the App Portal for Intune using the web-based admin interface.
+This guide walks administrators through setting up and managing the App Store for Intune using the web-based admin interface.
 
 ## Getting Started
 
@@ -61,7 +61,7 @@ Control who has admin and approver access to the portal.
 
 ### Recommended Conditional Access Policy
 
-Since the App Portal for Intune is used to request apps for Intune-managed devices, we recommend protecting access to the portal with a Conditional Access policy that requires:
+Since the App Store for Intune is used to request apps for Intune-managed devices, we recommend protecting access to the portal with a Conditional Access policy that requires:
 - **Managed device** - The device accessing the portal must be enrolled in Intune
 - **Compliant device** - The device must meet your organization's compliance policies
 
@@ -82,7 +82,7 @@ Before creating the policy:
    - Click **+ New policy**
 
 2. **Name the Policy**
-   - Enter a descriptive name: `App Portal for Intune - Require Compliant Device`
+   - Enter a descriptive name: `App Store for Intune - Require Compliant Device`
 
 3. **Configure Assignments - Users**
    - Under **Users**, click **0 users and groups selected**
@@ -93,9 +93,9 @@ Before creating the policy:
    - Under **Target resources**, click **No target resources selected**
    - Select **Cloud apps**
    - Click **Include** > **Select apps**
-   - Search for and select your App Portal for Intune app registrations:
-     - `App Portal for Intune API` (or your API app registration name)
-     - `App Portal for Intune Frontend` (or your frontend app registration name)
+   - Search for and select your App Store for Intune app registrations:
+     - `App Store for Intune API` (or your API app registration name)
+     - `App Store for Intune Frontend` (or your frontend app registration name)
    - Click **Select**
 
 5. **Configure Conditions (Optional)**
@@ -133,9 +133,9 @@ Before creating the policy:
 
 | Setting | Value |
 |---------|-------|
-| **Name** | App Portal for Intune - Require Compliant Device |
+| **Name** | App Store for Intune - Require Compliant Device |
 | **Users** | All users (exclude break-glass account) |
-| **Cloud apps** | App Portal for Intune API, App Portal for Intune Frontend |
+| **Cloud apps** | App Store for Intune API, App Store for Intune Frontend |
 | **Conditions** | Device platforms: Windows, iOS, Android |
 | **Grant** | Require device to be marked as compliant |
 | **Enable policy** | Report-only (then On after testing) |
@@ -173,7 +173,7 @@ If you need to allow browser access from unmanaged devices (less secure), you ca
 4. Under **Grant**, require **Approved client app** or **App protection policy**
 5. This allows access from unmanaged devices but with some protection
 
-> **Recommendation:** For maximum security, require compliant managed devices. The App Portal for Intune is designed for employees requesting apps on their managed devices, so this policy aligns with the intended use case.
+> **Recommendation:** For maximum security, require compliant managed devices. The App Store for Intune is designed for employees requesting apps on their managed devices, so this policy aligns with the intended use case.
 
 ### General Settings
 
@@ -243,7 +243,7 @@ If auto-update is not configured, you can manually update using either method be
 
 For existing deployments, use the Kudu ZIP deployment feature:
 
-1. Go to the [releases repository](https://github.com/powerstacks-corp/app-portal-for-intune/releases)
+1. Go to the [releases repository](https://github.com/powerstacks-corp/app-store-for-intune/releases)
 2. Download the latest `AppRequestPortal-X.X.X.zip` file (not the source code)
 3. In Azure Portal, navigate to your App Service
 4. Click **Advanced Tools** → **Go** (opens Kudu)
@@ -259,7 +259,7 @@ For existing deployments, use the Kudu ZIP deployment feature:
 
 For fresh installations on an empty resource group:
 
-1. Go to the [releases repository](https://github.com/powerstacks-corp/app-portal-for-intune)
+1. Go to the [releases repository](https://github.com/powerstacks-corp/app-store-for-intune)
 2. Click the **Deploy to Azure** button
 3. Select an **empty resource group** or create a new one
 4. Configure deployment parameters
@@ -348,7 +348,7 @@ This creates a professional look where the center content draws focus while the 
 
 | Setting | Description |
 |---------|-------------|
-| **Group Name Prefix** | Prefix used when auto-creating Entra ID groups (default: `AppPortal-`). Groups are named `{prefix}{AppName}-Required`. Use this to identify portal-managed groups in your tenant. |
+| **Group Name Prefix** | Prefix used when auto-creating Entra ID groups (default: `AppStore-`). Groups are named `{prefix}{AppName}-Required`. Use this to identify portal-managed groups in your tenant. |
 
 ### Custom Domain Configuration
 
@@ -428,7 +428,7 @@ For production deployments, we recommend creating a **dedicated shared mailbox**
 
 1. In the **Microsoft 365 Admin Center**, go to **Teams & Groups** > **Shared mailboxes**
 2. Click **Add a shared mailbox**:
-   - **Name**: `App Portal for Intune` (or your preferred name)
+   - **Name**: `App Store for Intune` (or your preferred name)
    - **Email**: `apprequests@yourdomain.com`
 3. Click **Create**
 4. Get the Object ID: Go to **Azure Portal** > **Entra ID** > **Users** > search for the shared mailbox > copy the **Object ID**
@@ -441,7 +441,7 @@ For production deployments, we recommend creating a **dedicated shared mailbox**
 **Option B: Dedicated Service Account (License Required)**
 
 1. In **Azure Portal** > **Entra ID** > **Users** > **New user**:
-   - **Display name**: `App Portal for Intune Service`
+   - **Display name**: `App Store for Intune Service`
    - **User principal name**: `svc-apprequest@yourdomain.com`
 2. Assign a **Microsoft 365 license** with Exchange Online
 3. **Disable interactive sign-in**: Entra ID > Users > [service account] > Properties > **Account enabled** = No (or use Conditional Access to block interactive sign-in)
@@ -459,17 +459,17 @@ The portal sends emails using the Microsoft Graph `Mail.Send` application permis
 Connect-ExchangeOnline
 
 # Create a mail-enabled security group for allowed senders
-New-DistributionGroup -Name "App Portal Email Senders" -Type Security
+New-DistributionGroup -Name "App Store Email Senders" -Type Security
 
 # Add the shared mailbox to the group
-Add-DistributionGroupMember -Identity "App Portal Email Senders" -Member "apprequests@yourdomain.com"
+Add-DistributionGroupMember -Identity "App Store Email Senders" -Member "apprequests@yourdomain.com"
 
 # Restrict the app registration to only send from mailboxes in this group
 New-ApplicationAccessPolicy `
     -AppId "<your-api-client-id>" `
-    -PolicyScopeGroupId "App Portal Email Senders" `
+    -PolicyScopeGroupId "App Store Email Senders" `
     -AccessRight RestrictAccess `
-    -Description "Restrict App Portal for Intune to send emails only from the designated mailbox"
+    -Description "Restrict App Store for Intune to send emails only from the designated mailbox"
 
 # Test the policy (may take up to 30 minutes to propagate)
 Test-ApplicationAccessPolicy -AppId "<your-api-client-id>" -Identity "apprequests@yourdomain.com"
@@ -501,7 +501,7 @@ Outlook Actionable Messages require a one-time provider registration with Micros
 1. Go to the [Actionable Email Developer Dashboard](https://aka.ms/actionableemailregistration)
 2. Sign in with your Microsoft 365 admin account
 3. Click **New Provider** and fill in:
-   - **Friendly Name**: App Portal for Intune (or your preferred name)
+   - **Friendly Name**: App Store for Intune (or your preferred name)
    - **Sender email address**: The From Address configured in your email settings (e.g., `apprequests@company.com`)
    - **Target URL**: Your API Base URL (e.g., `https://apprequest-prod-xxx.azurewebsites.net`)
    - **Scope**: Select **Organization** (your tenant only — auto-approved by tenant admin)
@@ -689,8 +689,8 @@ This gives you two options:
 When you toggle an app's visibility to **Yes** for the first time, the portal automatically:
 
 1. **Creates an Entra ID Security Group** named `{GroupNamePrefix}{AppName}-{arch}-{locale}-v{version}-Required`
-   - Example: `AppPortal-Microsoft Teams-x64-en-US-v1-0-0-Required`
-   - The prefix is configurable in Settings (default: `AppPortal-`)
+   - Example: `AppStore-Microsoft Teams-x64-en-US-v1-0-0-Required`
+   - The prefix is configurable in Settings (default: `AppStore-`)
    - Dots in version numbers are replaced with dashes (e.g., `1.0.0` becomes `v1-0-0`)
 
 2. **Creates an Intune App Assignment**
@@ -1267,7 +1267,7 @@ Audit logs are stored indefinitely in the SQL database. There is no automatic pu
 With automatic group and assignment creation, the portal handles most group management for you:
 
 1. **Automatic Setup**: When you make an app visible, the portal creates a security group and Intune assignment automatically
-2. **Consistent Naming**: Groups follow the pattern `{GroupNamePrefix}{AppName}-{arch}-{locale}-v{version}-Required` (e.g., `AppPortal-Microsoft Teams-x64-en-US-v1-0-0-Required`). Dots in version numbers are replaced with dashes.
+2. **Consistent Naming**: Groups follow the pattern `{GroupNamePrefix}{AppName}-{arch}-{locale}-v{version}-Required` (e.g., `AppStore-Microsoft Teams-x64-en-US-v1-0-0-Required`). Dots in version numbers are replaced with dashes.
 3. **Custom Prefix**: Configure the Group Name Prefix in Settings to match your organization's naming conventions
 4. **Manual Override**: You can still manually set a Target Group on an app if you prefer to use an existing group
 
@@ -1309,7 +1309,7 @@ The **Winget Catalog** tab in the Admin Dashboard allows you to browse over 9,00
 When apps are published from the WinGet catalog:
 - The selected architecture, locale, and version are stored in the packaging job
 - When the app is synced from Intune, it automatically inherits these values
-- Deployment groups are named to include all three: `AppPortal-AppName-x64-en-US-v25-10-186-0-Required`
+- Deployment groups are named to include all three: `AppStore-AppName-x64-en-US-v25-10-186-0-Required`
 - Dots in version numbers are replaced with dashes (e.g., `25.10.186.0` becomes `v25-10-186-0`)
 - This helps identify which variant and version of multi-architecture apps is deployed, and prevents duplicate deployments of the same version
 
@@ -1592,7 +1592,7 @@ In **Admin** > **Settings** > **Winget Integration**:
 
 1. Go to [GitHub Settings → Personal Access Tokens → Tokens (classic)](https://github.com/settings/tokens)
 2. Click "Generate new token" → "Generate new token (classic)"
-3. Give it a descriptive name: "App Portal for Intune WinGet Integration"
+3. Give it a descriptive name: "App Store for Intune WinGet Integration"
 4. Select scope: **public_repo** (Access public repositories)
 5. Click "Generate token"
 6. Copy the token (starts with `ghp_...`)
@@ -1646,7 +1646,7 @@ For developers testing the packaging feature locally:
 
 ## Database Maintenance
 
-The App Portal for Intune uses Azure SQL Database Basic tier, which includes comprehensive automatic maintenance features. **No manual database maintenance is required.**
+The App Store for Intune uses Azure SQL Database Basic tier, which includes comprehensive automatic maintenance features. **No manual database maintenance is required.**
 
 ### Why No Manual Maintenance is Needed
 
@@ -1694,7 +1694,7 @@ Azure SQL Database provides built-in backup and recovery capabilities:
 
 ### When to Consider Scaling Up
 
-The Basic tier (2GB, 5 DTUs) is suitable for the App Portal for Intune's typical workload. Consider scaling up if you observe:
+The Basic tier (2GB, 5 DTUs) is suitable for the App Store for Intune's typical workload. Consider scaling up if you observe:
 
 - Consistent high DTU usage (>80%) in Azure metrics
 - Slow query response times
@@ -1725,11 +1725,11 @@ ORDER BY ips.avg_fragmentation_in_percent DESC;
 ALTER INDEX [IX_AppRequests_UserId] ON [AppRequests] REBUILD;
 ```
 
-However, for the App Portal for Intune's typical data volumes (hundreds to thousands of app requests), this manual intervention is almost never necessary.
+However, for the App Store for Intune's typical data volumes (hundreds to thousands of app requests), this manual intervention is almost never necessary.
 
 ## Disaster Recovery & Backups
 
-The App Portal for Intune includes built-in disaster recovery features to protect your data.
+The App Store for Intune includes built-in disaster recovery features to protect your data.
 
 ### What's Automatically Protected
 
@@ -1757,7 +1757,7 @@ az keyvault secret recover --vault-name <vault> --name AzureAdClientSecret
 **Rollback to previous app version:**
 ```bash
 az webapp config appsettings set --resource-group <rg> --name <app> \
-  --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/powerstacks-corp/app-portal-for-intune/releases/download/v1.5.5/AppRequestPortal.zip"
+  --settings WEBSITE_RUN_FROM_PACKAGE="https://github.com/powerstacks-corp/app-store-for-intune/releases/download/v1.5.5/AppRequestPortal.zip"
 ```
 
 ### High Availability (Optional)

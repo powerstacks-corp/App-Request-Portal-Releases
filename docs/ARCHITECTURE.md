@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This document provides a detailed overview of the App Portal for Intune architecture.
+This document provides a detailed overview of the App Store for Intune architecture.
 
 ## System Architecture
 
@@ -353,7 +353,7 @@ CREATE TABLE PortalSettings (
     -- General settings
     RequireManagerApproval BIT NOT NULL DEFAULT 1,
     AutoCreateGroups BIT NOT NULL DEFAULT 1,
-    GroupNamePrefix NVARCHAR(MAX) DEFAULT 'AppPortal-',
+    GroupNamePrefix NVARCHAR(MAX) DEFAULT 'AppStore-',
     -- Display settings
     MaxFeaturedApps INT NOT NULL DEFAULT 0,
     DarkModeEnabled BIT NOT NULL DEFAULT 0,
@@ -413,7 +413,7 @@ CREATE TABLE BrandingSettings (
     HeaderTextColor NVARCHAR(20) DEFAULT '#ffffff',
     BackgroundColor NVARCHAR(20) DEFAULT '#f5f5f5',
     CardBackgroundColor NVARCHAR(20) DEFAULT '#ffffff',
-    PortalTitle NVARCHAR(100) DEFAULT 'App Portal for Intune',
+    PortalTitle NVARCHAR(100) DEFAULT 'App Store for Intune',
     Tagline NVARCHAR(MAX),
     WelcomeMessage NVARCHAR(500),
     FooterText NVARCHAR(500),

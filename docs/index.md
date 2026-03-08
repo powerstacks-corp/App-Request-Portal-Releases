@@ -5,7 +5,7 @@ hide:
 ---
 
 <div class="hero-banner">
-  <h1>App Portal for Intune Documentation</h1>
+  <h1>App Store for Intune Documentation</h1>
   <p>Manage app requests, approvals, and deployments with Microsoft Intune.</p>
 </div>
 
@@ -50,7 +50,7 @@ hide:
 
 ## Manage app requests, approvals, and deployments with Intune
 
-Explore the core capabilities of App Portal for Intune and learn how to enable self-service app management across your organization.
+Explore the core capabilities of App Store for Intune and learn how to enable self-service app management across your organization.
 
 ---
 
@@ -85,7 +85,7 @@ Explore the core capabilities of App Portal for Intune and learn how to enable s
 
 ## Links
 
-- [GitHub Repository](https://github.com/powerstacks-corp/app-portal-for-intune)
-- [Releases & Changelog](https://github.com/powerstacks-corp/app-portal-for-intune/releases)
-- [Report an Issue](https://github.com/powerstacks-corp/app-portal-for-intune/issues)
-- [Discussions](https://github.com/powerstacks-corp/app-portal-for-intune/discussions)
+- [GitHub Repository](https://github.com/powerstacks-corp/app-store-for-intune)
+- [Releases & Changelog](https://github.com/powerstacks-corp/app-store-for-intune/releases)
+- [Report an Issue](https://github.com/powerstacks-corp/app-store-for-intune/issues)
+- [Discussions](https://github.com/powerstacks-corp/app-store-for-intune/discussions)

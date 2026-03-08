@@ -1,6 +1,6 @@
-# App Portal for Intune - User Guide
+# App Store for Intune - User Guide
 
-This guide helps employees use the App Portal for Intune to browse, request, and track application installations for their devices.
+This guide helps employees use the App Store for Intune to browse, request, and track application installations for their devices.
 
 **Last Updated:** February 2026
 
@@ -24,7 +24,7 @@ This guide helps employees use the App Portal for Intune to browse, request, and
 
 ### Signing In
 
-1. Navigate to your organization's App Portal for Intune URL
+1. Navigate to your organization's App Store for Intune URL
 2. Click **Sign in with Microsoft**
 3. Enter your work email and password
 4. Complete any MFA (multi-factor authentication) prompts if required
@@ -322,7 +322,7 @@ It depends on the app configuration:
 
 ### Can I install apps on my personal device?
 
-The App Portal for Intune only deploys to Intune-enrolled devices. Personal devices are typically not eligible unless your organization has a BYOD (Bring Your Own Device) policy.
+The App Store for Intune only deploys to Intune-enrolled devices. Personal devices are typically not eligible unless your organization has a BYOD (Bring Your Own Device) policy.
 
 ### I'm getting "Access Denied" - what do I do?
 

@@ -1,4 +1,4 @@
-# App Request Portal
+# App Store for Intune
 
 A self-service app request solution for Microsoft Intune. Enable your users to browse and request software deployments through an intuitive web portal, with configurable approval workflows and automatic Azure AD group management.
 
@@ -6,10 +6,10 @@ A self-service app request solution for Microsoft Intune. Enable your users to b
 
 ## Deploy to Azure
 
-Click the button below to deploy the App Request Portal to your Azure subscription:
+Click the button below to deploy the App Store for Intune to your Azure subscription:
 
 <p>
-  <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPowerStacks-BI%2FApp-Request-Portal-Releases%2Fmain%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FPowerStacks-BI%2FApp-Request-Portal-Releases%2Fmain%2FcreateUiDefinition.json">
+  <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fpowerstacks-corp%2Fapp-store-for-intune%2Fmain%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fpowerstacks-corp%2Fapp-store-for-intune%2Fmain%2FcreateUiDefinition.json">
     <img src="https://aka.ms/deploytoazurebutton" alt="Deploy to Azure">
   </a>
 </p>
@@ -27,7 +27,7 @@ The deployment creates the following Azure resources:
 | Resource | Type | SKU/Tier | Purpose |
 |----------|------|----------|---------|
 | App Service Plan | `Microsoft.Web/serverfarms` | B2 Basic | Hosts the web application |
-| Web App | `Microsoft.Web/sites` | Linux, .NET 8 | The App Request Portal application |
+| Web App | `Microsoft.Web/sites` | Linux, .NET 8 | The App Store for Intune application |
 | Azure Key Vault | `Microsoft.KeyVault/vaults` | Standard | Secure secret storage |
 | SQL Server | `Microsoft.Sql/servers` | - | Database server |
 | SQL Database | `Microsoft.Sql/servers/databases` | Basic (5 DTU) | Application data storage with geo-redundant backups |
@@ -94,7 +94,7 @@ This application handles backend authentication and Microsoft Graph API access.
 2. Navigate to **Identity → Applications → App registrations**
 3. Click **New registration**
 4. Configure the registration:
-   - **Name**: `App Request Portal API`
+   - **Name**: `App Store for Intune API`
    - **Supported account types**: Accounts in this organizational directory only (Single tenant)
    - **Redirect URI**: Leave blank for now
 5. Click **Register**
@@ -106,7 +106,7 @@ This application handles backend authentication and Microsoft Graph API access.
 
 1. In your new app registration, go to **Certificates & secrets**
 2. Click **New client secret**
-3. Add a description (e.g., `App Request Portal`) and select an expiration
+3. Add a description (e.g., `App Store for Intune`) and select an expiration
 4. Click **Add**
 5. **Immediately copy the secret value** - it won't be shown again
 
@@ -141,8 +141,8 @@ This application handles backend authentication and Microsoft Graph API access.
 3. Click **Add a scope**:
    - **Scope name**: `access_as_user`
    - **Who can consent**: Admins and users
-   - **Admin consent display name**: `Access App Request Portal`
-   - **Admin consent description**: `Allow the application to access App Request Portal on behalf of the signed-in user`
+   - **Admin consent display name**: `Access App Store for Intune`
+   - **Admin consent description**: `Allow the application to access App Store for Intune on behalf of the signed-in user`
 4. Click **Add scope**
 
 ---
@@ -157,7 +157,7 @@ This application handles user authentication in the browser.
 2. Navigate to **Identity → Applications → App registrations**
 3. Click **New registration**
 4. Configure the registration:
-   - **Name**: `App Request Portal`
+   - **Name**: `App Store for Intune`
    - **Supported account types**: Accounts in this organizational directory only (Single tenant)
    - **Redirect URI**: Select **Single-page application (SPA)** and enter `https://placeholder.azurewebsites.net`
 5. Click **Register**
@@ -171,7 +171,7 @@ This application handles user authentication in the browser.
 
 1. Go to **API permissions**
 2. Click **Add a permission → My APIs**
-3. Select **App Request Portal API** (the app you created in Step 1)
+3. Select **App Store for Intune API** (the app you created in Step 1)
 4. Check **access_as_user** and click **Add permissions**
 
 ---
@@ -235,7 +235,7 @@ After the deployment completes, you need to find your portal URL:
 
 1. Go to **https://entra.microsoft.com**
 2. Navigate to **Identity → Applications → App registrations**
-3. Open **App Request Portal** (the frontend app)
+3. Open **App Store for Intune** (the frontend app)
 4. Go to **Authentication**
 5. Under **Single-page application**, update the Redirect URI to your portal URL
 6. Click **Save**
@@ -264,16 +264,16 @@ To use a custom domain like `apps.yourdomain.com`:
 
 ## Documentation
 
-- [Admin Guide](https://github.com/PowerStacks-BI/AppRequestPortal/blob/main/docs/ADMIN-GUIDE.md)
-- [Deployment Guide](https://github.com/PowerStacks-BI/AppRequestPortal/blob/main/docs/DEPLOYMENT.md)
-- [Custom Domains](https://github.com/PowerStacks-BI/AppRequestPortal/blob/main/docs/CUSTOM-DOMAINS.md)
-- [Approval Workflows](https://github.com/PowerStacks-BI/AppRequestPortal/blob/main/docs/APPROVAL-WORKFLOWS.md)
+- [Admin Guide](https://github.com/powerstacks-corp/app-store-for-intune/blob/main/docs/ADMIN-GUIDE.md)
+- [Deployment Guide](https://github.com/powerstacks-corp/app-store-for-intune/blob/main/docs/DEPLOYMENT.md)
+- [Custom Domains](https://github.com/powerstacks-corp/app-store-for-intune/blob/main/docs/CUSTOM-DOMAINS.md)
+- [Approval Workflows](https://github.com/powerstacks-corp/app-store-for-intune/blob/main/docs/APPROVAL-WORKFLOWS.md)
 
 ---
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/PowerStacks-BI/AppRequestPortal/issues)
+- **Issues**: [GitHub Issues](https://github.com/powerstacks-corp/app-store-for-intune/issues)
 - **License**: Contact [PowerStacks](https://powerstacks.com) for licensing
 
 ---

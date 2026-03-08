@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-This guide helps you diagnose and resolve common issues with the App Portal for Intune.
+This guide helps you diagnose and resolve common issues with the App Store for Intune.
 
 ---
 
@@ -20,7 +20,7 @@ This guide helps you diagnose and resolve common issues with the App Portal for 
 
 ## How to View Logs
 
-The App Portal for Intune uses multiple logging destinations. Each serves a different purpose.
+The App Store for Intune uses multiple logging destinations. Each serves a different purpose.
 
 ### Application Insights (Recommended)
 
@@ -537,7 +537,7 @@ If you can't resolve an issue:
    - Timestamp when the error occurred
 
 2. **Check existing issues:**
-   - GitHub Issues: https://github.com/powerstacks-corp/app-portal-for-intune/issues
+   - GitHub Issues: https://github.com/powerstacks-corp/app-store-for-intune/issues
 
 3. **Open a new issue:**
    - Include all gathered information

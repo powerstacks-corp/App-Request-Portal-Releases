@@ -1,6 +1,6 @@
-# App Request Portal - Product Roadmap
+# App Store for Intune - Product Roadmap
 
-This document outlines the planned features and current development status of the App Request Portal.
+This document outlines the planned features and current development status of the App Store for Intune.
 
 **Last Updated:** February 2026
 
@@ -8,7 +8,7 @@ This document outlines the planned features and current development status of th
 
 ## Current Status
 
-The App Request Portal is a self-service application catalog for Microsoft Intune, allowing users to request apps and administrators to manage approvals and deployments.
+The App Store for Intune is a self-service application catalog for Microsoft Intune, allowing users to request apps and administrators to manage approvals and deployments.
 
 ### Core Features (Available Now)
 

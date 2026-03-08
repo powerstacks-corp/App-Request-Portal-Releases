@@ -1,9 +1,9 @@
-site_name: App Portal for Intune by PowerStacks
+site_name: App Store for Intune by PowerStacks
 site_description: Self-service application catalog for Microsoft Intune
-site_url: https://powerstacks-corp.github.io/app-portal-for-intune/
+site_url: https://powerstacks-corp.github.io/app-store-for-intune/
 
-repo_url: https://github.com/powerstacks-corp/app-portal-for-intune
-repo_name: app-portal-for-intune
+repo_url: https://github.com/powerstacks-corp/app-store-for-intune
+repo_name: app-store-for-intune
 
 docs_dir: docs
 
@@ -89,5 +89,5 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/powerstacks-corp/app-portal-for-intune
+      link: https://github.com/powerstacks-corp/app-store-for-intune
   generator: false

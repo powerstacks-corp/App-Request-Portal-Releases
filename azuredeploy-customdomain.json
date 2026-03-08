@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
-      "name": "app-request-portal-customdomain",
+      "name": "app-store-for-intune-customdomain",
       "version": "1.0.0"
     },
-    "description": "Adds a custom domain and SSL certificate to an existing App Request Portal deployment. IMPORTANT: DNS must be configured before running this template."
+    "description": "Adds a custom domain and SSL certificate to an existing App Store for Intune deployment. IMPORTANT: DNS must be configured before running this template."
   },
   "parameters": {
     "webAppName": {
