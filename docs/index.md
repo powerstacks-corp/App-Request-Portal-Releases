@@ -80,6 +80,7 @@ Explore the core capabilities of App Store for Intune and learn how to enable se
 | [Architecture](ARCHITECTURE.md) | System architecture and data flows |
 | [Security](SECURITY.md) | Security model and compliance |
 | [Disaster Recovery](DISASTER-RECOVERY.md) | Backup and recovery procedures |
+| [SEO Changes — March 2026](SEO-CHANGES-MARCH-2026.md) | Website SEO overhaul: structured data, comparison pages, keyword targeting |
 
 ---
 
